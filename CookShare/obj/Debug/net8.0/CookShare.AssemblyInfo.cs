@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CookShare")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+552e74b4e2d16da020821d27c3f59ad6016f569f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+690bf13aee7784c013880ae7e269ffdde9c303a0")]
 [assembly: System.Reflection.AssemblyProductAttribute("CookShare")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CookShare")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
