@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Project Mã Nguồn Mở\\CookShare\\CookShare\\CookShare.csproj",
+      "projectUniqueName": "E:\\Project-OSS\\CookShare\\CookShare\\CookShare.csproj",
       "projectName": "CookShare",
-      "projectPath": "E:\\Project Mã Nguồn Mở\\CookShare\\CookShare\\CookShare.csproj",
+      "projectPath": "E:\\Project-OSS\\CookShare\\CookShare\\CookShare.csproj",
       "packagesPath": "C:\\Users\\pc\\.nuget\\packages\\",
-      "outputPath": "E:\\Project Mã Nguồn Mở\\CookShare\\CookShare\\obj\\",
+      "outputPath": "E:\\Project-OSS\\CookShare\\CookShare\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\pc\\AppData\\Roaming\\NuGet\\NuGet.Config",
