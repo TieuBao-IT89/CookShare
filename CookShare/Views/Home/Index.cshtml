@@ -1,8 +1,2129 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "CookShare - Chia sẻ công thức";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="site-header">
+    <div class="container nav">
+
+        <a class="logo" href="#top">
+            ♨
+            <span>
+                Cook<span>Share</span>
+            </span>
+        </a>
+
+        <button class="menu-btn"
+                type="button"
+                aria-label="Mở menu">
+            ☰
+        </button>
+
+        <nav class="nav-links">
+
+            <a class="active" href="#top">
+                Trang chủ
+            </a>
+
+            <a href="#featured">
+                Công thức
+            </a>
+
+            <a href="#categories">
+                Danh mục
+            </a>
+
+            <a href="#share">
+                Chia sẻ công thức
+            </a>
+
+        </nav>
+
+        <div class="nav-actions">
+
+            <form class="search" id="searchForm">
+
+                <input type="search"
+                       id="searchInput"
+                       placeholder="Tìm kiếm công thức món ăn..."
+                       autocomplete="off" />
+
+                <button type="submit"
+                        aria-label="Tìm kiếm">
+                    ⌕
+                </button>
+
+            </form>
+
+            <a class="login" href="#login">
+                Đăng nhập
+            </a>
+
+            <a class="btn btn-small" href="#signup">
+                Đăng ký
+            </a>
+
+        </div>
+
+    </div>
+</header>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main id="top">
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="hero">
+
+        <div class="container hero-grid">
+
+            <div class="hero-copy">
+
+                <span class="eyebrow">
+                    CỘNG ĐỒNG ẨM THỰC VIỆT
+                </span>
+
+                <h1>
+                    Khám phá hương vị,
+                    <br />
+                    <em>chia sẻ đam mê</em>
+                </h1>
+
+                <p>
+                    Từ căn bếp nhỏ đến những bữa ăn thật đáng nhớ.
+                    Hơn 10.000 công thức ngon đang chờ bạn khám phá
+                    tại CookShare.
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a class="btn" href="#featured">
+                        Khám phá công thức →
+                    </a>
+
+                    <a class="btn btn-outline" href="#share">
+                        Chia sẻ công thức
+                    </a>
+
+                </div>
+
+                <div class="hero-stats">
+
+                    <div>
+                        <strong>
+                            10K<span>+</span>
+                        </strong>
+
+                        <small>
+                            Công thức
+                        </small>
+                    </div>
+
+                    <div>
+                        <strong>
+                            25K<span>+</span>
+                        </strong>
+
+                        <small>
+                            Thành viên
+                        </small>
+                    </div>
+
+                    <div>
+                        <strong>
+                            4.8 ★
+                        </strong>
+
+                        <small>
+                            Đánh giá cộng đồng
+                        </small>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="hero-photo-wrap">
+
+                <div class="hero-blob"></div>
+
+                <img class="hero-photo"
+                     src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=90"
+                     alt="Bàn ăn với các món ăn tươi ngon" />
+
+                <div class="floating-card">
+
+                    <span>🍲</span>
+
+                    <div>
+
+                        <b>
+                            Hôm nay ăn gì?
+                        </b>
+
+                        <small>
+                            Khám phá 120+ món mới
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DANH MỤC
+    ====================================================== -->
+
+    <section class="section categories"
+             id="categories">
+
+        <div class="container">
+
+            <div class="section-heading centered">
+
+                <span class="eyebrow">
+                    KHÁM PHÁ THEO GU
+                </span>
+
+                <h2>
+                    Danh mục món ăn
+                </h2>
+
+                <p>
+                    Dễ dàng tìm công thức phù hợp với sở thích của bạn.
+                </p>
+
+            </div>
+
+
+            <div class="category-grid">
+
+                <a class="category-card"
+                   href="#categoryResults"
+                   data-category="Món Việt">
+
+                    <span class="category-emoji">
+                        🍜
+                    </span>
+
+                    <div>
+                        <h3>Món Việt</h3>
+                        <p>124 công thức</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+
+
+                <a class="category-card"
+                   href="#categoryResults"
+                   data-category="Món Á">
+
+                    <span class="category-emoji">
+                        🥢
+                    </span>
+
+                    <div>
+                        <h3>Món Á</h3>
+                        <p>98 công thức</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+
+
+                <a class="category-card"
+                   href="#categoryResults"
+                   data-category="Món Âu">
+
+                    <span class="category-emoji">
+                        🍝
+                    </span>
+
+                    <div>
+                        <h3>Món Âu</h3>
+                        <p>76 công thức</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+
+
+                <a class="category-card"
+                   href="#categoryResults"
+                   data-category="Món chay">
+
+                    <span class="category-emoji">
+                        🥗
+                    </span>
+
+                    <div>
+                        <h3>Món chay</h3>
+                        <p>64 công thức</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+
+
+                <a class="category-card"
+                   href="#categoryResults"
+                   data-category="Tráng miệng">
+
+                    <span class="category-emoji">
+                        🍰
+                    </span>
+
+                    <div>
+                        <h3>Tráng miệng</h3>
+                        <p>82 công thức</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+
+
+                <a class="category-card"
+                   href="#categoryResults"
+                   data-category="Đồ uống">
+
+                    <span class="category-emoji">
+                        🧋
+                    </span>
+
+                    <div>
+                        <h3>Đồ uống</h3>
+                        <p>47 công thức</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         KẾT QUẢ
+    ====================================================== -->
+
+    <section class="section search-results"
+             id="categoryResults"
+             style="display:none;">
+
+        <div class="container">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow"
+                          id="resultEyebrow">
+                        KẾT QUẢ
+                    </span>
+
+                    <h2 id="searchTitle">
+                        Kết quả
+                    </h2>
+
+                    <p id="searchMessage">
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="recipe-grid"
+                 id="searchResultGrid">
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CÔNG THỨC NỔI BẬT
+    ====================================================== -->
+
+    <section class="section featured"
+             id="featured">
+
+        <div class="container">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        ĐƯỢC YÊU THÍCH NHẤT
+                    </span>
+
+                    <h2>
+                        Công thức nổi bật
+                    </h2>
+
+                    <p>
+                        Những món ăn đang được cộng đồng CookShare yêu thích.
+                    </p>
+
+                </div>
+
+                <a class="text-link"
+                   href="#latest"
+                   id="viewAllFeatured">
+                    Xem tất cả →
+                </a>
+
+            </div>
+
+
+            <div class="featured-grid">
+
+
+                <!-- PHỞ -->
+
+                <article class="recipe-card"
+                         data-id="pho"
+                         data-category="Món Việt"
+                         data-popular="128"
+                         data-rating="4.9">
+
+                    <div class="recipe-image">
+
+                        <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=900&q=85"
+                             alt="Phở bò Hà Nội" />
+
+                        <span class="recipe-tag">
+                            Món Việt
+                        </span>
+
+                        <button class="like"
+                                type="button">
+                            ♡
+                        </button>
+
+                    </div>
+
+                    <div class="recipe-content">
+
+                        <div class="recipe-title-row">
+
+                            <h3>
+                                Phở bò Hà Nội
+                            </h3>
+
+                            <span class="rating">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <p>
+                            Nước dùng trong, thơm nồng quế hồi cùng thịt bò mềm ngọt.
+                        </p>
+
+                        <div class="recipe-meta">
+
+                            <span>
+                                ◷ 2 giờ 30 phút
+                            </span>
+
+                            <span class="difficulty">
+                                Trung bình
+                            </span>
+
+                        </div>
+
+                        <div class="recipe-bottom">
+
+                            <span class="author">
+                                ♙ Linh Nguyễn
+                            </span>
+
+                            <span class="likes">
+                                ♡ 128
+                            </span>
+
+                        </div>
+
+                        <a class="recipe-link"
+                           href="#recipe-pho">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CƠM GÀ -->
+
+                <article class="recipe-card"
+                         data-id="com-ga"
+                         data-category="Món Việt"
+                         data-popular="96"
+                         data-rating="4.9">
+
+                    <div class="recipe-image">
+
+                        <img src="https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=900&q=85"
+                             alt="Cơm gà Hội An" />
+
+                        <span class="recipe-tag">
+                            Món Việt
+                        </span>
+
+                        <button class="like"
+                                type="button">
+                            ♡
+                        </button>
+
+                    </div>
+
+                    <div class="recipe-content">
+
+                        <div class="recipe-title-row">
+
+                            <h3>
+                                Cơm gà Hội An
+                            </h3>
+
+                            <span class="rating">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <p>
+                            Cơm nghệ dẻo thơm, gà xé đậm đà và rau răm tươi mát.
+                        </p>
+
+                        <div class="recipe-meta">
+
+                            <span>
+                                ◷ 55 phút
+                            </span>
+
+                            <span class="difficulty">
+                                Dễ
+                            </span>
+
+                        </div>
+
+                        <div class="recipe-bottom">
+
+                            <span class="author">
+                                ♙ Minh Anh
+                            </span>
+
+                            <span class="likes">
+                                ♡ 96
+                            </span>
+
+                        </div>
+
+                        <a class="recipe-link"
+                           href="#recipe-com-ga">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                <!-- MÌ Ý -->
+
+                <article class="recipe-card"
+                         data-id="mi-y"
+                         data-category="Món Âu"
+                         data-popular="75"
+                         data-rating="4.9">
+
+                    <div class="recipe-image">
+
+                        <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=900&q=85"
+                             alt="Mì Ý sốt cà chua" />
+
+                        <span class="recipe-tag">
+                            Món Âu
+                        </span>
+
+                        <button class="like"
+                                type="button">
+                            ♡
+                        </button>
+
+                    </div>
+
+                    <div class="recipe-content">
+
+                        <div class="recipe-title-row">
+
+                            <h3>
+                                Mì Ý sốt cà chua
+                            </h3>
+
+                            <span class="rating">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <p>
+                            Món mì Ý cổ điển với sốt cà chua tươi và lá húng quế.
+                        </p>
+
+                        <div class="recipe-meta">
+
+                            <span>
+                                ◷ 35 phút
+                            </span>
+
+                            <span class="difficulty">
+                                Dễ
+                            </span>
+
+                        </div>
+
+                        <div class="recipe-bottom">
+
+                            <span class="author">
+                                ♙ Hà Phương
+                            </span>
+
+                            <span class="likes">
+                                ♡ 75
+                            </span>
+
+                        </div>
+
+                        <a class="recipe-link"
+                           href="#recipe-mi-y">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CÔNG THỨC MỚI NHẤT
+    ====================================================== -->
+
+    <section class="section latest"
+             id="latest">
+
+        <div class="container">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        MỚI VỪA RA LÒ
+                    </span>
+
+                    <h2>
+                        Công thức mới nhất
+                    </h2>
+
+                </div>
+
+
+                <div class="filters">
+
+                    <button class="filter active"
+                            type="button"
+                            data-sort="latest">
+                        Mới nhất
+                    </button>
+
+                    <button class="filter"
+                            type="button"
+                            data-sort="popular">
+                        Phổ biến
+                    </button>
+
+                    <button class="filter"
+                            type="button"
+                            data-sort="favorite">
+                        Được yêu thích
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="recipe-grid"
+                 id="latestRecipeGrid">
+
+
+                <!-- SALAD -->
+
+                <article class="recipe-card"
+                         data-id="salad"
+                         data-category="Món chay"
+                         data-popular="61"
+                         data-rating="4.9"
+                         data-order="1">
+
+                    <div class="recipe-image">
+
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85"
+                             alt="Salad bơ rau củ" />
+
+                        <span class="recipe-tag">
+                            Món chay
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content">
+
+                        <div class="recipe-title-row">
+
+                            <h3>
+                                Salad bơ rau củ
+                            </h3>
+
+                            <span class="rating">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <p>
+                            Salad xanh thanh nhẹ, nhiều dinh dưỡng cho ngày bận rộn.
+                        </p>
+
+                        <div class="recipe-meta">
+
+                            <span>
+                                ◷ 15 phút
+                            </span>
+
+                            <span class="difficulty">
+                                Dễ
+                            </span>
+
+                        </div>
+
+                        <div class="recipe-bottom">
+
+                            <span class="author">
+                                ♙ Tú Quỳnh
+                            </span>
+
+                            <span class="likes">
+                                ♡ 61
+                            </span>
+
+                        </div>
+
+                        <a class="recipe-link"
+                           href="#recipe-salad">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                <!-- TIRAMISU -->
+
+                <article class="recipe-card"
+                         data-id="tiramisu"
+                         data-category="Tráng miệng"
+                         data-popular="119"
+                         data-rating="4.9"
+                         data-order="2">
+
+                    <div class="recipe-image">
+
+                        <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=900&q=85"
+                             alt="Bánh tiramisu" />
+
+                        <span class="recipe-tag">
+                            Tráng miệng
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content">
+
+                        <div class="recipe-title-row">
+
+                            <h3>
+                                Bánh tiramisu
+                            </h3>
+
+                            <span class="rating">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <p>
+                            Lớp kem mascarpone béo mịn xen kẽ bánh quy thấm cà phê.
+                        </p>
+
+                        <div class="recipe-meta">
+
+                            <span>
+                                ◷ 45 phút
+                            </span>
+
+                            <span class="difficulty">
+                                Khó
+                            </span>
+
+                        </div>
+
+                        <div class="recipe-bottom">
+
+                            <span class="author">
+                                ♙ Yến Nhi
+                            </span>
+
+                            <span class="likes">
+                                ♡ 119
+                            </span>
+
+                        </div>
+
+                        <a class="recipe-link"
+                           href="#recipe-tiramisu">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                <!-- TRÀ ĐÀO -->
+
+                <article class="recipe-card"
+                         data-id="tra-dao"
+                         data-category="Đồ uống"
+                         data-popular="84"
+                         data-rating="4.9"
+                         data-order="3">
+
+                    <div class="recipe-image">
+
+                        <img src="https://images.unsplash.com/photo-1499638673689-79a0b5115d87?auto=format&fit=crop&w=900&q=85"
+                             alt="Trà đào cam sả" />
+
+                        <span class="recipe-tag">
+                            Đồ uống
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content">
+
+                        <div class="recipe-title-row">
+
+                            <h3>
+                                Trà đào cam sả
+                            </h3>
+
+                            <span class="rating">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <p>
+                            Thức uống mát lành với đào giòn, cam vàng và hương sả.
+                        </p>
+
+                        <div class="recipe-meta">
+
+                            <span>
+                                ◷ 20 phút
+                            </span>
+
+                            <span class="difficulty">
+                                Dễ
+                            </span>
+
+                        </div>
+
+                        <div class="recipe-bottom">
+
+                            <span class="author">
+                                ♙ Khánh Vy
+                            </span>
+
+                            <span class="likes">
+                                ♡ 84
+                            </span>
+
+                        </div>
+
+                        <a class="recipe-link"
+                           href="#recipe-tra-dao">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CƠM GÀ -->
+
+                <article class="recipe-card"
+                         data-id="com-ga-2"
+                         data-category="Món Việt"
+                         data-popular="96"
+                         data-rating="4.9"
+                         data-order="4">
+
+                    <div class="recipe-image">
+
+                        <img src="https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=900&q=85"
+                             alt="Cơm gà Hội An" />
+
+                        <span class="recipe-tag">
+                            Món Việt
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content">
+
+                        <div class="recipe-title-row">
+
+                            <h3>
+                                Cơm gà Hội An
+                            </h3>
+
+                            <span class="rating">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <p>
+                            Cơm nghệ thơm dẻo, gà xé đậm đà theo đúng vị Hội An.
+                        </p>
+
+                        <div class="recipe-meta">
+
+                            <span>
+                                ◷ 55 phút
+                            </span>
+
+                            <span class="difficulty">
+                                Dễ
+                            </span>
+
+                        </div>
+
+                        <div class="recipe-bottom">
+
+                            <span class="author">
+                                ♙ Minh Anh
+                            </span>
+
+                            <span class="likes">
+                                ♡ 96
+                            </span>
+
+                        </div>
+
+                        <a class="recipe-link"
+                           href="#recipe-com-ga">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+
+            <button class="load-more"
+                    id="loadMore"
+                    type="button">
+                Xem thêm công thức →
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CHI TIẾT CÔNG THỨC
+    ====================================================== -->
+
+    <section class="section recipe-details"
+             id="recipeDetails">
+
+        <div class="container">
+
+            <div class="section-heading centered">
+
+                <span class="eyebrow">
+                    CHI TIẾT CÔNG THỨC
+                </span>
+
+                <h2>
+                    Hướng dẫn nấu ăn
+                </h2>
+
+                <p>
+                    Chọn "Xem công thức" để xem thông tin chi tiết.
+                </p>
+
+            </div>
+
+
+            <!-- PHỞ -->
+
+            <article class="recipe-detail"
+                     id="recipe-pho">
+
+                <div class="recipe-detail-image">
+
+                    <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=1200&q=90"
+                         alt="Phở bò Hà Nội" />
+
+                </div>
+
+                <div class="recipe-detail-content">
+
+                    <span class="recipe-tag">
+                        Món Việt
+                    </span>
+
+                    <h2>
+                        Phở bò Hà Nội
+                    </h2>
+
+                    <p>
+                        Nước dùng trong, thơm nồng quế hồi cùng thịt bò mềm ngọt.
+                    </p>
+
+                    <h3>
+                        Nguyên liệu
+                    </h3>
+
+                    <ul>
+                        <li>500g bánh phở</li>
+                        <li>500g thịt bò</li>
+                        <li>Xương bò</li>
+                        <li>Hành tây</li>
+                        <li>Gừng</li>
+                        <li>Quế, hồi</li>
+                        <li>Rau thơm</li>
+                    </ul>
+
+                    <h3>
+                        Cách làm
+                    </h3>
+
+                    <ol>
+                        <li>Ninh xương bò để tạo nước dùng.</li>
+                        <li>Nướng gừng và hành tây rồi cho vào nồi nước dùng.</li>
+                        <li>Thêm quế, hồi và nêm gia vị vừa ăn.</li>
+                        <li>Chần bánh phở và chuẩn bị thịt bò.</li>
+                        <li>Cho bánh phở, thịt bò và rau thơm vào tô.</li>
+                        <li>Chan nước dùng nóng và thưởng thức.</li>
+                    </ol>
+
+                </div>
+
+            </article>
+
+
+            <!-- CƠM GÀ -->
+
+            <article class="recipe-detail"
+                     id="recipe-com-ga">
+
+                <div class="recipe-detail-image">
+
+                    <img src="https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=1200&q=90"
+                         alt="Cơm gà Hội An" />
+
+                </div>
+
+                <div class="recipe-detail-content">
+
+                    <span class="recipe-tag">
+                        Món Việt
+                    </span>
+
+                    <h2>
+                        Cơm gà Hội An
+                    </h2>
+
+                    <p>
+                        Cơm nghệ dẻo thơm, gà xé đậm đà và rau răm tươi mát.
+                    </p>
+
+                    <h3>
+                        Nguyên liệu
+                    </h3>
+
+                    <ul>
+                        <li>300g thịt gà</li>
+                        <li>300g gạo</li>
+                        <li>Hành tây</li>
+                        <li>Rau răm</li>
+                        <li>Nghệ</li>
+                        <li>Gia vị</li>
+                    </ul>
+
+                    <h3>
+                        Cách làm
+                    </h3>
+
+                    <ol>
+                        <li>Luộc gà và giữ lại phần nước luộc.</li>
+                        <li>Vo gạo và nấu cơm với nước luộc gà.</li>
+                        <li>Thêm nghệ để tạo màu vàng đẹp.</li>
+                        <li>Xé nhỏ thịt gà.</li>
+                        <li>Trộn gà với hành tây và rau răm.</li>
+                        <li>Ăn cùng cơm nóng.</li>
+                    </ol>
+
+                </div>
+
+            </article>
+
+
+            <!-- MÌ Ý -->
+
+            <article class="recipe-detail"
+                     id="recipe-mi-y">
+
+                <div class="recipe-detail-image">
+
+                    <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=1200&q=90"
+                         alt="Mì Ý sốt cà chua" />
+
+                </div>
+
+                <div class="recipe-detail-content">
+
+                    <span class="recipe-tag">
+                        Món Âu
+                    </span>
+
+                    <h2>
+                        Mì Ý sốt cà chua
+                    </h2>
+
+                    <p>
+                        Món mì Ý cổ điển với sốt cà chua tươi và lá húng quế.
+                    </p>
+
+                    <h3>
+                        Nguyên liệu
+                    </h3>
+
+                    <ul>
+                        <li>200g mì Ý</li>
+                        <li>300g cà chua</li>
+                        <li>2 tép tỏi</li>
+                        <li>Dầu ô liu</li>
+                        <li>Lá húng quế</li>
+                        <li>Muối và tiêu</li>
+                    </ul>
+
+                    <h3>
+                        Cách làm
+                    </h3>
+
+                    <ol>
+                        <li>Luộc mì Ý theo hướng dẫn trên bao bì.</li>
+                        <li>Phi thơm tỏi với dầu ô liu.</li>
+                        <li>Cho cà chua vào nấu thành sốt.</li>
+                        <li>Nêm muối và tiêu.</li>
+                        <li>Cho mì vào trộn đều với sốt.</li>
+                        <li>Thêm lá húng quế và thưởng thức.</li>
+                    </ol>
+
+                </div>
+
+            </article>
+
+
+            <!-- SALAD -->
+
+            <article class="recipe-detail"
+                     id="recipe-salad">
+
+                <div class="recipe-detail-image">
+
+                    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=90"
+                         alt="Salad bơ rau củ" />
+
+                </div>
+
+                <div class="recipe-detail-content">
+
+                    <span class="recipe-tag">
+                        Món chay
+                    </span>
+
+                    <h2>
+                        Salad bơ rau củ
+                    </h2>
+
+                    <p>
+                        Salad xanh thanh nhẹ, nhiều dinh dưỡng cho ngày bận rộn.
+                    </p>
+
+                    <h3>
+                        Nguyên liệu
+                    </h3>
+
+                    <ul>
+                        <li>1 quả bơ</li>
+                        <li>Cà chua bi</li>
+                        <li>Xà lách</li>
+                        <li>Cà rốt</li>
+                        <li>Đậu gà</li>
+                        <li>Nước cốt chanh</li>
+                    </ul>
+
+                    <h3>
+                        Cách làm
+                    </h3>
+
+                    <ol>
+                        <li>Rửa sạch toàn bộ rau củ.</li>
+                        <li>Cắt bơ, cà chua và cà rốt.</li>
+                        <li>Cho tất cả nguyên liệu vào tô.</li>
+                        <li>Thêm nước cốt chanh.</li>
+                        <li>Trộn đều và thưởng thức.</li>
+                    </ol>
+
+                </div>
+
+            </article>
+
+
+            <!-- TIRAMISU -->
+
+            <article class="recipe-detail"
+                     id="recipe-tiramisu">
+
+                <div class="recipe-detail-image">
+
+                    <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=1200&q=90"
+                         alt="Bánh tiramisu" />
+
+                </div>
+
+                <div class="recipe-detail-content">
+
+                    <span class="recipe-tag">
+                        Tráng miệng
+                    </span>
+
+                    <h2>
+                        Bánh tiramisu
+                    </h2>
+
+                    <p>
+                        Lớp kem mascarpone béo mịn xen kẽ bánh quy thấm cà phê.
+                    </p>
+
+                    <h3>
+                        Nguyên liệu
+                    </h3>
+
+                    <ul>
+                        <li>Bánh ladyfinger</li>
+                        <li>Mascarpone</li>
+                        <li>Trứng</li>
+                        <li>Đường</li>
+                        <li>Cà phê</li>
+                        <li>Bột cacao</li>
+                    </ul>
+
+                    <h3>
+                        Cách làm
+                    </h3>
+
+                    <ol>
+                        <li>Đánh lòng đỏ trứng với đường.</li>
+                        <li>Trộn cùng mascarpone.</li>
+                        <li>Nhúng bánh vào cà phê.</li>
+                        <li>Xếp bánh và kem thành từng lớp.</li>
+                        <li>Rắc cacao lên trên.</li>
+                        <li>Làm lạnh trước khi thưởng thức.</li>
+                    </ol>
+
+                </div>
+
+            </article>
+
+
+            <!-- TRÀ ĐÀO -->
+
+            <article class="recipe-detail"
+                     id="recipe-tra-dao">
+
+                <div class="recipe-detail-image">
+
+                    <img src="https://images.unsplash.com/photo-1499638673689-79a0b5115d87?auto=format&fit=crop&w=1200&q=90"
+                         alt="Trà đào cam sả" />
+
+                </div>
+
+                <div class="recipe-detail-content">
+
+                    <span class="recipe-tag">
+                        Đồ uống
+                    </span>
+
+                    <h2>
+                        Trà đào cam sả
+                    </h2>
+
+                    <p>
+                        Thức uống mát lành với đào giòn, cam vàng và hương sả.
+                    </p>
+
+                    <h3>
+                        Nguyên liệu
+                    </h3>
+
+                    <ul>
+                        <li>Trà đen</li>
+                        <li>Đào ngâm</li>
+                        <li>Cam vàng</li>
+                        <li>Sả</li>
+                        <li>Đường</li>
+                        <li>Đá viên</li>
+                    </ul>
+
+                    <h3>
+                        Cách làm
+                    </h3>
+
+                    <ol>
+                        <li>Nấu nước trà và để nguội.</li>
+                        <li>Đập nhẹ sả để tạo mùi thơm.</li>
+                        <li>Cho trà, đào và cam vào ly.</li>
+                        <li>Thêm đường tùy khẩu vị.</li>
+                        <li>Cho đá và thưởng thức.</li>
+                    </ol>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CHIA SẺ
+    ====================================================== -->
+
+    <section class="cta"
+             id="share">
+
+        <div class="container cta-inner">
+
+            <div>
+
+                <span class="eyebrow">
+                    CÙNG NHAU VÀO BẾP
+                </span>
+
+                <h2>
+                    Bạn có công thức ngon?
+                </h2>
+
+                <p>
+                    Chia sẻ công thức của bạn với cộng đồng CookShare.
+                </p>
+
+            </div>
+
+            <a class="btn"
+               href="#share">
+                Chia sẻ công thức ngay →
+            </a>
+
+            <span class="cta-decor">
+                ✦
+            </span>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     CSS BỔ SUNG
+========================================================= -->
+
+<style>
+
+    .recipe-details {
+        background: #f7fbf7;
+    }
+
+    .recipe-detail {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        background: white;
+        padding: 30px;
+        margin-bottom: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.06);
+        scroll-margin-top: 100px;
+    }
+
+    .recipe-detail-image img {
+        width: 100%;
+        height: 420px;
+        object-fit: cover;
+        border-radius: 16px;
+    }
+
+    .recipe-detail-content h2 {
+        margin: 12px 0;
+    }
+
+    .recipe-detail-content h3 {
+        margin-top: 25px;
+        margin-bottom: 10px;
+    }
+
+    .recipe-detail-content li {
+        margin-bottom: 8px;
+    }
+
+    .recipe-detail-content ol {
+        padding-left: 22px;
+    }
+
+    .recipe-detail-content ul {
+        padding-left: 22px;
+    }
+
+    .like {
+        cursor: pointer;
+    }
+
+        .like.liked {
+            color: #e53935;
+        }
+
+    .filter {
+        cursor: pointer;
+    }
+
+        .filter.active {
+            font-weight: 700;
+        }
+
+    .recipe-link {
+        cursor: pointer;
+    }
+
+    @@media (max-width: 768px) {
+
+        .recipe-detail {
+            grid-template-columns: 1fr;
+        }
+
+        .recipe-detail-image img {
+            height: 300px;
+        }
+    }
+</style>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        /* =====================================================
+           LẤY ELEMENT
+        ===================================================== */
+
+        const searchForm =
+            document.getElementById("searchForm");
+
+        const searchInput =
+            document.getElementById("searchInput");
+
+        const categoryResults =
+            document.getElementById("categoryResults");
+
+        const resultEyebrow =
+            document.getElementById("resultEyebrow");
+
+        const searchTitle =
+            document.getElementById("searchTitle");
+
+        const searchMessage =
+            document.getElementById("searchMessage");
+
+        const searchResultGrid =
+            document.getElementById("searchResultGrid");
+
+        const categoryCards =
+            document.querySelectorAll(".category-card");
+
+        const allRecipeCards =
+            document.querySelectorAll(
+                ".featured .recipe-card, .latest .recipe-card"
+            );
+
+        const latestRecipeGrid =
+            document.getElementById("latestRecipeGrid");
+
+        const filterButtons =
+            document.querySelectorAll(".filter");
+
+        const loadMoreButton =
+            document.getElementById("loadMore");
+
+
+        /* =====================================================
+           BỎ DẤU TIẾNG VIỆT
+        ===================================================== */
+
+        function removeVietnameseDiacritics(text) {
+
+            return text
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D")
+                .toLowerCase()
+                .trim();
+
+        }
+
+
+        /* =====================================================
+           HIỆN TẤT CẢ
+        ===================================================== */
+
+        function showAllRecipes() {
+
+            allRecipeCards.forEach(function (card) {
+
+                card.style.display = "";
+
+            });
+
+        }
+
+
+        /* =====================================================
+           ẨN KẾT QUẢ
+        ===================================================== */
+
+        function hideResults() {
+
+            categoryResults.style.display = "none";
+
+            searchResultGrid.innerHTML = "";
+
+        }
+
+
+        /* =====================================================
+           HIỆN KẾT QUẢ
+        ===================================================== */
+
+        function showResults(title, message, cards) {
+
+            searchResultGrid.innerHTML = "";
+
+            cards.forEach(function (card) {
+
+                const clone =
+                    card.cloneNode(true);
+
+                // QUAN TRỌNG:
+                // Card gốc có thể đang bị ẩn bằng style="display:none".
+                // cloneNode() sao chép cả inline style đó, khiến kết quả
+                // tìm kiếm/danh mục cũng bị ẩn.
+                // Xóa trạng thái ẩn trên bản sao trước khi đưa vào kết quả.
+                clone.style.display = "";
+
+                searchResultGrid.appendChild(clone);
+
+            });
+
+            searchTitle.textContent = title;
+
+            searchMessage.textContent = message;
+
+            categoryResults.style.display = "block";
+
+        }
+
+
+        /* =====================================================
+           TÌM KIẾM
+        ===================================================== */
+
+        if (searchForm) {
+
+            searchForm.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+                    const keyword =
+                        searchInput.value.trim();
+
+
+                    if (keyword === "") {
+
+                        hideResults();
+
+                        showAllRecipes();
+
+                        document
+                            .getElementById("featured")
+                            .scrollIntoView({
+                                behavior: "smooth"
+                            });
+
+                        return;
+
+                    }
+
+
+                    const normalizedKeyword =
+                        removeVietnameseDiacritics(
+                            keyword
+                        );
+
+
+                    const foundCards = [];
+
+
+                    allRecipeCards.forEach(
+                        function (card) {
+
+                            const titleElement =
+                                card.querySelector(
+                                    ".recipe-title-row h3"
+                                );
+
+
+                            if (!titleElement) {
+                                return;
+                            }
+
+
+                            const recipeName =
+                                titleElement.textContent.trim();
+
+
+                            const normalizedName =
+                                removeVietnameseDiacritics(
+                                    recipeName
+                                );
+
+
+                            if (
+                                normalizedName.includes(
+                                    normalizedKeyword
+                                )
+                            ) {
+
+                                foundCards.push(card);
+
+                            }
+
+                        }
+                    );
+
+
+                    // Ẩn các card gốc
+                    allRecipeCards.forEach(
+                        function (card) {
+                            card.style.display = "none";
+                        }
+                    );
+
+
+                    if (foundCards.length > 0) {
+
+                        resultEyebrow.textContent =
+                            "KẾT QUẢ TÌM KIẾM";
+
+                        showResults(
+                            "Kết quả tìm kiếm",
+                            `Tìm thấy ${foundCards.length} công thức phù hợp với "${keyword}".`,
+                            foundCards
+                        );
+
+                    }
+                    else {
+
+                        resultEyebrow.textContent =
+                            "KẾT QUẢ TÌM KIẾM";
+
+                        showResults(
+                            "Không tìm thấy công thức",
+                            `Không tìm thấy công thức nào phù hợp với "${keyword}".`,
+                            []
+                        );
+
+                    }
+
+
+                    categoryResults.style.display = "block";
+
+                    categoryResults.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           LỌC THEO DANH MỤC
+        ===================================================== */
+
+        categoryCards.forEach(
+            function (categoryCard) {
+
+                categoryCard.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+
+
+                        const selectedCategory =
+                            categoryCard.dataset.category;
+
+
+                        const foundCards = [];
+
+
+                        allRecipeCards.forEach(
+                            function (card) {
+
+                                const category =
+                                    card.dataset.category;
+
+
+                                if (
+                                    category ===
+                                    selectedCategory
+                                ) {
+
+                                    foundCards.push(card);
+
+                                }
+
+                                card.style.display =
+                                    "none";
+
+                            }
+                        );
+
+
+                        searchInput.value = "";
+
+
+                        resultEyebrow.textContent =
+                            "DANH MỤC MÓN ĂN";
+
+
+                        showResults(
+                            selectedCategory,
+                            `Tìm thấy ${foundCards.length} công thức thuộc danh mục "${selectedCategory}".`,
+                            foundCards
+                        );
+
+                        // Đảm bảo kết quả vừa lọc luôn hiển thị.
+                        categoryResults.style.display = "block";
+
+                        categoryResults.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           BỘ LỌC MỚI NHẤT / PHỔ BIẾN / YÊU THÍCH
+        ===================================================== */
+
+        filterButtons.forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        filterButtons.forEach(
+                            function (item) {
+                                item.classList.remove("active");
+                            }
+                        );
+
+
+                        button.classList.add("active");
+
+
+                        const sortType =
+                            button.dataset.sort;
+
+
+                        const cards =
+                            Array.from(
+                                latestRecipeGrid
+                                    .querySelectorAll(
+                                        ".recipe-card"
+                                    )
+                            );
+
+
+                        if (sortType === "popular") {
+
+                            cards.sort(
+                                function (a, b) {
+
+                                    return (
+                                        Number(
+                                            b.dataset.popular
+                                        ) -
+                                        Number(
+                                            a.dataset.popular
+                                        )
+                                    );
+
+                                }
+                            );
+
+                        }
+
+
+                        else if (
+                            sortType === "favorite"
+                        ) {
+
+                            // "Được yêu thích" nên dựa vào số lượt thích,
+                            // không phải điểm rating (vì các món hiện đều 4.9).
+                            cards.sort(
+                                function (a, b) {
+
+                                    return (
+                                        Number(
+                                            b.dataset.popular || 0
+                                        ) -
+                                        Number(
+                                            a.dataset.popular || 0
+                                        )
+                                    );
+
+                                }
+                            );
+
+                        }
+
+
+                        else {
+
+                            cards.sort(
+                                function (a, b) {
+
+                                    return (
+                                        Number(
+                                            a.dataset.order
+                                        ) -
+                                        Number(
+                                            b.dataset.order
+                                        )
+                                    );
+
+                                }
+                            );
+
+                        }
+
+
+                        cards.forEach(
+                            function (card) {
+
+                                latestRecipeGrid
+                                    .appendChild(card);
+
+                            }
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           NÚT XEM THÊM
+        ===================================================== */
+
+        if (loadMoreButton) {
+
+            loadMoreButton.addEventListener(
+                "click",
+                function () {
+
+                    alert(
+                        "CookShare sẽ cập nhật thêm nhiều công thức trong phiên bản tiếp theo!"
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           LIKE
+        ===================================================== */
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                const likeButton =
+                    event.target.closest(".like");
+
+
+                if (!likeButton) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+
+                likeButton.classList.toggle("liked");
+
+
+                if (
+                    likeButton.classList.contains(
+                        "liked"
+                    )
+                ) {
+
+                    likeButton.textContent = "♥";
+
+                }
+                else {
+
+                    likeButton.textContent = "♡";
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           XÓA TÌM KIẾM BẰNG ESC
+        ===================================================== */
+
+        if (searchInput) {
+
+            searchInput.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (event.key === "Escape") {
+
+                        searchInput.value = "";
+
+                        hideResults();
+
+                        showAllRecipes();
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           CLICK LOGO / TRANG CHỦ
+        ===================================================== */
+
+        document
+            .querySelectorAll(
+                'a[href="#top"]'
+            )
+            .forEach(
+                function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        function () {
+
+                            searchInput.value = "";
+
+                            hideResults();
+
+                            showAllRecipes();
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =====================================================
+           CLICK "XEM TẤT CẢ"
+        ===================================================== */
+
+        const viewAll =
+            document.getElementById(
+                "viewAllFeatured"
+            );
+
+
+        if (viewAll) {
+
+            viewAll.addEventListener(
+                "click",
+                function () {
+
+                    searchInput.value = "";
+
+                    hideResults();
+
+                    showAllRecipes();
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           MENU MOBILE
+        ===================================================== */
+
+        const menuButton =
+            document.querySelector(".menu-btn");
+
+        const navLinks =
+            document.querySelector(".nav-links");
+
+
+        if (
+            menuButton &&
+            navLinks
+        ) {
+
+            menuButton.addEventListener(
+                "click",
+                function () {
+
+                    navLinks.classList.toggle(
+                        "open"
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           KIỂM TRA
+        ===================================================== */
+
+        console.log(
+            "CookShare Index đã tải thành công."
+        );
+
+        console.log(
+            "Số công thức:",
+            allRecipeCards.length
+        );
+
+        console.log(
+            "Số danh mục:",
+            categoryCards.length
+        );
+
+    });
+
+</script>
