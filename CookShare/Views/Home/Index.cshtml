@@ -36,6 +36,10 @@
                 Danh mục
             </a>
 
+            <a href="#favorites">
+                Yêu thích
+            </a>
+
             <a href="#share">
                 Chia sẻ công thức
             </a>
@@ -361,6 +365,61 @@
 
             <div class="recipe-grid"
                  id="searchResultGrid">
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CÔNG THỨC YÊU THÍCH - ISSUE #7
+    ====================================================== -->
+
+    <section class="section favorites-section"
+             id="favorites">
+
+        <div class="container">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        CỦA BẠN
+                    </span>
+
+                    <h2>
+                        Công thức yêu thích
+                    </h2>
+
+                    <p id="favoriteMessage">
+                        Những công thức bạn đã lưu sẽ xuất hiện ở đây.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="recipe-grid"
+                 id="favoriteRecipes">
+            </div>
+
+            <div id="emptyFavorites"
+                 class="empty-favorites">
+
+                <div class="empty-favorites-icon">
+                    ♡
+                </div>
+
+                <h3>
+                    Chưa có công thức yêu thích
+                </h3>
+
+                <p>
+                    Hãy nhấn ♡ trên công thức để lưu lại.
+                </p>
+
             </div>
 
         </div>
@@ -712,6 +771,12 @@
                             Món chay
                         </span>
 
+                        <button class="like"
+                                type="button"
+                                aria-label="Thêm vào yêu thích">
+                            ♡
+                        </button>
+
                     </div>
 
                     <div class="recipe-content">
@@ -783,6 +848,12 @@
                         <span class="recipe-tag">
                             Tráng miệng
                         </span>
+
+                        <button class="like"
+                                type="button"
+                                aria-label="Thêm vào yêu thích">
+                            ♡
+                        </button>
 
                     </div>
 
@@ -856,6 +927,12 @@
                             Đồ uống
                         </span>
 
+                        <button class="like"
+                                type="button"
+                                aria-label="Thêm vào yêu thích">
+                            ♡
+                        </button>
+
                     </div>
 
                     <div class="recipe-content">
@@ -927,6 +1004,12 @@
                         <span class="recipe-tag">
                             Món Việt
                         </span>
+
+                        <button class="like"
+                                type="button"
+                                aria-label="Thêm vào yêu thích">
+                            ♡
+                        </button>
 
                     </div>
 
@@ -1412,6 +1495,85 @@
 ========================================================= -->
 
 <style>
+
+    /* =====================================================
+           ISSUE #7 - FAVORITE RECIPES
+        ====================================================== */
+
+    .favorites-section {
+        background: #f7fbf7;
+    }
+
+    .like {
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+        .like:hover {
+            transform: scale(1.12);
+        }
+
+        .like.liked {
+            color: #e53935;
+        }
+
+        .like.favorite-active {
+            color: #e53935;
+        }
+
+    .empty-favorites {
+        text-align: center;
+        padding: 45px 20px;
+        margin-top: 10px;
+        border: 1px dashed #cfe3cf;
+        border-radius: 18px;
+        background: #ffffff;
+    }
+
+    .empty-favorites-icon {
+        font-size: 48px;
+        line-height: 1;
+        margin-bottom: 12px;
+    }
+
+    .empty-favorites h3 {
+        margin: 0 0 8px;
+    }
+
+    .empty-favorites p {
+        margin: 0;
+        color: #718096;
+    }
+
+    #favoriteRecipes:empty + #emptyFavorites {
+        display: block;
+    }
+
+    #favoriteNotification {
+        position: fixed;
+        right: 25px;
+        bottom: 25px;
+        z-index: 9999;
+        padding: 14px 20px;
+        border-radius: 10px;
+        background: #2e7d32;
+        color: #fff;
+        font-size: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,.2);
+        animation: favoriteNotificationIn .25s ease;
+    }
+
+    @@keyframes favoriteNotificationIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
     .recipe-details {
         background: #f7fbf7;
@@ -1953,45 +2115,582 @@
 
 
         /* =====================================================
-           LIKE
-        ===================================================== */
+           ISSUE #7 - YÊU THÍCH CÔNG THỨC
+        ====================================================== */
+
+        function getCurrentUser() {
+
+            const storedUser =
+                localStorage.getItem("cookshare_current_user") ||
+                sessionStorage.getItem("cookshare_current_user");
+
+            if (storedUser && storedUser.trim() !== "") {
+                return storedUser.trim();
+            }
+
+            return "guest";
+        }
+
+
+        function getFavoriteStorageKey() {
+
+            return "cookshare_favorites_" +
+                encodeURIComponent(getCurrentUser());
+        }
+
+
+        function getFavorites() {
+
+            try {
+
+                const data =
+                    localStorage.getItem(
+                        getFavoriteStorageKey()
+                    );
+
+                if (!data) {
+                    return [];
+                }
+
+                const favorites =
+                    JSON.parse(data);
+
+                return Array.isArray(favorites)
+                    ? favorites
+                    : [];
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Không thể đọc danh sách yêu thích:",
+                    error
+                );
+
+                return [];
+            }
+        }
+
+
+        function saveFavorites(favorites) {
+
+            localStorage.setItem(
+                getFavoriteStorageKey(),
+                JSON.stringify(favorites)
+            );
+        }
+
+
+        function getRecipeData(card) {
+
+            const id =
+                card.dataset.id ||
+                createRecipeId(
+                    card.querySelector(
+                        ".recipe-title-row h3"
+                    )?.textContent || ""
+                );
+
+            const titleElement =
+                card.querySelector(
+                    ".recipe-title-row h3"
+                );
+
+            if (!titleElement) {
+                return null;
+            }
+
+            const tagElement =
+                card.querySelector(".recipe-tag");
+
+            const descriptionElement =
+                card.querySelector(
+                    ".recipe-content > p"
+                );
+
+            const imageElement =
+                card.querySelector(
+                    ".recipe-image img"
+                );
+
+            const metaElement =
+                card.querySelector(
+                    ".recipe-meta"
+                );
+
+            const authorElement =
+                card.querySelector(".author");
+
+            const ratingElement =
+                card.querySelector(".rating");
+
+            const difficultyElement =
+                card.querySelector(
+                    ".difficulty"
+                );
+
+            return {
+
+                id: id,
+
+                title:
+                    titleElement.textContent.trim(),
+
+                category:
+                    tagElement
+                        ? tagElement.textContent.trim()
+                        : "",
+
+                description:
+                    descriptionElement
+                        ? descriptionElement.textContent.trim()
+                        : "",
+
+                image:
+                    imageElement
+                        ? imageElement.getAttribute("src")
+                        : "",
+
+                meta:
+                    metaElement
+                        ? metaElement.textContent.trim()
+                        : "",
+
+                author:
+                    authorElement
+                        ? authorElement.textContent.trim()
+                        : "",
+
+                rating:
+                    ratingElement
+                        ? ratingElement.textContent.trim()
+                        : "",
+
+                difficulty:
+                    difficultyElement
+                        ? difficultyElement.textContent.trim()
+                        : ""
+            };
+        }
+
+
+        function createRecipeId(title) {
+
+            return title
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "");
+        }
+
+
+        function isFavorite(recipeId) {
+
+            return getFavorites().some(
+                function (recipe) {
+
+                    return recipe.id === recipeId;
+
+                }
+            );
+        }
+
+
+        function updateLikeButtons() {
+
+            document
+                .querySelectorAll(".recipe-card .like")
+                .forEach(
+                    function (button) {
+
+                        const card =
+                            button.closest(
+                                ".recipe-card"
+                            );
+
+                        const recipe =
+                            card
+                                ? getRecipeData(card)
+                                : null;
+
+                        if (!recipe) {
+                            return;
+                        }
+
+                        if (
+                            isFavorite(recipe.id)
+                        ) {
+
+                            button.textContent = "♥";
+
+                            button.classList.add(
+                                "liked"
+                            );
+
+                            button.classList.add(
+                                "favorite-active"
+                            );
+
+                            button.setAttribute(
+                                "aria-label",
+                                "Bỏ khỏi yêu thích"
+                            );
+
+                        }
+                        else {
+
+                            button.textContent = "♡";
+
+                            button.classList.remove(
+                                "liked"
+                            );
+
+                            button.classList.remove(
+                                "favorite-active"
+                            );
+
+                            button.setAttribute(
+                                "aria-label",
+                                "Thêm vào yêu thích"
+                            );
+                        }
+                    }
+                );
+        }
+
+
+        function showFavoriteNotification(
+            message
+        ) {
+
+            let notification =
+                document.getElementById(
+                    "favoriteNotification"
+                );
+
+            if (!notification) {
+
+                notification =
+                    document.createElement(
+                        "div"
+                    );
+
+                notification.id =
+                    "favoriteNotification";
+
+                document.body.appendChild(
+                    notification
+                );
+            }
+
+            notification.textContent =
+                message;
+
+            notification.style.display =
+                "block";
+
+            clearTimeout(
+                window.favoriteNotificationTimer
+            );
+
+            window.favoriteNotificationTimer =
+                setTimeout(
+                    function () {
+
+                        notification.style.display =
+                            "none";
+
+                    },
+                    2500
+                );
+        }
+
+
+        function toggleFavorite(card) {
+
+            const recipe =
+                getRecipeData(card);
+
+            if (!recipe) {
+                return;
+            }
+
+            let favorites =
+                getFavorites();
+
+            const index =
+                favorites.findIndex(
+                    function (item) {
+
+                        return item.id === recipe.id;
+
+                    }
+                );
+
+
+            if (index >= 0) {
+
+                favorites.splice(
+                    index,
+                    1
+                );
+
+                saveFavorites(
+                    favorites
+                );
+
+                showFavoriteNotification(
+                    "Đã bỏ \"" +
+                    recipe.title +
+                    "\" khỏi danh sách yêu thích."
+                );
+
+            }
+            else {
+
+                favorites.push(
+                    recipe
+                );
+
+                saveFavorites(
+                    favorites
+                );
+
+                showFavoriteNotification(
+                    "Đã thêm \"" +
+                    recipe.title +
+                    "\" vào danh sách yêu thích."
+                );
+            }
+
+
+            updateLikeButtons();
+
+            renderFavorites();
+        }
+
+
+        function escapeHtml(value) {
+
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        function renderFavorites() {
+
+            const container =
+                document.getElementById(
+                    "favoriteRecipes"
+                );
+
+            const empty =
+                document.getElementById(
+                    "emptyFavorites"
+                );
+
+            const message =
+                document.getElementById(
+                    "favoriteMessage"
+                );
+
+            if (!container) {
+                return;
+            }
+
+
+            const favorites =
+                getFavorites();
+
+
+            container.innerHTML = "";
+
+
+            if (favorites.length === 0) {
+
+                if (empty) {
+                    empty.style.display = "block";
+                }
+
+                if (message) {
+
+                    message.textContent =
+                        "Những công thức bạn đã lưu sẽ xuất hiện ở đây.";
+                }
+
+                return;
+            }
+
+
+            if (empty) {
+                empty.style.display = "none";
+            }
+
+
+            if (message) {
+
+                message.textContent =
+                    "Bạn đang lưu " +
+                    favorites.length +
+                    " công thức yêu thích.";
+            }
+
+
+            favorites.forEach(
+                function (recipe) {
+
+                    const card =
+                        document.createElement(
+                            "article"
+                        );
+
+                    card.className =
+                        "recipe-card favorite-card";
+
+                    card.dataset.id =
+                        recipe.id;
+
+                    card.dataset.category =
+                        recipe.category;
+
+
+                    card.innerHTML = `
+
+                        <div class="recipe-image">
+
+                            <img
+                                src="${escapeHtml(recipe.image)}"
+                                alt="${escapeHtml(recipe.title)}"
+                            />
+
+                            <span class="recipe-tag">
+                                ${escapeHtml(recipe.category)}
+                            </span>
+
+                            <button
+                                class="like liked favorite-active"
+                                type="button"
+                                aria-label="Bỏ khỏi yêu thích">
+                                ♥
+                            </button>
+
+                        </div>
+
+
+                        <div class="recipe-content">
+
+                            <div class="recipe-title-row">
+
+                                <h3>
+                                    ${escapeHtml(recipe.title)}
+                                </h3>
+
+                                <span class="rating">
+                                    ${escapeHtml(recipe.rating)}
+                                </span>
+
+                            </div>
+
+
+                            <p>
+                                ${escapeHtml(recipe.description)}
+                            </p>
+
+
+                            <div class="recipe-meta">
+
+                                <span>
+                                    ${escapeHtml(recipe.meta)}
+                                </span>
+
+                                <span class="difficulty">
+                                    ${escapeHtml(recipe.difficulty)}
+                                </span>
+
+                            </div>
+
+
+                            <div class="recipe-bottom">
+
+                                <span class="author">
+                                    ${escapeHtml(recipe.author)}
+                                </span>
+
+                            </div>
+
+
+                            <a class="recipe-link"
+                               href="#latest">
+                                Xem công thức →
+                            </a>
+
+                        </div>
+                    `;
+
+
+                    container.appendChild(
+                        card
+                    );
+                }
+            );
+
+
+            updateLikeButtons();
+        }
+
 
         document.addEventListener(
             "click",
             function (event) {
 
                 const likeButton =
-                    event.target.closest(".like");
-
+                    event.target.closest(
+                        ".like"
+                    );
 
                 if (!likeButton) {
                     return;
                 }
 
-
                 event.preventDefault();
 
+                event.stopPropagation();
 
-                likeButton.classList.toggle("liked");
+                const card =
+                    likeButton.closest(
+                        ".recipe-card"
+                    );
 
-
-                if (
-                    likeButton.classList.contains(
-                        "liked"
-                    )
-                ) {
-
-                    likeButton.textContent = "♥";
-
-                }
-                else {
-
-                    likeButton.textContent = "♡";
-
+                if (!card) {
+                    return;
                 }
 
+                toggleFavorite(card);
             }
         );
+
+
+        renderFavorites();
+
+        updateLikeButtons();
+
+
+        // Cho phép các phần đăng nhập của project
+        // gọi lại danh sách sau khi user đăng nhập.
+        window.refreshCookShareFavorites =
+            function () {
+
+                renderFavorites();
+
+                updateLikeButtons();
+
+            };
 
 
         /* =====================================================
