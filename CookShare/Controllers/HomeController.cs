@@ -18,6 +18,11 @@ namespace CookShare.Controllers
             return View();
         }
 
+        public IActionResult Username()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();
