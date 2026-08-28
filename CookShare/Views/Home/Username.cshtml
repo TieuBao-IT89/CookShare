@@ -1,0 +1,779 @@
+﻿@{
+    ViewData["Title"] = "Trang cá nhân";
+}
+
+<style>
+
+    /* USER PROFILE - COOKSHARE*/
+          
+
+    .profile-page {
+        background: #fffaf5;
+        min-height: 100vh;
+        padding-bottom: 80px;
+    }
+
+    /* Container chính */
+    .profile-container {
+        width: min(1150px, 92%);
+        margin: 0 auto;
+    }
+
+    /* PROFILE HEADER */
+
+    .profile-cover {
+        height: 230px;
+        margin-top: 30px;
+        border-radius: 28px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f7b267, #f4845f);
+        box-shadow: 0 12px 35px rgba(120, 70, 30, 0.12);
+    }
+
+        .profile-cover::before {
+            content: "🍳";
+            position: absolute;
+            font-size: 110px;
+            right: 80px;
+            top: 35px;
+            opacity: .12;
+            transform: rotate(-15deg);
+        }
+
+        .profile-cover::after {
+            content: "🥗";
+            position: absolute;
+            font-size: 100px;
+            left: 100px;
+            bottom: -20px;
+            opacity: .12;
+            transform: rotate(15deg);
+        }
+
+    .profile-header {
+        background: white;
+        margin-top: -75px;
+        position: relative;
+        z-index: 2;
+        border-radius: 25px;
+        padding: 30px 45px;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        box-shadow: 0 10px 35px rgba(80, 50, 30, .10);
+    }
+
+    /* Avatar */
+    .profile-avatar {
+        width: 135px;
+        height: 135px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #fff1df, #ffd8b5);
+        border: 7px solid white;
+        box-shadow: 0 7px 20px rgba(100, 60, 30, .15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 65px;
+        flex-shrink: 0;
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+        .profile-info h1 {
+            margin: 0 0 8px;
+            font-size: 34px;
+            color: #30251f;
+            font-weight: 700;
+        }
+
+    .profile-username {
+        color: #f07845;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .profile-description {
+        color: #74675e;
+        font-size: 15px;
+        line-height: 1.7;
+        max-width: 650px;
+        margin: 0;
+    }
+
+    /* Nút chỉnh sửa */
+    .edit-profile {
+        text-decoration: none;
+        border: 1px solid #f3c5a8;
+        color: #e66e3e;
+        padding: 11px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: .25s;
+        white-space: nowrap;
+    }
+
+        .edit-profile:hover {
+            background: #fff2e8;
+            transform: translateY(-2px);
+        }
+
+    /* STATS */
+
+    .profile-stats {
+        margin-top: 25px;
+        background: white;
+        border-radius: 20px;
+        padding: 20px 35px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 80px;
+        box-shadow: 0 8px 25px rgba(80, 50, 30, .07);
+    }
+
+    .stat {
+        text-align: center;
+        min-width: 110px;
+    }
+
+        .stat strong {
+            display: block;
+            color: #30251f;
+            font-size: 25px;
+            margin-bottom: 4px;
+        }
+
+        .stat span {
+            color: #8c7c70;
+            font-size: 14px;
+        }
+
+        .stat:not(:last-child) {
+            border-right: 1px solid #eee2da;
+            padding-right: 80px;
+        }
+
+    /* CONTENT */
+
+    .recipes-section {
+        margin-top: 55px;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+        .section-title .eyebrow {
+            display: block;
+            color: #ef7847;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 30px;
+            color: #30251f;
+        }
+
+        .section-title p {
+            margin-top: 8px;
+            color: #83766d;
+            font-size: 15px;
+        }
+
+    /* RECIPE GRID */
+
+    .my-recipes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+
+    .recipe-card-user {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 7px 25px rgba(80, 50, 30, .08);
+        transition: .3s;
+    }
+
+        .recipe-card-user:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 15px 35px rgba(80, 50, 30, .14);
+        }
+
+    .recipe-img {
+        height: 205px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .recipe-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: .4s;
+        }
+
+    .recipe-card-user:hover .recipe-img img {
+        transform: scale(1.06);
+    }
+
+    .recipe-tag-user {
+        position: absolute;
+        left: 14px;
+        top: 14px;
+        background: rgba(255,255,255,.95);
+        color: #e86e3c;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .recipe-content-user {
+        padding: 20px;
+    }
+
+        .recipe-content-user h3 {
+            margin: 0 0 8px;
+            color: #30251f;
+            font-size: 20px;
+        }
+
+    .recipe-description {
+        color: #7c7068;
+        font-size: 14px;
+        line-height: 1.6;
+        min-height: 45px;
+        margin-bottom: 15px;
+    }
+
+    .recipe-meta-user {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: #8a7c72;
+        margin-bottom: 18px;
+    }
+
+    .rating-user {
+        color: #e99a35;
+        font-weight: 700;
+    }
+
+    .view-recipe {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        background: #f47d4b;
+        color: white;
+        padding: 11px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+        .view-recipe:hover {
+            background: #e96838;
+            color: white;
+        }
+
+    /* EMPTY / NOTE */
+
+    .profile-note {
+        margin-top: 35px;
+        padding: 20px;
+        background: #fff3e8;
+        border: 1px solid #f8dfcc;
+        border-radius: 16px;
+        text-align: center;
+        color: #856f61;
+        font-size: 14px;
+    }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 900px) {
+
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+            padding: 30px 25px;
+        }
+
+        .profile-description {
+            margin: auto;
+        }
+
+        .profile-stats {
+            gap: 30px;
+        }
+
+        .stat:not(:last-child) {
+            padding-right: 30px;
+        }
+
+        .my-recipes {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 600px) {
+
+        .profile-cover {
+            height: 170px;
+        }
+
+        .profile-header {
+            margin-top: -55px;
+        }
+
+        .profile-avatar {
+            width: 105px;
+            height: 105px;
+            font-size: 50px;
+        }
+
+        .profile-info h1 {
+            font-size: 27px;
+        }
+
+        .profile-stats {
+            gap: 10px;
+            padding: 20px 10px;
+        }
+
+        .stat strong {
+            font-size: 21px;
+        }
+
+        .stat span {
+            font-size: 12px;
+        }
+
+        .stat:not(:last-child) {
+            padding-right: 10px;
+        }
+
+        .my-recipes {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .back-home {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+        .back-home a {
+            display: inline-block;
+            text-decoration: none;
+            color: #e66e3e;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 12px 22px;
+            border: 1px solid #f3c5a8;
+            border-radius: 12px;
+            background: white;
+            transition: all .25s ease;
+        }
+
+            .back-home a:hover {
+                background: #f47d4b;
+                color: white;
+                border-color: #f47d4b;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(244, 125, 75, .2);
+            }
+
+</style>
+
+
+<div class="profile-page">
+
+    <div class="profile-container">
+    
+        @*  ẢNH BÌA  *@
+
+        <div class="profile-cover"></div>
+
+
+        @* THÔNG TIN NGƯỜI DÙNG *@
+        <section class="profile-header">
+
+            <div class="profile-avatar">
+                👨‍🍳
+            </div>
+
+            <div class="profile-info">
+
+                <h1>Nguyễn Văn Thiện</h1>
+
+                <div class="profile-username">
+                    @@thien.cookshare
+                </div>
+
+                <p class="profile-description">
+                    Xin chào! Mình là một người yêu thích nấu ăn và luôn muốn
+                    chia sẻ những công thức ngon, đơn giản và dễ thực hiện
+                    với cộng đồng CookShare.
+                </p>
+
+            </div>
+
+            <a href="#" class="edit-profile">
+                ✎ Chỉnh sửa hồ sơ
+            </a>
+
+        </section>
+
+
+       @*   THỐNG KÊ  *@
+        <section class="profile-stats">
+
+            <div class="stat">
+                <strong>12</strong>
+                <span>Công thức</span>
+            </div>
+
+            <div class="stat">
+                <strong>1.2K</strong>
+                <span>Lượt thích</span>
+            </div>
+
+            <div class="stat">
+                <strong>350</strong>
+                <span>Người theo dõi</span>
+            </div>
+
+        </section>
+
+
+       @*   CÔNG THỨC CỦA TÔI  *@
+        <section class="recipes-section">
+
+            <div class="section-title">
+
+                <span class="eyebrow">
+                    GÓC BẾP CỦA TÔI
+                </span>
+
+                <h2>
+                    Công thức đã đăng
+                </h2>
+
+                <p>
+                    Những món ăn mà mình đã chia sẻ trên CookShare.
+                </p>
+
+            </div>
+
+
+            <div class="my-recipes">
+
+                @*  MÓN 1  *@
+                <article class="recipe-card-user">
+
+                    <div class="recipe-img">
+
+                        <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=900&q=85"
+                             alt="Phở bò Hà Nội">
+
+                        <span class="recipe-tag-user">
+                            Món Việt
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content-user">
+
+                        <h3>
+                            Phở bò Hà Nội
+                        </h3>
+
+                        <p class="recipe-description">
+                            Nước dùng trong, thơm nồng quế hồi
+                            cùng thịt bò mềm ngọt.
+                        </p>
+
+                        <div class="recipe-meta-user">
+
+                            <span>
+                                ◷ 2 giờ 30 phút
+                            </span>
+
+                            <span class="rating-user">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <a href="#" class="view-recipe">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                @*  MÓN 2  *@
+                <article class="recipe-card-user">
+
+                    <div class="recipe-img">
+
+                        <img src="https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=900&q=85"
+                             alt="Cơm gà Hội An">
+
+                        <span class="recipe-tag-user">
+                            Món Việt
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content-user">
+
+                        <h3>
+                            Cơm gà Hội An
+                        </h3>
+
+                        <p class="recipe-description">
+                            Cơm nghệ dẻo thơm, gà xé đậm đà
+                            và rau răm tươi mát.
+                        </p>
+
+                        <div class="recipe-meta-user">
+
+                            <span>
+                                ◷ 55 phút
+                            </span>
+
+                            <span class="rating-user">
+                                ★ 4.8
+                            </span>
+
+                        </div>
+
+                        <a href="#" class="view-recipe">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                @*  MÓN 3  *@
+                <article class="recipe-card-user">
+
+                    <div class="recipe-img">
+
+                        <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=900&q=85"
+                             alt="Mì Ý sốt cà chua">
+
+                        <span class="recipe-tag-user">
+                            Món Âu
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content-user">
+
+                        <h3>
+                            Mì Ý sốt cà chua
+                        </h3>
+
+                        <p class="recipe-description">
+                            Món mì Ý cổ điển với sốt cà chua
+                            tươi và lá húng quế.
+                        </p>
+
+                        <div class="recipe-meta-user">
+
+                            <span>
+                                ◷ 35 phút
+                            </span>
+
+                            <span class="rating-user">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <a href="#" class="view-recipe">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                @*  MÓN 4  *@
+                <article class="recipe-card-user">
+
+                    <div class="recipe-img">
+
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85"
+                             alt="Salad bơ rau củ">
+
+                        <span class="recipe-tag-user">
+                            Món chay
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content-user">
+
+                        <h3>
+                            Salad bơ rau củ
+                        </h3>
+
+                        <p class="recipe-description">
+                            Salad xanh thanh nhẹ, nhiều dinh dưỡng
+                            cho ngày bận rộn.
+                        </p>
+
+                        <div class="recipe-meta-user">
+
+                            <span>
+                                ◷ 15 phút
+                            </span>
+
+                            <span class="rating-user">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <a href="#" class="view-recipe">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                @*  MÓN 5  *@
+                <article class="recipe-card-user">
+
+                    <div class="recipe-img">
+
+                        <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=900&q=85"
+                             alt="Bánh Tiramisu">
+
+                        <span class="recipe-tag-user">
+                            Tráng miệng
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content-user">
+
+                        <h3>
+                            Bánh Tiramisu
+                        </h3>
+
+                        <p class="recipe-description">
+                            Lớp kem mascarpone béo mịn
+                            xen kẽ bánh quy thấm cà phê.
+                        </p>
+
+                        <div class="recipe-meta-user">
+
+                            <span>
+                                ◷ 45 phút
+                            </span>
+
+                            <span class="rating-user">
+                                ★ 4.8
+                            </span>
+
+                        </div>
+
+                        <a href="#" class="view-recipe">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                @*  MÓN 6  *@
+                <article class="recipe-card-user">
+
+                    <div class="recipe-img">
+
+                        <img src="https://images.unsplash.com/photo-1499638673689-79a0b5115d87?auto=format&fit=crop&w=900&q=85"
+                             alt="Trà đào cam sả">
+
+                        <span class="recipe-tag-user">
+                            Đồ uống
+                        </span>
+
+                    </div>
+
+                    <div class="recipe-content-user">
+
+                        <h3>
+                            Trà đào cam sả
+                        </h3>
+
+                        <p class="recipe-description">
+                            Thức uống mát lành với đào giòn,
+                            cam vàng và hương sả.
+                        </p>
+
+                        <div class="recipe-meta-user">
+
+                            <span>
+                                ◷ 20 phút
+                            </span>
+
+                            <span class="rating-user">
+                                ★ 4.9
+                            </span>
+
+                        </div>
+
+                        <a href="#" class="view-recipe">
+                            Xem công thức →
+                        </a>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+
+            <div class="profile-note">
+                🍲 Bạn đã chia sẻ 12 công thức với cộng đồng CookShare.
+                Tiếp tục vào bếp và chia sẻ những món ăn tuyệt vời nhé!
+            </div>
+
+            <div class="back-home">
+                <a href="@Url.Action("Index", "Home")">
+                     Quay lại trang chủ
+                </a>
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
