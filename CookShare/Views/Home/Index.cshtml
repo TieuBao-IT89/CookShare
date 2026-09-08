@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -20,7 +20,7 @@
           <span class="eyebrow">CỘNG ĐỒNG ẨM THỰC VIỆT</span>
           <h1>Khám phá hương vị,<br /><em>chia sẻ đam mê</em></h1>
           <p>Từ căn bếp nhỏ đến những bữa ăn thật đáng nhớ. Hơn 10.000 công thức ngon đang chờ bạn khám phá tại CookShare.</p>
-          <div class="hero-buttons"><a class="btn" href="#featured">Khám phá công thức →</a><a class="btn btn-outline" href="#share">Chia sẻ công thức</a></div>
+          <div class="hero-buttons"><a class="btn" href="#featured">Khám phá công thức →</a><a class="btn btn-outline" href="/Recipe/Create">Chia sẻ công thức</a></div>
           <div class="hero-stats"><div><strong>10K<span>+</span></strong><small>Công thức</small></div><div><strong>25K<span>+</span></strong><small>Thành viên</small></div><div><strong>4.8 ★</strong><small>Đánh giá cộng đồng</small></div></div>
         </div>
         <div class="hero-photo-wrap"><div class="hero-blob"></div><img class="hero-photo" src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=90" alt="Bàn ăn với các món ăn tươi ngon" /><div class="floating-card"><span>🍲</span><div><b>Hôm nay ăn gì?</b><small>Khám phá 120+ món mới</small></div></div></div>
@@ -43,25 +43,24 @@
 
     <section class="section featured" id="featured">
       <div class="container">
-        <div class="section-heading"><div><span class="eyebrow">ĐƯỢC YÊU THÍCH NHẤT</span><h2>Công thức nổi bật</h2><p>Những món ăn đang được cộng đồng CookShare yêu thích.</p></div><a class="text-link" href="#latest">Xem tất cả →</a></div>
-        <div class="featured-grid">
-          <article class="recipe-card"><div class="recipe-image"><img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=900&q=85" alt="Phở bò Hà Nội" /><span class="recipe-tag">Món Việt</span><button class="like">♡</button></div><div class="recipe-content"><div class="recipe-title-row"><h3>Phở bò Hà Nội</h3><span class="rating">★ 4.9</span></div><p>Nước dùng trong, thơm nồng quế hồi cùng thịt bò mềm ngọt.</p><div class="recipe-meta"><span>◷ 2 giờ 30 phút</span><span class="difficulty">Trung bình</span></div><div class="recipe-bottom"><span class="author">♙ Linh Nguyễn</span><span class="likes">♡ 128</span></div><a class="recipe-link" href="#recipe">Xem công thức →</a></div></article>
-          <article class="recipe-card"><div class="recipe-image"><img src="https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=900&q=85" alt="Cơm gà Hội An" /><span class="recipe-tag">Món Việt</span><button class="like">♡</button></div><div class="recipe-content"><div class="recipe-title-row"><h3>Cơm gà Hội An</h3><span class="rating">★ 4.9</span></div><p>Cơm nghệ dẻo thơm, gà xé đậm đà và rau răm tươi mát.</p><div class="recipe-meta"><span>◷ 55 phút</span><span class="difficulty">Dễ</span></div><div class="recipe-bottom"><span class="author">♙ Minh Anh</span><span class="likes">♡ 96</span></div><a class="recipe-link" href="#recipe">Xem công thức →</a></div></article>
-          <article class="recipe-card"><div class="recipe-image"><img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=900&q=85" alt="Mì Ý sốt cà chua" /><span class="recipe-tag">Món Âu</span><button class="like">♡</button></div><div class="recipe-content"><div class="recipe-title-row"><h3>Mì Ý sốt cà chua</h3><span class="rating">★ 4.9</span></div><p>Món mì Ý cổ điển với sốt cà chua tươi và lá húng quế.</p><div class="recipe-meta"><span>◷ 35 phút</span><span class="difficulty">Dễ</span></div><div class="recipe-bottom"><span class="author">♙ Hà Phương</span><span class="likes">♡ 75</span></div><a class="recipe-link" href="#recipe">Xem công thức →</a></div></article>
+        <div class="section-heading"><div><span class="eyebrow">ĐƯỢC YÊU THÍCH NHẤT</span><h2>Công thức nổi bật</h2><p>Những món ăn đang được cộng đồng CookShare yêu thích.</p></div><a class="text-link" href="/Recipe">Xem tất cả →</a></div>
+        <div class="featured-grid" id="homeFeaturedGrid">
+          <!-- Danh sách công thức nổi bật sẽ được render tự động từ localStorage cookshare_recipes -->
         </div>
       </div>
     </section>
 
     <section class="section latest" id="latest">
       <div class="container">
-        <div class="section-heading"><div><span class="eyebrow">MỚI VỪA RA LÒ</span><h2>Công thức mới nhất</h2></div><div class="filters"><button class="filter active">Mới nhất</button><button class="filter">Phổ biến</button><button class="filter">Được yêu thích</button></div></div>
-        <div class="recipe-grid">
-          <article class="recipe-card"><div class="recipe-image"><img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85" alt="Salad bơ rau củ" /><span class="recipe-tag">Món chay</span></div><div class="recipe-content"><div class="recipe-title-row"><h3>Salad bơ rau củ</h3><span class="rating">★ 4.9</span></div><p>Salad xanh thanh nhẹ, nhiều dinh dưỡng cho ngày bận rộn.</p><div class="recipe-meta"><span>◷ 15 phút</span><span class="difficulty">Dễ</span></div><div class="recipe-bottom"><span class="author">♙ Tú Quỳnh</span><span class="likes">♡ 61</span></div><a class="recipe-link" href="#recipe">Xem công thức →</a></div></article>
-          <article class="recipe-card"><div class="recipe-image"><img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=900&q=85" alt="Bánh tiramisu" /><span class="recipe-tag">Tráng miệng</span></div><div class="recipe-content"><div class="recipe-title-row"><h3>Bánh tiramisu</h3><span class="rating">★ 4.9</span></div><p>Lớp kem mascarpone béo mịn xen kẽ bánh quy thấm cà phê.</p><div class="recipe-meta"><span>◷ 45 phút</span><span class="difficulty">Khó</span></div><div class="recipe-bottom"><span class="author">♙ Yến Nhi</span><span class="likes">♡ 119</span></div><a class="recipe-link" href="#recipe">Xem công thức →</a></div></article>
-          <article class="recipe-card"><div class="recipe-image"><img src="https://images.unsplash.com/photo-1499638673689-79a0b5115d87?auto=format&fit=crop&w=900&q=85" alt="Trà đào cam sả" /><span class="recipe-tag">Đồ uống</span></div><div class="recipe-content"><div class="recipe-title-row"><h3>Trà đào cam sả</h3><span class="rating">★ 4.9</span></div><p>Thức uống mát lành với đào giòn, cam vàng và hương sả.</p><div class="recipe-meta"><span>◷ 20 phút</span><span class="difficulty">Dễ</span></div><div class="recipe-bottom"><span class="author">♙ Khánh Vy</span><span class="likes">♡ 84</span></div><a class="recipe-link" href="#recipe">Xem công thức →</a></div></article>
-          <article class="recipe-card"><div class="recipe-image"><img src="https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=900&q=85" alt="Cơm gà Hội An" /><span class="recipe-tag">Món Việt</span></div><div class="recipe-content"><div class="recipe-title-row"><h3>Cơm gà Hội An</h3><span class="rating">★ 4.9</span></div><p>Cơm nghệ thơm dẻo, gà xé đậm đà theo đúng vị Hội An.</p><div class="recipe-meta"><span>◷ 55 phút</span><span class="difficulty">Dễ</span></div><div class="recipe-bottom"><span class="author">♙ Minh Anh</span><span class="likes">♡ 96</span></div><a class="recipe-link" href="#recipe">Xem công thức →</a></div></article>
-        </div><button class="load-more">Xem thêm công thức →</button>
+        <div class="section-heading"><div><span class="eyebrow">MỚI VỪA RA LÒ</span><h2>Công thức mới nhất</h2></div><div class="filters"><button class="filter active" data-filter="latest" type="button">Mới nhất</button><button class="filter" data-filter="popular" type="button">Phổ biến</button><button class="filter" data-filter="favorite" type="button">Được yêu thích</button></div></div>
+        <div class="recipe-grid" id="homeLatestGrid">
+          <!-- Danh sách công thức mới nhất sẽ được render tự động từ localStorage cookshare_recipes -->
+        </div><button class="load-more" id="btnLoadMoreHome" type="button">Xem thêm công thức →</button>
       </div>
     </section>
-    <section class="cta" id="share"><div class="container cta-inner"><div><span class="eyebrow">CÙNG NHAU VÀO BẾP</span><h2>Bạn có công thức ngon?</h2><p>Chia sẻ công thức của bạn với cộng đồng CookShare.</p></div><a class="btn" href="#share">Chia sẻ công thức ngay →</a><span class="cta-decor">✦</span></div></section>
+    <section class="cta" id="share"><div class="container cta-inner"><div><span class="eyebrow">CÙNG NHAU VÀO BẾP</span><h2>Bạn có công thức ngon?</h2><p>Chia sẻ công thức của bạn với cộng đồng CookShare.</p></div><a class="btn" href="/Recipe/Create">Chia sẻ công thức ngay →</a><span class="cta-decor">✦</span></div></section>
   </main>
+
+@section Scripts {
+    <script src="~/js/recipe.js" asp-append-version="true"></script>
+}
