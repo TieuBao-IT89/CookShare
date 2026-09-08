@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Chi tiết công thức";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
+}
+
+@* Header CookShare đồng bộ *@
+@await Html.PartialAsync("_RecipeHeader")
+
+<main class="recipe-page-wrapper">
+    <div class="recipe-container recipe-details-wrapper">
+        <!-- BREADCRUMBS -->
+        <nav class="recipe-breadcrumb" aria-label="Breadcrumb">
+            <a href="/">Trang chủ</a>
+            <span class="recipe-breadcrumb-sep">›</span>
+            <a href="/Recipe">Công thức</a>
+            <span class="recipe-breadcrumb-sep">›</span>
+            <span id="detailsBreadcrumbCurrent" class="recipe-breadcrumb-current">Chi tiết món ăn</span>
+        </nav>
+
+        <input type="hidden" id="detailsRecipeId" value="@ViewBag.RecipeId" />
+
+        <!-- NỘI DUNG CHI TIẾT SẼ ĐƯỢC RENDER BỞI JAVASCRIPT QUA LOCALSTORAGE -->
+        <div id="recipeDetailsContainer">
+            <div style="text-align: center; padding: 60px 0; color: #6d7c7f;">
+                <div style="font-size: 36px; margin-bottom: 12px;">🍲</div>
+                <p>Đang tải thông tin công thức...</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="~/js/recipe.js" asp-append-version="true"></script>
+}

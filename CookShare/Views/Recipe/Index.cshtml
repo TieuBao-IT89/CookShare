@@ -1,0 +1,104 @@
+@{
+    ViewData["Title"] = "Công thức nấu ăn";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
+}
+
+@* Header CookShare đồng bộ *@
+@await Html.PartialAsync("_RecipeHeader")
+
+<main class="recipe-page-wrapper">
+    <!-- HERO SECTION -->
+    <section class="recipe-hero-section">
+        <div class="recipe-container">
+            <div class="recipe-hero-card">
+                <div class="recipe-hero-text">
+                    <span class="recipe-hero-eyebrow">🍳 CỘNG ĐỒNG ẨM THỰC COOKSHARE</span>
+                    <h1 class="recipe-hero-title">Khám phá <span>công thức nấu ăn</span></h1>
+                    <p class="recipe-hero-desc">
+                        Từ những bữa cơm gia đình đầm ấm đến các món tráng miệng thanh mát. Tự do sáng tạo, quản lý và chia sẻ bí quyết nấu nướng với cộng đồng yêu bếp.
+                    </p>
+                </div>
+                <div class="recipe-hero-action">
+                    <a asp-controller="Recipe" asp-action="Create" class="btn-primary-cookshare">
+                        <span class="btn-icon">＋</span> Thêm công thức
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEARCH & FILTER TOOLBAR -->
+    <section class="recipe-toolbar-section">
+        <div class="recipe-container">
+            <div class="recipe-toolbar-grid">
+                <div class="recipe-search-wrap">
+                    <span class="recipe-search-icon">⌕</span>
+                    <input type="text"
+                           id="searchRecipe"
+                           placeholder="Tìm kiếm công thức theo tên, mô tả hoặc nguyên liệu..."
+                           autocomplete="off" />
+                </div>
+
+                <div class="recipe-filter-select-wrap">
+                    <select id="categoryFilter" class="recipe-filter-select">
+                        <option value="">Tất cả danh mục</option>
+                        <option value="Món Việt">Món Việt</option>
+                        <option value="Món Á">Món Á</option>
+                        <option value="Món Âu">Món Âu</option>
+                        <option value="Món chính">Món chính</option>
+                        <option value="Món phụ">Món phụ</option>
+                        <option value="Món chay">Món chay</option>
+                        <option value="Món tráng miệng">Món tráng miệng</option>
+                        <option value="Đồ uống">Đồ uống</option>
+                        <option value="Ăn sáng">Ăn sáng</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Quick Category Pills -->
+            <div class="recipe-category-pills">
+                <button type="button" class="category-pill active" data-category="">🍽 Tất cả</button>
+                <button type="button" class="category-pill" data-category="Món Việt">🍜 Món Việt</button>
+                <button type="button" class="category-pill" data-category="Món Á">🥢 Món Á</button>
+                <button type="button" class="category-pill" data-category="Món Âu">🍝 Món Âu</button>
+                <button type="button" class="category-pill" data-category="Món chính">🍲 Món chính</button>
+                <button type="button" class="category-pill" data-category="Món chay">🥗 Món chay</button>
+                <button type="button" class="category-pill" data-category="Món tráng miệng">🍰 Tráng miệng</button>
+                <button type="button" class="category-pill" data-category="Đồ uống">🧋 Đồ uống</button>
+                <button type="button" class="category-pill" data-category="Ăn sáng">🥐 Ăn sáng</button>
+            </div>
+
+            <!-- Results Count Bar -->
+            <div class="recipe-results-bar">
+                <div id="recipeResultsCount" class="recipe-results-count">
+                    Đang tải danh sách công thức...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECIPE GRID & EMPTY STATE -->
+    <section class="recipe-grid-section">
+        <div class="recipe-container">
+            <div id="recipeList" class="recipe-grid">
+                <!-- JavaScript sẽ render danh sách recipe cards tại đây -->
+            </div>
+
+            <div id="emptyRecipe" class="recipe-empty-container" style="display: none;">
+                <div class="recipe-empty-icon-box">🍽️</div>
+                <h3 class="recipe-empty-title">Chưa có công thức nào</h3>
+                <p class="recipe-empty-desc">Hãy là người đầu tiên chia sẻ món ăn ngon đến cộng đồng CookShare!</p>
+                <a asp-controller="Recipe" asp-action="Create" class="btn-primary-cookshare">
+                    <span class="btn-icon">＋</span> Thêm công thức ngay
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+@section Scripts {
+    <script src="~/js/recipe.js" asp-append-version="true"></script>
+}

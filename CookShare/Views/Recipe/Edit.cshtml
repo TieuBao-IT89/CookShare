@@ -1,0 +1,151 @@
+@{
+    ViewData["Title"] = "Chỉnh sửa công thức";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
+}
+
+@* Header CookShare đồng bộ *@
+@await Html.PartialAsync("_RecipeHeader")
+
+<main class="recipe-page-wrapper">
+    <div class="recipe-container">
+        <div class="recipe-form-wrapper">
+            <div class="recipe-form-card">
+                <div class="recipe-form-header">
+                    <span class="recipe-form-eyebrow">CẬP NHẬT CÔNG THỨC</span>
+                    <h1 class="recipe-form-title">✏️ Chỉnh sửa công thức</h1>
+                    <p class="recipe-form-subtitle">Thay đổi thông tin, nguyên liệu hoặc hình ảnh món ăn của bạn.</p>
+                </div>
+
+                <form id="editRecipeForm" novalidate>
+                    <input type="hidden" id="editRecipeId" value="@ViewBag.RecipeId" />
+
+                    <div class="recipe-form-grid">
+                        <!-- CỘT TRÁI: THÔNG TIN CƠ BẢN & HÌNH ẢNH -->
+                        <div class="recipe-form-col">
+                            <!-- Tên món ăn -->
+                            <div class="form-field-group">
+                                <label class="form-label" for="recipeName">
+                                    <span>Tên món ăn <span class="required-star">*</span></span>
+                                </label>
+                                <input type="text"
+                                       id="recipeName"
+                                       name="name"
+                                       class="form-input"
+                                       placeholder="Tên món ăn..."
+                                       required />
+                                <small class="form-error" id="nameError"></small>
+                            </div>
+
+                            <!-- Danh mục -->
+                            <div class="form-field-group">
+                                <label class="form-label" for="recipeCategory">
+                                    <span>Danh mục <span class="required-star">*</span></span>
+                                </label>
+                                <select id="recipeCategory" name="category" class="form-select" required>
+                                    <option value="">-- Chọn danh mục món ăn --</option>
+                                    <option value="Món Việt">🍜 Món Việt</option>
+                                    <option value="Món Á">🥢 Món Á</option>
+                                    <option value="Món Âu">🍝 Món Âu</option>
+                                    <option value="Món chính">🍲 Món chính</option>
+                                    <option value="Món phụ">🍱 Món phụ</option>
+                                    <option value="Món chay">🥗 Món chay</option>
+                                    <option value="Món tráng miệng">🍰 Món tráng miệng</option>
+                                    <option value="Đồ uống">🧋 Đồ uống</option>
+                                    <option value="Ăn sáng">🥐 Ăn sáng</option>
+                                </select>
+                                <small class="form-error" id="categoryError"></small>
+                            </div>
+
+                            <!-- Ảnh món ăn (Upload / Preview) -->
+                            <div class="form-field-group">
+                                <label class="form-label" for="recipeImage">
+                                    <span>Ảnh món ăn</span>
+                                    <span class="label-tip">Tối đa 3MB (JPG, PNG, WEBP)</span>
+                                </label>
+
+                                <div class="image-upload-container">
+                                    <div class="image-dropzone" id="imageDropzone">
+                                        <input type="file" id="recipeImage" name="image" accept="image/*" />
+                                        <div class="dropzone-icon">📷</div>
+                                        <div class="dropzone-text">
+                                            <strong>Kéo thả ảnh mới vào đây</strong> hoặc bấm để chọn
+                                            <p>Để trống nếu muốn giữ nguyên ảnh hiện tại</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="imagePreviewBox" class="image-preview-box" style="display: none;">
+                                        <!-- Preview ảnh sẽ hiển thị tại đây -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CỘT PHẢI: MÔ TẢ & NGUYÊN LIỆU & CÁCH LÀM -->
+                        <div class="recipe-form-col">
+                            <!-- Mô tả món ăn -->
+                            <div class="form-field-group">
+                                <label class="form-label" for="recipeDescription">
+                                    <span>Mô tả ngắn <span class="required-star">*</span></span>
+                                </label>
+                                <textarea id="recipeDescription"
+                                          name="description"
+                                          class="form-textarea"
+                                          rows="3"
+                                          placeholder="Mô tả ngắn về món ăn..."
+                                          required></textarea>
+                                <small class="form-error" id="descriptionError"></small>
+                            </div>
+
+                            <!-- Nguyên liệu -->
+                            <div class="form-field-group">
+                                <label class="form-label" for="recipeIngredients">
+                                    <span>Nguyên liệu chuẩn bị <span class="required-star">*</span></span>
+                                    <span class="label-tip">Mỗi nguyên liệu một dòng</span>
+                                </label>
+                                <textarea id="recipeIngredients"
+                                          name="ingredients"
+                                          class="form-textarea"
+                                          rows="5"
+                                          placeholder="Danh sách nguyên liệu..."
+                                          required></textarea>
+                                <small class="form-error" id="ingredientsError"></small>
+                            </div>
+
+                            <!-- Hướng dẫn chế biến -->
+                            <div class="form-field-group">
+                                <label class="form-label" for="recipeInstructions">
+                                    <span>Hướng dẫn chế biến <span class="required-star">*</span></span>
+                                    <span class="label-tip">Nhập từng bước rõ ràng</span>
+                                </label>
+                                <textarea id="recipeInstructions"
+                                          name="instructions"
+                                          class="form-textarea"
+                                          rows="7"
+                                          placeholder="Các bước chế biến..."
+                                          required></textarea>
+                                <small class="form-error" id="instructionsError"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NÚT HÀNH ĐỘNG -->
+                    <div class="recipe-form-actions">
+                        <a href="/Recipe" class="btn-secondary-cookshare">
+                            ← Hủy
+                        </a>
+                        <button type="submit" class="btn-primary-cookshare">
+                            <span>💾 Lưu thay đổi</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="~/js/recipe.js" asp-append-version="true"></script>
+}
