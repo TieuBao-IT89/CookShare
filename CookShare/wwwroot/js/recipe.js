@@ -738,14 +738,6 @@ function initializeDetailsRecipe() {
     <article class="details-hero-card">
       <div class="details-top-bar">
         <span class="details-category-tag">🏷 ${escapeHtml(recipe.category || "Món ăn")}</span>
-        <div class="details-actions">
-          <a href="/Recipe/Edit/${recipe.id}" class="btn-action-edit" style="padding: 9px 16px; font-size: 13px;">
-            ✏ Chỉnh sửa công thức
-          </a>
-          <button type="button" class="btn-action-delete" style="padding: 9px 16px; font-size: 13px;" onclick="deleteRecipeInDetails(${recipe.id})">
-            🗑 Xóa
-          </button>
-        </div>
       </div>
 
       <h1 class="details-title">${escapeHtml(recipe.name)}</h1>
@@ -819,10 +811,167 @@ function deleteRecipeInDetails(id) {
 }
 
 // ==========================================================================
+// 5. HOME PAGE CONTROLLER
+// ==========================================================================
+
+function getHomeRecipeMeta(recipe, index = 0) {
+  const presetMetas = [
+    { time: "2 giờ 30 phút", difficulty: "Trung bình", author: "Linh Nguyễn", likes: 128 },
+    { time: "55 phút", difficulty: "Dễ", author: "Minh Anh", likes: 96 },
+    { time: "35 phút", difficulty: "Dễ", author: "Hà Phương", likes: 75 },
+    { time: "15 phút", difficulty: "Dễ", author: "Tú Quỳnh", likes: 61 },
+    { time: "45 phút", difficulty: "Khó", author: "Yến Nhi", likes: 119 },
+    { time: "20 phút", difficulty: "Dễ", author: "Khánh Vy", likes: 84 }
+  ];
+
+  let meta = presetMetas[index % presetMetas.length];
+  if (recipe.id === 1) meta = presetMetas[0];
+  else if (recipe.id === 2) meta = presetMetas[1];
+  else if (recipe.id === 3) meta = presetMetas[2];
+  else if (recipe.id === 4) meta = presetMetas[3];
+  else if (recipe.id === 5) meta = presetMetas[4];
+  else if (recipe.id === 6) meta = presetMetas[5];
+
+  return {
+    time: recipe.time || meta.time,
+    difficulty: recipe.difficulty || meta.difficulty,
+    author: recipe.author || meta.author,
+    likes: recipe.likes !== undefined ? recipe.likes : meta.likes,
+    rating: recipe.rating || "4.9"
+  };
+}
+
+function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
+  const defaultImg = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=900&q=85";
+  const imgSrc = recipe.image ? recipe.image : defaultImg;
+  const meta = getHomeRecipeMeta(recipe, index);
+  const likeBtnHtml = `<button type="button" class="like" aria-label="Yêu thích">♡</button>`;
+
+  return `
+    <article class="recipe-card" data-id="${recipe.id}">
+      <div class="recipe-image">
+        <a href="/Recipe/Details/${recipe.id}" style="display:block; width:100%; height:100%;">
+          <img src="${imgSrc}" alt="${escapeHtml(recipe.name)}" loading="lazy" />
+        </a>
+        <span class="recipe-tag">${escapeHtml(recipe.category || "Món ăn")}</span>
+        ${likeBtnHtml}
+      </div>
+      <div class="recipe-content">
+        <div class="recipe-title-row">
+          <h3>
+            <a href="/Recipe/Details/${recipe.id}" style="color: inherit; text-decoration: none;">
+              ${escapeHtml(recipe.name)}
+            </a>
+          </h3>
+          <span class="rating">★ ${escapeHtml(meta.rating)}</span>
+        </div>
+        <p>${escapeHtml(recipe.description || "Công thức món ngon đặc sắc từ cộng đồng CookShare...")}</p>
+        <div class="recipe-meta">
+          <span>◷ ${escapeHtml(meta.time)}</span>
+          <span class="difficulty">${escapeHtml(meta.difficulty)}</span>
+        </div>
+        <div class="recipe-bottom">
+          <span class="author">♙ ${escapeHtml(meta.author)}</span>
+          <span class="likes">♡ ${escapeHtml(meta.likes)}</span>
+        </div>
+        <a class="recipe-link" href="/Recipe/Details/${recipe.id}">Xem công thức →</a>
+      </div>
+    </article>
+  `;
+}
+
+function attachHomeLikeEvents(container) {
+  if (!container) return;
+  container.querySelectorAll(".like").forEach((btn) => {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.classList.toggle("liked");
+      if (this.classList.contains("liked")) {
+        this.textContent = "♥";
+        this.style.color = "#e53935";
+      } else {
+        this.textContent = "♡";
+        this.style.color = "";
+      }
+    });
+  });
+}
+
+function initializeHomePage() {
+  const featuredGrid = document.getElementById("homeFeaturedGrid");
+  const latestGrid = document.getElementById("homeLatestGrid");
+
+  if (!featuredGrid && !latestGrid) return;
+
+  const recipes = getRecipes();
+
+  // 1. Render Công thức nổi bật (3 công thức đầu tiên)
+  if (featuredGrid) {
+    featuredGrid.innerHTML = "";
+    if (recipes.length === 0) {
+      featuredGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 30px;">Chưa có công thức nổi bật nào.</p>`;
+    } else {
+      const featuredList = recipes.slice(0, 3);
+      featuredGrid.innerHTML = featuredList.map((r, idx) => renderHomeRecipeCard(r, idx, true)).join("");
+      attachHomeLikeEvents(featuredGrid);
+    }
+  }
+
+  // 2. Render Công thức mới nhất (Tối đa 4 công thức theo bộ lọc)
+  if (latestGrid) {
+    let currentFilter = "latest";
+
+    function renderLatestGrid() {
+      latestGrid.innerHTML = "";
+      if (recipes.length === 0) {
+        latestGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 30px;">Chưa có công thức nào.</p>`;
+        return;
+      }
+
+      let displayList = [...recipes];
+      if (currentFilter === "popular") {
+        displayList.sort((a, b) => {
+          const metaA = getHomeRecipeMeta(a);
+          const metaB = getHomeRecipeMeta(b);
+          return (Number(metaB.likes) || 0) - (Number(metaA.likes) || 0);
+        });
+      } else if (currentFilter === "favorite") {
+        displayList.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+      }
+
+      const latestItems = displayList.slice(0, 4);
+      latestGrid.innerHTML = latestItems.map((r, idx) => renderHomeRecipeCard(r, idx, false)).join("");
+      attachHomeLikeEvents(latestGrid);
+    }
+
+    renderLatestGrid();
+
+    const filterButtons = document.querySelectorAll(".section.latest .filter");
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        filterButtons.forEach((b) => b.classList.remove("active"));
+        this.classList.add("active");
+        currentFilter = this.getAttribute("data-filter") || "latest";
+        renderLatestGrid();
+      });
+    });
+  }
+
+  const loadMoreBtn = document.getElementById("btnLoadMoreHome");
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", function () {
+      window.location.href = "/Recipe";
+    });
+  }
+}
+
+// ==========================================================================
 // AUTO INITIALIZATION BASED ON PAGE DOM
 // ==========================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
+  initializeHomePage();
   initializeIndexPage();
   initializeCreateRecipe();
   initializeEditRecipe();
