@@ -1,0 +1,239 @@
+﻿@{
+    ViewData["Title"] = "Trang cá nhân";
+}
+
+<section class="profile-page">
+    <div class="container">
+
+        <!-- Thông tin cá nhân -->
+        <div class="profile-header">
+            <div class="profile-info">
+
+                <img class="profile-avatar"
+                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300"
+                     alt="Ảnh đại diện Nguyễn Hải" />
+
+                <div class="profile-main">
+
+                    <div class="profile-name-row">
+                        <h1 class="profile-name">Nguyễn Hải</h1>
+
+                        <a class="profile-settings"
+                           href="#"
+                           title="Cài đặt trang cá nhân"
+                           aria-label="Cài đặt trang cá nhân">
+                            ⚙
+                        </a>
+                    </div>
+
+                    <p class="profile-username">@@haivo200c-lang</p>
+
+                    <p class="profile-description">
+                        Yêu thích nấu ăn, khám phá những món ngon
+                        và chia sẻ công thức với cộng đồng CookShare.
+                    </p>
+
+                    <div class="profile-stats">
+
+                        <div class="stat">
+                            <strong>120</strong>
+                            <span>Followers</span>
+                        </div>
+
+                        <div class="stat">
+                            <strong>85</strong>
+                            <span>Following</span>
+                        </div>
+
+                        <div class="stat">
+                            <strong>6</strong>
+                            <span>Recipes</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="profile-tabs">
+
+            <button class="profile-tab active" type="button">
+                Công thức đã đăng
+            </button>
+
+            <button class="profile-tab" type="button">
+                Followers
+            </button>
+
+            <button class="profile-tab" type="button">
+                Following
+            </button>
+
+        </div>
+
+        <!-- Công thức -->
+        <div class="section-heading profile-section-heading">
+            <div>
+                <h2>Công thức đã đăng</h2>
+                <p>Những công thức được chia sẻ bởi Nguyễn Hải</p>
+            </div>
+        </div>
+
+        <div class="profile-recipe-grid">
+
+            <!-- Recipe 1 -->
+            <article class="recipe-card">
+                <div class="recipe-image">
+                    <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600"
+                         alt="Mì Ý sốt cà chua" />
+
+                    <span class="recipe-tag">Món Âu</span>
+                </div>
+
+                <div class="recipe-content">
+                    <div class="recipe-title-row">
+                        <h3>Mì Ý sốt cà chua</h3>
+                    </div>
+
+                    <p>
+                        Món mì Ý đơn giản, thơm ngon và dễ thực hiện.
+                    </p>
+
+                    <div class="recipe-bottom">
+                        <span>🍝 Món Âu</span>
+                        <span class="likes">♥ 25</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Recipe 2 -->
+            <article class="recipe-card">
+                <div class="recipe-image">
+                    <img src="https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=600"
+                         alt="Cơm gà Hội An" />
+
+                    <span class="recipe-tag">Món Việt</span>
+                </div>
+
+                <div class="recipe-content">
+                    <div class="recipe-title-row">
+                        <h3>Cơm gà Hội An</h3>
+                    </div>
+
+                    <p>
+                        Cơm gà đậm đà với thịt gà mềm và hương vị đặc trưng.
+                    </p>
+
+                    <div class="recipe-bottom">
+                        <span>🍗 Món Việt</span>
+                        <span class="likes">♥ 42</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Recipe 3 -->
+            <article class="recipe-card">
+                <div class="recipe-image">
+                    <img src="https://images.unsplash.com/photo-1547592180-85f173990554?w=600"
+                         alt="Salad rau củ" />
+
+                    <span class="recipe-tag">Món chay</span>
+                </div>
+
+                <div class="recipe-content">
+                    <div class="recipe-title-row">
+                        <h3>Salad rau củ</h3>
+                    </div>
+
+                    <p>
+                        Salad tươi mát, giàu dinh dưỡng và phù hợp cho bữa ăn nhẹ.
+                    </p>
+
+                    <div class="recipe-bottom">
+                        <span>🥗 Món chay</span>
+                        <span class="likes">♥ 18</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Recipe 4 -->
+            <article class="recipe-card">
+                <div class="recipe-image">
+                    <img src="https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600"
+                         alt="Pasta phô mai" />
+
+                    <span class="recipe-tag">Món Âu</span>
+                </div>
+
+                <div class="recipe-content">
+                    <div class="recipe-title-row">
+                        <h3>Pasta phô mai</h3>
+                    </div>
+
+                    <p>
+                        Pasta béo ngậy kết hợp cùng phô mai thơm ngon.
+                    </p>
+
+                    <div class="recipe-bottom">
+                        <span>🍝 Món Âu</span>
+                        <span class="likes">♥ 31</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Recipe 5 -->
+            <article class="recipe-card">
+                <div class="recipe-image">
+                    <img src="https://images.unsplash.com/photo-1559314809-0d155014e29e?w=600"
+                         alt="Bánh ngọt" />
+
+                    <span class="recipe-tag">Tráng miệng</span>
+                </div>
+
+                <div class="recipe-content">
+                    <div class="recipe-title-row">
+                        <h3>Bánh ngọt</h3>
+                    </div>
+
+                    <p>
+                        Món bánh mềm thơm thích hợp dùng trong bữa sáng hoặc ăn nhẹ.
+                    </p>
+
+                    <div class="recipe-bottom">
+                        <span>🍰 Tráng miệng</span>
+                        <span class="likes">♥ 27</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Recipe 6 -->
+            <article class="recipe-card">
+                <div class="recipe-image">
+                    <img src="https://images.unsplash.com/photo-1547592180-85f173990554?w=600"
+                         alt="Món ăn gia đình" />
+
+                    <span class="recipe-tag">Món Việt</span>
+                </div>
+
+                <div class="recipe-content">
+                    <div class="recipe-title-row">
+                        <h3>Món ăn gia đình</h3>
+                    </div>
+
+                    <p>
+                        Công thức món ăn đơn giản cho những bữa cơm gia đình.
+                    </p>
+
+                    <div class="recipe-bottom">
+                        <span>🍲 Món Việt</span>
+                        <span class="likes">♥ 35</span>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+    </div>
+</section>
