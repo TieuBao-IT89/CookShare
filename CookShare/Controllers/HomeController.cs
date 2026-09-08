@@ -23,6 +23,16 @@ namespace CookShare.Controllers
             return View();
         }
 
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();
