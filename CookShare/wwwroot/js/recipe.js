@@ -783,14 +783,28 @@ function initializeDetailsRecipe() {
     </div>
 
     <!-- Bottom Navigation Bar -->
-    <div class="details-footer-nav">
-      <a href="/Recipe" class="btn-secondary-cookshare">
-        ← Quay lại danh sách món ăn
-      </a>
-      <a href="/Recipe/Create" class="btn-primary-cookshare">
-        + Chia sẻ công thức của bạn
-      </a>
-    </div>
+<div class="details-footer-nav">
+
+  <a href="/Recipe" class="btn-secondary-cookshare">
+    ← Quay lại danh sách món ăn
+  </a>
+
+  <a href="/Recipe/Edit/${recipe.id}" class="btn-primary-cookshare">
+    ✏ Sửa công thức
+  </a>
+
+  <button
+    type="button"
+    class="btn-secondary-cookshare"
+    onclick="deleteRecipeInDetails(${recipe.id})">
+    🗑 Xóa công thức
+  </button>
+
+  <a href="/Recipe/Create" class="btn-primary-cookshare">
+    + Chia sẻ công thức
+  </a>
+
+</div>
   `;
 }
 
