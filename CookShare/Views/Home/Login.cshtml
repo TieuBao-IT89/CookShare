@@ -1,0 +1,820 @@
+﻿@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f8fbf8;
+        color: #333;
+    }
+
+
+    /* =====================================================
+           HEADER - GIỐNG TRANG CHỦ
+        ===================================================== */
+
+    .site-header {
+        background: #ffffff;
+        border-bottom: 1px solid #e1ebe2;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .nav {
+        height: 78px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+    }
+
+    /* LOGO */
+
+    .logo {
+        text-decoration: none;
+        color: #26332a;
+        font-size: 26px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+        .logo span span {
+            color: #4caf50;
+        }
+
+
+    /* MENU */
+
+    .nav-links {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+    }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #526057;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+            .nav-links a:hover {
+                color: #4caf50;
+            }
+
+
+    /* ACTIONS */
+
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+
+    /* SEARCH */
+
+    .search {
+        border: 1px solid #dce7de;
+        border-radius: 25px;
+        padding: 8px 14px;
+        background: #ffffff;
+    }
+
+        .search input {
+            border: none;
+            outline: none;
+            width: 170px;
+            font-size: 13px;
+            color: #444;
+        }
+
+
+    /* LOGIN */
+
+    .login {
+        text-decoration: none;
+        color: #4caf50;
+        font-weight: 600;
+    }
+
+
+    /* BUTTON */
+
+    .btn {
+        display: inline-block;
+        padding: 12px 22px;
+        border-radius: 25px;
+        background: #4caf50;
+        color: white;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+        .btn:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+        }
+
+    .btn-small {
+        padding: 9px 18px;
+    }
+
+
+    /* =====================================================
+           LOGIN PAGE
+        ===================================================== */
+
+    .login-page {
+        min-height: calc(100vh - 78px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+        background: radial-gradient( circle at 10% 20%, rgba(76, 175, 80, 0.10), transparent 25% ), radial-gradient( circle at 90% 80%, rgba(76, 175, 80, 0.07), transparent 25% ), #f8fbf8;
+    }
+
+
+    /* =====================================================
+           LOGIN CARD
+        ===================================================== */
+
+    .login-wrapper {
+        width: 100%;
+        max-width: 1050px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #ffffff;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 12px 35px rgba(45, 75, 50, 0.12);
+    }
+
+
+    /* =====================================================
+           BÊN TRÁI - ẢNH MÓN ĂN
+        ===================================================== */
+
+    .login-intro {
+        position: relative;
+        min-height: 520px;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: #ffffff;
+        overflow: hidden;
+    }
+
+
+    /* ẢNH */
+
+    .intro-food {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        transition: transform 0.5s ease;
+    }
+
+
+    /* Hiệu ứng khi rê chuột */
+
+    .login-intro:hover .intro-food {
+        transform: scale(1.04);
+    }
+
+
+    /* =====================================================
+           LỚP PHỦ ẢNH
+        ===================================================== */
+
+    .intro-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient( 135deg, rgba(31, 76, 36, 0.72), rgba(76, 175, 80, 0.48) );
+        z-index: 1;
+    }
+
+
+    /* =====================================================
+           NỘI DUNG BÊN TRÁI
+        ===================================================== */
+
+    .intro-content {
+        position: relative;
+        z-index: 2;
+        max-width: 430px;
+    }
+
+
+    /* ICON */
+
+    .intro-icon {
+        font-size: 42px;
+        margin-bottom: 18px;
+    }
+
+
+    /* TIÊU ĐỀ */
+
+    .login-intro h1 {
+        font-size: 36px;
+        margin: 0 0 18px;
+        line-height: 1.2;
+        color: #ffffff;
+    }
+
+        .login-intro h1 span {
+            font-style: italic;
+        }
+
+
+    /* MÔ TẢ */
+
+    .login-intro p {
+        line-height: 1.75;
+        font-size: 15px;
+        opacity: 0.96;
+        margin-bottom: 20px;
+        color: #ffffff;
+    }
+
+
+    /* DANH SÁCH */
+
+    .intro-list {
+        margin: 22px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+        .intro-list li {
+            margin: 13px 0;
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+
+    /* =====================================================
+           BÊN PHẢI - FORM
+        ===================================================== */
+
+    .login-form-area {
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: #ffffff;
+    }
+
+
+    /* TIÊU ĐỀ */
+
+    .form-heading {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+        .form-heading .eyebrow {
+            color: #4caf50;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .form-heading h2 {
+            font-size: 30px;
+            margin: 10px 0 8px;
+            color: #26332a;
+        }
+
+        .form-heading p {
+            color: #78837b;
+            margin: 0;
+            font-size: 14px;
+        }
+
+
+    /* =====================================================
+           INPUT
+        ===================================================== */
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #354139;
+        }
+
+    .form-input {
+        width: 100%;
+        height: 50px;
+        border: 1px solid #dce7de;
+        border-radius: 10px;
+        padding: 0 15px;
+        outline: none;
+        font-size: 14px;
+        color: #333;
+        background: #fcfefd;
+        transition: 0.3s;
+    }
+
+        .form-input::placeholder {
+            color: #a2aaa4;
+        }
+
+        .form-input:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+            background: #ffffff;
+        }
+
+
+    /* =====================================================
+           GHI NHỚ + QUÊN MẬT KHẨU
+        ===================================================== */
+
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 4px 0 23px;
+        font-size: 13px;
+    }
+
+    .remember {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #68736b;
+        cursor: pointer;
+    }
+
+        .remember input {
+            accent-color: #4caf50;
+            cursor: pointer;
+        }
+
+    .forgot {
+        color: #4caf50;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+        .forgot:hover {
+            color: #388e3c;
+            text-decoration: underline;
+        }
+
+
+    /* =====================================================
+           NÚT ĐĂNG NHẬP
+        ===================================================== */
+
+    .login-button {
+        width: 100%;
+        height: 50px;
+        border: none;
+        border-radius: 25px;
+        background: #4caf50;
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .login-button:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(76, 175, 80, 0.23);
+        }
+
+
+    /* =====================================================
+           ĐĂNG KÝ
+        ===================================================== */
+
+    .register-text {
+        text-align: center;
+        margin-top: 23px;
+        color: #78837b;
+        font-size: 14px;
+    }
+
+        .register-text a {
+            color: #4caf50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+            .register-text a:hover {
+                color: #388e3c;
+                text-decoration: underline;
+            }
+
+
+    /* =====================================================
+           QUAY LẠI TRANG CHỦ
+        ===================================================== */
+
+    .back-home {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+        .back-home a {
+            text-decoration: none;
+            color: #68736b;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+            .back-home a:hover {
+                color: #4caf50;
+            }
+
+
+    /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+    @@media (max-width: 900px) {
+
+        .nav-links,
+        .search {
+            display: none;
+        }
+
+        .login-wrapper {
+            grid-template-columns: 1fr;
+            max-width: 550px;
+        }
+
+        .login-intro {
+            display: none;
+        }
+
+        .login-form-area {
+            padding: 45px 35px;
+        }
+    }
+
+
+    @@media (max-width: 500px) {
+
+        .nav {
+            height: 65px;
+        }
+
+        .login-page {
+            padding: 25px 12px;
+        }
+
+        .login-form-area {
+            padding: 35px 22px;
+        }
+
+        .form-options {
+            font-size: 12px;
+        }
+
+        .logo {
+            font-size: 22px;
+        }
+    }
+
+</style>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="site-header">
+
+    <div class="container nav">
+
+
+        <!-- LOGO -->
+
+        <a class="logo"
+           href="@Url.Action("Index", "Home")">
+
+            ♨ <span>Cook<span>Share</span></span>
+
+        </a>
+
+
+        <!-- MENU -->
+
+        <nav class="nav-links">
+
+            <a href="@Url.Action("Index", "Home")">
+                Trang chủ
+            </a>
+
+            <a href="@Url.Action("Index", "Home")#featured">
+                Công thức
+            </a>
+
+            <a href="@Url.Action("Index", "Home")#categories">
+                Danh mục
+            </a>
+
+            <a href="@Url.Action("Index", "Home")#share">
+                Chia sẻ công thức
+            </a>
+
+        </nav>
+
+
+        <!-- ACTIONS -->
+
+        <div class="nav-actions">
+
+
+            <!-- SEARCH -->
+
+            <label class="search">
+
+                <input type="search"
+                       placeholder="Tìm kiếm công thức..." />
+
+                ⌕
+
+            </label>
+
+
+            <!-- LOGIN -->
+
+            <a class="login"
+               href="@Url.Action("Login", "Home")">
+
+                Đăng nhập
+
+            </a>
+
+
+            <!-- REGISTER -->
+
+            <a class="btn btn-small"
+               href="@Url.Action("Register", "Home")">
+
+                Đăng ký
+
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<main class="login-page">
+
+    <div class="login-wrapper">
+
+
+        <!-- =================================================
+             BÊN TRÁI
+        ================================================== -->
+
+        <div class="login-intro">
+
+
+            <!-- ẢNH MÓN ĂN -->
+
+            <img class="intro-food"
+                 src="/img/bg_login.png"
+                 alt="Món ăn CookShare" />
+
+
+            <!-- LỚP PHỦ -->
+
+            <div class="intro-overlay"></div>
+
+
+            <!-- NỘI DUNG -->
+
+            <div class="intro-content">
+
+
+                <!-- ICON -->
+
+                <div class="intro-icon">
+                    🍳
+                </div>
+
+
+                <!-- TIÊU ĐỀ -->
+
+                <h1>
+
+                    Chào mừng trở lại
+                    <span>CookShare</span>
+
+                </h1>
+
+
+                <!-- MÔ TẢ -->
+
+                <p>
+
+                    Đăng nhập để tiếp tục khám phá những công thức
+                    ngon, lưu lại món yêu thích và chia sẻ niềm đam mê
+                    nấu ăn của bạn.
+
+                </p>
+
+
+                <!-- DANH SÁCH -->
+
+                <ul class="intro-list">
+
+                    <li>
+                        ✓ Lưu công thức yêu thích
+                    </li>
+
+                    <li>
+                        ✓ Theo dõi các công thức đã đăng
+                    </li>
+
+                    <li>
+                        ✓ Chia sẻ món ăn của bạn
+                    </li>
+
+                    <li>
+                        ✓ Kết nối cùng cộng đồng yêu bếp
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             BÊN PHẢI
+        ================================================== -->
+
+        <div class="login-form-area">
+
+
+            <!-- TIÊU ĐỀ -->
+
+            <div class="form-heading">
+
+                <span class="eyebrow">
+                    COOKSHARE COMMUNITY
+                </span>
+
+                <h2>
+                    Đăng nhập
+                </h2>
+
+                <p>
+                    Đăng nhập vào tài khoản của bạn
+                </p>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <form>
+
+
+                <!-- USERNAME / EMAIL -->
+
+                <div class="form-group">
+
+                    <label>
+                        Tên người dùng hoặc Email
+                    </label>
+
+                    <input type="text"
+                           class="form-input"
+                           placeholder="Nhập tên người dùng hoặc email" />
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label>
+                        Mật khẩu
+                    </label>
+
+                    <input type="password"
+                           class="form-input"
+                           placeholder="Nhập mật khẩu" />
+
+                </div>
+
+
+                <!-- OPTIONS -->
+
+                <div class="form-options">
+
+
+                    <!-- GHI NHỚ -->
+
+                    <label class="remember">
+
+                        <input type="checkbox" />
+
+                        Ghi nhớ đăng nhập
+
+                    </label>
+
+
+                    <!-- QUÊN MẬT KHẨU -->
+
+                    <a href="#"
+                       class="forgot">
+
+                        Quên mật khẩu?
+
+                    </a>
+
+                </div>
+
+
+                <!-- NÚT ĐĂNG NHẬP -->
+
+                <button type="submit"
+                        class="login-button">
+
+                    Đăng nhập 
+
+                </button>
+
+            </form>
+
+
+            <!-- ĐĂNG KÝ -->
+
+            <div class="register-text">
+
+                Chưa có tài khoản?
+
+                <a href="@Url.Action("Register", "Home")">
+
+                    Đăng ký ngay
+
+                </a>
+
+            </div>
+
+
+            <!-- QUAY LẠI -->
+
+            <div class="back-home">
+
+                <a href="@Url.Action("Index", "Home")">
+
+                     Quay lại trang chủ
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
