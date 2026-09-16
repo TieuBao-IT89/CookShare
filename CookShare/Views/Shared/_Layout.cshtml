@@ -22,82 +22,70 @@
 
     <!-- Header dùng chung cho toàn bộ website -->
     <header class="site-header">
-        <div class="container nav">
 
-            <!-- Logo -->
-            <a class="logo"
-               asp-controller="Home"
-               asp-action="Index">
-                ♨ <span>Cook<span>Share</span></span>
+    <div class="container nav">
+
+        <!-- LOGO -->
+        <a class="logo" href="@Url.Action("Index", "Home")">
+            ♨ <span>Cook<span>Share</span></span>
+        </a>
+
+
+        <!-- NAVIGATION -->
+        <nav class="nav-links">
+
+            <a class="active"
+               href="@Url.Action("Index", "Home")">
+                Trang chủ
             </a>
 
-            <!-- Mobile menu -->
-            <button class="menu-btn"
-                    aria-label="Mở menu">
-                ☰
-            </button>
+            <a href="/Recipe">
+                Khám phá
+            </a>
 
-            <!-- Navigation -->
-            <nav class="nav-links">
+            <a href="#categories">
+                Danh mục
+            </a>
 
-                <a asp-controller="Home"
-                   asp-action="Index">
-                    Trang chủ
-                </a>
+            <a href="/Recipe/Create">
+                Chia sẻ công thức
+            </a>
 
-                <a asp-controller="Recipe"
-                   asp-action="Index">
-                    Công thức
-                </a>
+        </nav>
 
-                <a href="#categories">
-                    Danh mục
-                </a>
 
-                <a asp-controller="Recipe"
-                   asp-action="Create">
-                    Chia sẻ công thức
-                </a>
+        <!-- ACTIONS -->
+        <div class="nav-actions">
 
-            </nav>
+            <!-- SEARCH -->
+            <label class="search">
 
-            <!-- Right side -->
-            <div class="nav-actions">
+                <input type="search"
+                       placeholder="Tìm kiếm công thức..." />
 
-                <!-- Search -->
-                <label class="search">
-                    <input type="search"
-                           placeholder="Tìm kiếm công thức món ăn..." />
-                    ⌕
-                </label>
+                <span>⌕</span>
 
-                <!-- Login -->
-                <a class="login"
-                   asp-controller="Home"
-                   asp-action="Username">
-                    Đăng nhập
-                </a>
+            </label>
 
-                <!-- Register -->
-                <a class="btn btn-small"
-                   href="#signup">
-                    Đăng ký
-                </a>
 
-                <!-- Profile -->
-                <a class="profile-icon"
-                   asp-controller="Profile"
-                   asp-action="Index"
-                   title="Trang cá nhân"
-                   aria-label="Trang cá nhân">
-                    👤
-                </a>
+            <!-- LOGIN -->
+            <a class="login"
+               href="@Url.Action("Login", "Home")">
+                Đăng nhập
+            </a>
 
-            </div>
+
+            <!-- REGISTER -->
+            <a class="btn btn-small"
+               href="@Url.Action("Register", "Home")">
+                Đăng ký
+            </a>
 
         </div>
-    </header>
 
+    </div>
+
+</header> 
     <!-- Nội dung từng trang -->
     <main>
         @RenderBody()
