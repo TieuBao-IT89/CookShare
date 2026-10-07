@@ -1,0 +1,671 @@
+﻿@{
+    ViewData["Title"] = "Trang cá nhân";
+}
+
+@section Styles {
+    <style>
+        /* ================================
+                   PROFILE PAGE
+                   CSS riêng, không ảnh hưởng Recipe
+                   ================================ */
+
+        .profile-page {
+            background: #ffffff;
+            padding: 40px 0 70px;
+            min-height: 100vh;
+        }
+
+            .profile-page .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 24px;
+            }
+
+        /* ===== PROFILE HEADER ===== */
+
+        .profile-header {
+            background: #ffffff;
+            border: 1px solid #e7eee7;
+            border-radius: 18px;
+            padding: 30px;
+            margin-bottom: 24px;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .profile-avatar {
+            width: 120px !important;
+            height: 120px !important;
+            min-width: 120px;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+            display: block;
+            border: 4px solid #e8f5e9;
+        }
+
+        .profile-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 4px;
+        }
+
+        .profile-name {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+            color: #263238;
+        }
+
+        .profile-settings {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f1f8f1;
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 21px;
+            transition: all 0.2s ease;
+        }
+
+            .profile-settings:hover {
+                background: #2e7d32;
+                color: #ffffff;
+                transform: rotate(20deg);
+            }
+
+        .profile-username {
+            margin: 0 0 10px;
+            color: #6d7c7f;
+            font-size: 15px;
+        }
+
+        .profile-description {
+            margin: 0 0 20px;
+            max-width: 700px;
+            color: #4f5d60;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .profile-stats {
+            display: flex;
+            align-items: center;
+            gap: 35px;
+        }
+
+            .profile-stats .stat {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+                .profile-stats .stat strong {
+                    font-size: 20px;
+                    color: #263238;
+                }
+
+                .profile-stats .stat span {
+                    font-size: 13px;
+                    color: #6d7c7f;
+                }
+
+        /* ===== TABS ===== */
+
+        .profile-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: #f4f8f4;
+            border: 1px solid #e2ebe2;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 38px;
+        }
+
+        .profile-tab {
+            border: none;
+            background: transparent;
+            padding: 14px 10px;
+            border-radius: 9px;
+            color: #6d7c7f;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            .profile-tab.active {
+                background: #ffffff;
+                color: #2e7d32;
+                box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+            }
+
+        /* ===== SECTION HEADING ===== */
+
+        .profile-section-heading {
+            margin-bottom: 24px;
+        }
+
+            .profile-section-heading h2 {
+                margin: 0 0 6px;
+                color: #263238;
+                font-family: "Playfair Display", serif;
+                font-size: 32px;
+                line-height: 1.2;
+            }
+
+            .profile-section-heading p {
+                margin: 0;
+                color: #6d7c7f;
+                font-size: 14px;
+            }
+
+        /* ===== RECIPE GRID ===== */
+
+        .profile-recipe-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 24px !important;
+            width: 100%;
+        }
+
+        /* ===== RECIPE CARD ===== */
+
+        .profile-page .profile-recipe-card {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+            background: #ffffff !important;
+            border: 1px solid #e4ebe4 !important;
+            border-radius: 16px !important;
+            box-shadow: 0 4px 16px rgba(38, 50, 56, 0.06) !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .profile-page .profile-recipe-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 25px rgba(38, 50, 56, 0.11) !important;
+            }
+
+            /* QUAN TRỌNG:
+                   khóa kích thước ảnh để không bị CSS Recipe phóng lớn */
+            .profile-page .profile-recipe-card > img {
+                display: block !important;
+                width: 100% !important;
+                height: 210px !important;
+                min-height: 210px !important;
+                max-height: 210px !important;
+                object-fit: cover !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+            }
+
+        .profile-recipe-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 18px;
+        }
+
+        .profile-recipe-tag {
+            display: inline-block;
+            width: fit-content;
+            margin-bottom: 9px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .profile-recipe-content h3 {
+            margin: 0 0 9px;
+            color: #263238;
+            font-size: 19px;
+            line-height: 1.35;
+        }
+
+        .profile-recipe-content p {
+            margin: 0 0 18px;
+            color: #6d7c7f;
+            font-size: 14px;
+            line-height: 1.55;
+            flex: 1;
+        }
+
+        .profile-recipe-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 13px;
+            border-top: 1px solid #edf1ed;
+        }
+
+            .profile-recipe-bottom > span {
+                color: #6d7c7f;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+
+        .profile-recipe-detail {
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+            .profile-recipe-detail:hover {
+                text-decoration: underline;
+            }
+
+        /* ===== RESPONSIVE ===== */
+
+        @@media (max-width: 950px) {
+            .profile-recipe-grid
+
+        {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        }
+
+        @@media (max-width: 650px) {
+            .profile-page
+
+        {
+            padding-top: 25px;
+        }
+
+        .profile-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-avatar {
+            width: 100px !important;
+            height: 100px !important;
+            min-width: 100px;
+        }
+
+        .profile-name {
+            font-size: 27px;
+        }
+
+        .profile-stats {
+            gap: 22px;
+        }
+
+        .profile-recipe-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .profile-tabs {
+            grid-template-columns: 1fr;
+        }
+
+        }
+    </style>
+}
+
+<section class="profile-page">
+    <div class="container">
+
+        <!-- ================================
+             THÔNG TIN CÁ NHÂN
+             ================================ -->
+
+        <div class="profile-header">
+
+            <div class="profile-info">
+
+                <img class="profile-avatar"
+                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300"
+                     alt="Ảnh đại diện Nguyễn Hải" />
+
+                <div class="profile-main">
+
+                    <div class="profile-name-row">
+
+                        <h1 class="profile-name">
+                            Nguyễn Hải
+                        </h1>
+
+                        <a class="profile-settings"
+                           href="#"
+                           title="Cài đặt trang cá nhân"
+                           aria-label="Cài đặt trang cá nhân">
+                            ⚙
+                        </a>
+
+                    </div>
+
+                    <p class="profile-username">
+                        @@haivo200c-lang
+                    </p>
+
+                    <p class="profile-description">
+                        Yêu thích nấu ăn, khám phá những món ngon
+                        và chia sẻ công thức với cộng đồng CookShare.
+                    </p>
+
+                    <div class="profile-stats">
+
+                        <div class="stat">
+                            <strong>120</strong>
+                            <span>Followers</span>
+                        </div>
+
+                        <div class="stat">
+                            <strong>85</strong>
+                            <span>Following</span>
+                        </div>
+
+                        <div class="stat">
+                            <strong>6</strong>
+                            <span>Recipes</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================
+             TABS
+             ================================ -->
+
+        <div class="profile-tabs">
+
+            <button class="profile-tab active" type="button">
+                Công thức đã đăng
+            </button>
+
+            <button class="profile-tab" type="button">
+                Followers
+            </button>
+
+            <button class="profile-tab" type="button">
+                Following
+            </button>
+
+        </div>
+
+
+        <!-- ================================
+             TIÊU ĐỀ
+             ================================ -->
+
+        <div class="profile-section-heading">
+
+            <h2>Công thức đã đăng</h2>
+
+            <p>
+                Những công thức được chia sẻ bởi Nguyễn Hải
+            </p>
+
+        </div>
+
+
+        <!-- ================================
+             DANH SÁCH CÔNG THỨC
+             ================================ -->
+
+        <div class="profile-recipe-grid">
+
+            <!-- 1. PHỞ BÒ -->
+            <article class="profile-recipe-card">
+
+                <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=900&q=85"
+                     alt="Phở Bò Hà Nội Truyền Thống" />
+
+                <div class="profile-recipe-content">
+
+                    <span class="profile-recipe-tag">
+                        Món Việt
+                    </span>
+
+                    <h3>
+                        Phở Bò Hà Nội Truyền Thống
+                    </h3>
+
+                    <p>
+                        Phở bò truyền thống với nước dùng đậm đà,
+                        thơm ngon và hấp dẫn.
+                    </p>
+
+                    <div class="profile-recipe-bottom">
+
+                        <span>
+                            🍲 Công thức #1
+                        </span>
+
+                        <a href="/Recipe/Details/1"
+                           class="profile-recipe-detail">
+                            Xem chi tiết →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- 2. CƠM GÀ -->
+            <article class="profile-recipe-card">
+
+                <img src="https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=85"
+                     alt="Cơm Gà Xé Hội An" />
+
+                <div class="profile-recipe-content">
+
+                    <span class="profile-recipe-tag">
+                        Món Việt
+                    </span>
+
+                    <h3>
+                        Cơm Gà Xé Hội An
+                    </h3>
+
+                    <p>
+                        Cơm gà xé thơm ngon mang đậm hương vị
+                        đặc trưng của Hội An.
+                    </p>
+
+                    <div class="profile-recipe-bottom">
+
+                        <span>
+                            🍗 Công thức #2
+                        </span>
+
+                        <a href="/Recipe/Details/2"
+                           class="profile-recipe-detail">
+                            Xem chi tiết →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- 3. MÌ Ý -->
+            <article class="profile-recipe-card">
+
+                <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=900&q=85"
+                     alt="Mì Ý Sốt Cà Chua Bò Bằm" />
+
+                <div class="profile-recipe-content">
+
+                    <span class="profile-recipe-tag">
+                        Món Âu
+                    </span>
+
+                    <h3>
+                        Mì Ý Sốt Cà Chua Bò Bằm
+                    </h3>
+
+                    <p>
+                        Mì Ý Bolognese với sốt cà chua và thịt bò
+                        bằm đậm đà.
+                    </p>
+
+                    <div class="profile-recipe-bottom">
+
+                        <span>
+                            🍝 Công thức #3
+                        </span>
+
+                        <a href="/Recipe/Details/3"
+                           class="profile-recipe-detail">
+                            Xem chi tiết →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- 4. SALAD -->
+            <article class="profile-recipe-card">
+
+                <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85"
+                     alt="Salad Bơ Trứng và Rau Củ" />
+
+                <div class="profile-recipe-content">
+
+                    <span class="profile-recipe-tag">
+                        Món chay
+                    </span>
+
+                    <h3>
+                        Salad Bơ Trứng & Rau Củ Thanh Nhiệt
+                    </h3>
+
+                    <p>
+                        Salad tươi mát kết hợp bơ, trứng và rau củ
+                        giàu dinh dưỡng.
+                    </p>
+
+                    <div class="profile-recipe-bottom">
+
+                        <span>
+                            🥗 Công thức #4
+                        </span>
+
+                        <a href="/Recipe/Details/4"
+                           class="profile-recipe-detail">
+                            Xem chi tiết →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- 5. TIRAMISU -->
+            <article class="profile-recipe-card">
+
+                <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=900&q=85"
+                     alt="Bánh Tiramisu Cà Phê Ý" />
+
+                <div class="profile-recipe-content">
+
+                    <span class="profile-recipe-tag">
+                        Món tráng miệng
+                    </span>
+
+                    <h3>
+                        Bánh Tiramisu Cà Phê Ý
+                    </h3>
+
+                    <p>
+                        Tiramisu mềm mịn với hương cà phê thơm,
+                        phù hợp làm món tráng miệng.
+                    </p>
+
+                    <div class="profile-recipe-bottom">
+
+                        <span>
+                            🍰 Công thức #5
+                        </span>
+
+                        <a href="/Recipe/Details/5"
+                           class="profile-recipe-detail">
+                            Xem chi tiết →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- 6. TRÀ ĐÀO -->
+            <article class="profile-recipe-card">
+
+                <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=85"
+                     alt="Trà Đào Cam Sả" />
+
+                <div class="profile-recipe-content">
+
+                    <span class="profile-recipe-tag">
+                        Đồ uống
+                    </span>
+
+                    <h3>
+                        Trà Đào Cam Sả Mát Lạnh
+                    </h3>
+
+                    <p>
+                        Thức uống thanh mát kết hợp đào, cam và sả,
+                        thích hợp cho ngày nóng.
+                    </p>
+
+                    <div class="profile-recipe-bottom">
+
+                        <span>
+                            🍹 Công thức #6
+                        </span>
+
+                        <a href="/Recipe/Details/6"
+                           class="profile-recipe-detail">
+                            Xem chi tiết →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </div>
+</section>
