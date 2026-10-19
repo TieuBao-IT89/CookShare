@@ -1,3 +1,52 @@
-.vs/ 
-bin/ 
-obj/ 
+# Build output
+bin/
+obj/
+Debug/
+Release/
+artifacts/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# VS Code local workspace settings
+.vscode/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.snk
+secrets.json
+appsettings.Local.json
+appsettings.*.local.json
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+*.bak
+*.cache
+*~
+*.swp
+
+# Test results and coverage
+TestResults/
+coverage/
+coverage.xml
+*.coverage
+*.coveragexml
+
+# NuGet packages
+*.nupkg
+*.snupkg
