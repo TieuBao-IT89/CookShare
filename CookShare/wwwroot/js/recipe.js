@@ -182,6 +182,16 @@ function displayRecipes() {
       <div class="recipe-image">
         ${imageHtml}
         <span class="recipe-category-badge">${escapeHtml(recipe.category || "Công thức")}</span>
+        <button type="button"
+                class="recipe-card-like-btn recipe-like-btn"
+                data-recipe-id="${recipe.id}"
+                data-recipe-name="${escapeHtml(recipe.name)}"
+                aria-label="Thích ${escapeHtml(recipe.name)}"
+                aria-pressed="false"
+                title="Thích công thức">
+          <span class="like-icon">♡</span>
+          <span class="recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="badge">0</span>
+        </button>
       </div>
       <div class="recipe-card-body">
         <h3 class="recipe-card-title">
@@ -208,6 +218,11 @@ function displayRecipes() {
 
     recipeList.appendChild(card);
   });
+
+  // Đồng bộ trạng thái Like cho danh sách công thức vừa render
+  if (window.CookShareLikes && typeof window.CookShareLikes.syncAllRecipeLikesUI === "function") {
+    window.CookShareLikes.syncAllRecipeLikesUI();
+  }
 }
 
 function selectCategoryPill(catName, buttonElem) {
@@ -738,6 +753,20 @@ function initializeDetailsRecipe() {
     <article class="details-hero-card">
       <div class="details-top-bar">
         <span class="details-category-tag">🏷 ${escapeHtml(recipe.category || "Món ăn")}</span>
+        <div class="details-actions">
+          <button type="button"
+                  class="btn-details-like recipe-like-btn"
+                  data-recipe-id="${recipe.id}"
+                  data-recipe-name="${escapeHtml(recipe.name)}"
+                  aria-label="Thích ${escapeHtml(recipe.name)}"
+                  aria-pressed="false">
+            <span class="like-icon">♡</span>
+            <span class="like-text">Thích</span>
+            <span class="like-count-pill recipe-like-count-display"
+                  data-recipe-id="${recipe.id}"
+                  data-like-format="number">0</span>
+          </button>
+        </div>
       </div>
 
       <h1 class="details-title">${escapeHtml(recipe.name)}</h1>
@@ -751,6 +780,9 @@ function initializeDetailsRecipe() {
         </div>
         <div class="details-meta-item">
           <span>★ Đánh giá:</span> <b>5.0 / 5.0</b>
+        </div>
+        <div class="details-meta-item details-meta-likes">
+          <span>♡ Lượt thích:</span> <b class="recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="meta">0</b>
         </div>
       </div>
 
@@ -811,6 +843,11 @@ function initializeDetailsRecipe() {
   if (typeof initializeRecipeComments === "function") {
     initializeRecipeComments(recipeId);
   }
+
+  // Đồng bộ trạng thái Like cho trang chi tiết công thức
+  if (window.CookShareLikes && typeof window.CookShareLikes.updateRecipeLikeUI === "function") {
+    window.CookShareLikes.updateRecipeLikeUI(recipeId);
+  }
 }
 
 function deleteRecipeInDetails(id) {
@@ -864,7 +901,7 @@ function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
   const defaultImg = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=900&q=85";
   const imgSrc = recipe.image ? recipe.image : defaultImg;
   const meta = getHomeRecipeMeta(recipe, index);
-  const likeBtnHtml = `<button type="button" class="like" aria-label="Yêu thích">♡</button>`;
+  const likeBtnHtml = `<button type="button" class="like recipe-like-btn" data-recipe-id="${recipe.id}" data-recipe-name="${escapeHtml(recipe.name)}" aria-label="Thích ${escapeHtml(recipe.name)}" aria-pressed="false"><span class="like-icon">♡</span></button>`;
 
   return `
     <article class="recipe-card" data-id="${recipe.id}">
@@ -891,7 +928,7 @@ function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
         </div>
         <div class="recipe-bottom">
           <span class="author">♙ ${escapeHtml(meta.author)}</span>
-          <span class="likes">♡ ${escapeHtml(meta.likes)}</span>
+          <span class="likes recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="feed">♡ ${escapeHtml(meta.likes)}</span>
         </div>
         <a class="recipe-link" href="/Recipe/Details/${recipe.id}">Xem công thức →</a>
       </div>
@@ -901,6 +938,12 @@ function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
 
 function attachHomeLikeEvents(container) {
   if (!container) return;
+  // Nếu đã nạp module CookShareLikes, sử dụng hệ thống Like chung
+  if (window.CookShareLikes && typeof window.CookShareLikes.syncAllRecipeLikesUI === "function") {
+    window.CookShareLikes.syncAllRecipeLikesUI();
+    return;
+  }
+
   container.querySelectorAll(".like").forEach((btn) => {
     btn.addEventListener("click", function (e) {
       e.preventDefault();
