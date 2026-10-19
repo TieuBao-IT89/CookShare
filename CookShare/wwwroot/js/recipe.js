@@ -806,6 +806,11 @@ function initializeDetailsRecipe() {
 
 </div>
   `;
+
+  // Khởi tạo module bình luận sau khi render xong chi tiết công thức
+  if (typeof initializeRecipeComments === "function") {
+    initializeRecipeComments(recipeId);
+  }
 }
 
 function deleteRecipeInDetails(id) {
