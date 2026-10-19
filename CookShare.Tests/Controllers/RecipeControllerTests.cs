@@ -1,7 +1,6 @@
 
 using CookShare.Controllers;
 using Microsoft.AspNetCore.Mvc;
-using Xunit;
 
 namespace CookShare.Tests.Controllers
 {

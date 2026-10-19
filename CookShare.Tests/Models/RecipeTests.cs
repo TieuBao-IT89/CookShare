@@ -1,8 +1,5 @@
-
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using CookShare.Models;
-using Xunit;
 
 namespace CookShare.Tests.Models
 {
