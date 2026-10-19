@@ -277,13 +277,23 @@ Kết quả được hiển thị tại [GitHub Actions](https://github.com/Tieu
 
 CI giúp phát hiện lỗi biên dịch sớm và hỗ trợ Maintainer đánh giá chất lượng mã nguồn trước khi Merge.
 
-## 12. Giấy phép (License)
+## 12. Chính sách bảo mật (Security Policy)
+
+CookShare khuyến khích cộng đồng báo cáo các lỗ hổng bảo mật một cách có trách nhiệm.
+
+Nếu phát hiện lỗ hổng, vui lòng không công khai chi tiết kỹ thuật trên GitHub Issues hoặc Pull Requests.
+
+Xem hướng dẫn báo cáo và quy trình xử lý tại [SECURITY.md](SECURITY.md).
+
+Bạn có thể truy cập [GitHub Security](https://github.com/TieuBao-IT89/CookShare/security) để tìm hiểu các tùy chọn báo cáo bảo mật đang được hỗ trợ.
+
+## 13. Giấy phép (License)
 
 CookShare được phát hành theo giấy phép **MIT License**.
 
 Chi tiết xem tại [LICENSE](LICENSE).
 
-## 13. Liên kết dự án
+## 14. Liên kết dự án
 
 - [GitHub Repository](https://github.com/TieuBao-IT89/CookShare)
 - [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues)
