@@ -307,7 +307,19 @@ CookShare được phát hành theo giấy phép **MIT License**.
 
 Chi tiết xem tại [LICENSE](LICENSE).
 
-## 15. Liên kết dự án
+## 15. Lịch sử thay đổi (Changelog)
+
+CookShare sử dụng tài liệu Changelog để ghi nhận các tính năng mới,
+những cải tiến, sửa lỗi và cập nhật bảo mật trong quá trình phát triển.
+
+Lịch sử thay đổi được tổ chức theo cấu trúc Keep a Changelog.
+
+Xem chi tiết tại [CHANGELOG.md](CHANGELOG.md).
+
+Các phiên bản chính thức khi được phát hành sẽ được công bố
+tại [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases).
+
+## 16. Liên kết dự án
 
 - [GitHub Repository](https://github.com/TieuBao-IT89/CookShare)
 - [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues)
