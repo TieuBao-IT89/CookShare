@@ -207,7 +207,21 @@ Contributors có thể tham gia:
 
 Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) để tìm hiểu quy trình đóng góp chi tiết.
 
-## 10. Quy trình làm việc với Git/GitHub (Git Workflow)
+## 10. Bộ quy tắc ứng xử (Code of Conduct)
+
+CookShare cam kết xây dựng môi trường cộng tác thân thiện,
+chuyên nghiệp và tôn trọng giữa Maintainer, Core Developers
+và Contributors.
+
+Khi tham gia tạo Issues, Pull Requests hoặc thực hiện
+Code Review, mọi thành viên cần tuân thủ các quy tắc
+giao tiếp và ứng xử của dự án.
+
+Vui lòng đọc [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+để tìm hiểu các nguyên tắc ứng xử, hành vi không được
+chấp nhận và quy trình báo cáo vi phạm.
+
+## 11. Quy trình làm việc với Git/GitHub (Git Workflow)
 
 Dự án sử dụng các nhánh:
 
@@ -232,7 +246,7 @@ Quy trình đóng góp cơ bản:
 
 Xem các công việc tại [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues).
 
-## 11. Tích hợp liên tục (Continuous Integration - CI)
+## 12. Tích hợp liên tục (Continuous Integration - CI)
 
 CookShare sử dụng **GitHub Actions** để tự động kiểm tra mã nguồn trong quá trình phát triển.
 
@@ -277,23 +291,23 @@ Kết quả được hiển thị tại [GitHub Actions](https://github.com/Tieu
 
 CI giúp phát hiện lỗi biên dịch sớm và hỗ trợ Maintainer đánh giá chất lượng mã nguồn trước khi Merge.
 
-## 12. Chính sách bảo mật (Security Policy)
+## 13. Chính sách bảo mật (Security Policy)
 
 CookShare khuyến khích cộng đồng báo cáo các lỗ hổng bảo mật một cách có trách nhiệm.
 
 Nếu phát hiện lỗ hổng, vui lòng không công khai chi tiết kỹ thuật trên GitHub Issues hoặc Pull Requests.
 
-Xem hướng dẫn báo cáo và quy trình xử lý tại [SECURITY.md](SECURITY.md).
+Xem hướng dẫn báo cáo và các quy trình xử lý tại [SECURITY.md](SECURITY.md).
 
 Bạn có thể truy cập [GitHub Security](https://github.com/TieuBao-IT89/CookShare/security) để tìm hiểu các tùy chọn báo cáo bảo mật đang được hỗ trợ.
 
-## 13. Giấy phép (License)
+## 14. Giấy phép (License)
 
 CookShare được phát hành theo giấy phép **MIT License**.
 
 Chi tiết xem tại [LICENSE](LICENSE).
 
-## 14. Liên kết dự án
+## 15. Liên kết dự án
 
 - [GitHub Repository](https://github.com/TieuBao-IT89/CookShare)
 - [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues)
