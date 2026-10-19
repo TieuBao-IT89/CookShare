@@ -1,0 +1,48 @@
+name: CookShare .NET CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and Test .NET 8
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore CookShare.sln
+
+      - name: Build solution
+        run: dotnet build CookShare.sln --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test CookShare.sln --configuration Release --no-build --no-restore
+
+      # Issue #32 - Code Quality
+      - name: Check code formatting
+        run: dotnet format whitespace CookShare.sln --verify-no-changes --no-restore
+
+      - name: Check coding style
+        run: dotnet format style CookShare.sln --verify-no-changes --no-restore --severity warn
+
+      - name: Run code analyzers
+        run: dotnet format analyzers CookShare.sln --verify-no-changes --no-restore --severity warn

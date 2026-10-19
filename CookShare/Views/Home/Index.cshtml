@@ -1,5 +1,9 @@
 
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+}
+
 <link rel="stylesheet"
       href="~/css/style.css"
       asp-append-version="true" />
@@ -240,7 +244,9 @@
 
                         <span>★ 4.9</span>
 
-                        <span>♡ 321 lượt thích</span>
+                        <span class="recipe-like-count-display"
+                              data-recipe-id="1"
+                              data-like-format="feed">♡ 321 lượt thích</span>
 
                         <span>○ 48 bình luận</span>
 
@@ -250,9 +256,13 @@
                     <div class="post-actions">
 
                         <button type="button"
-                                class="post-action">
+                                class="post-action recipe-like-btn"
+                                data-recipe-id="1"
+                                data-recipe-name="Phở bò Hà Nội"
+                                aria-label="Thích Phở bò Hà Nội"
+                                aria-pressed="false">
 
-                            ♡ Thích
+                            <span class="like-icon">♡</span> <span class="like-text">Thích</span>
 
                         </button>
 
@@ -364,7 +374,9 @@
 
                         <span>★ 4.8</span>
 
-                        <span>♡ 214 lượt thích</span>
+                        <span class="recipe-like-count-display"
+                              data-recipe-id="2"
+                              data-like-format="feed">♡ 214 lượt thích</span>
 
                         <span>○ 31 bình luận</span>
 
@@ -374,9 +386,13 @@
                     <div class="post-actions">
 
                         <button type="button"
-                                class="post-action">
+                                class="post-action recipe-like-btn"
+                                data-recipe-id="2"
+                                data-recipe-name="Bánh Tiramisu mềm mịn"
+                                aria-label="Thích Bánh Tiramisu mềm mịn"
+                                aria-pressed="false">
 
-                            ♡ Thích
+                            <span class="like-icon">♡</span> <span class="like-text">Thích</span>
 
                         </button>
 
@@ -489,7 +505,9 @@
 
                         <span>★ 4.9</span>
 
-                        <span>♡ 321 lượt thích</span>
+                        <span class="recipe-like-count-display"
+                              data-recipe-id="3"
+                              data-like-format="feed">♡ 186 lượt thích</span>
 
                         <span>○ 48 bình luận</span>
 
@@ -499,9 +517,13 @@
                     <div class="post-actions">
 
                         <button type="button"
-                                class="post-action">
+                                class="post-action recipe-like-btn"
+                                data-recipe-id="3"
+                                data-recipe-name="Cơm gà Hội An"
+                                aria-label="Thích Cơm gà Hội An"
+                                aria-pressed="false">
 
-                            ♡ Thích
+                            <span class="like-icon">♡</span> <span class="like-text">Thích</span>
 
                         </button>
 
@@ -636,7 +658,9 @@
                             Phở bò Hà Nội
                         </strong>
 
-                        <span>
+                        <span class="recipe-like-count-display"
+                              data-recipe-id="1"
+                              data-like-format="trending">
                             321 lượt thích
                         </span>
 
@@ -649,8 +673,10 @@
                             Cơm gà Hội An
                         </strong>
 
-                        <span>
-                            214 lượt thích
+                        <span class="recipe-like-count-display"
+                              data-recipe-id="3"
+                              data-like-format="trending">
+                            186 lượt thích
                         </span>
 
                     </div>
@@ -662,8 +688,10 @@
                             Tiramisu mềm mịn
                         </strong>
 
-                        <span>
-                            186 lượt thích
+                        <span class="recipe-like-count-display"
+                              data-recipe-id="2"
+                              data-like-format="trending">
+                            214 lượt thích
                         </span>
 
                     </div>
@@ -705,3 +733,7 @@
     </div>
 
 </main>
+
+@section Scripts {
+    <script src="~/js/recipe-likes.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,653 @@
+/* ==========================================================================
+   COOKSHARE RECIPE COMMENTS MODULE STYLES
+   Thiết kế đồng bộ với recipe.css – chủ đề xanh lá CookShare
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   COMMENT SECTION WRAPPER
+   -------------------------------------------------------------------------- */
+
+.comment-section {
+  margin-top: 30px;
+  background: var(--rc-white);
+  border: 1px solid var(--rc-line);
+  border-radius: var(--rc-radius-lg);
+  padding: 32px 36px;
+  box-shadow: var(--rc-shadow-sm);
+}
+
+/* --------------------------------------------------------------------------
+   SECTION HEADING
+   -------------------------------------------------------------------------- */
+
+.comment-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rc-line);
+}
+
+.comment-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--rc-ink);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.comment-section-title .title-icon {
+  font-size: 24px;
+}
+
+.comment-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--rc-primary);
+  color: var(--rc-white);
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 13px;
+  line-height: 1;
+}
+
+/* --------------------------------------------------------------------------
+   COMMENT FORM
+   -------------------------------------------------------------------------- */
+
+.comment-form-area {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+/* User Avatar */
+.comment-avatar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--rc-primary-light);
+  border: 2px solid var(--rc-secondary);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--rc-primary);
+  user-select: none;
+}
+
+.comment-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.comment-avatar.comment-avatar--small {
+  width: 36px;
+  height: 36px;
+  font-size: 13px;
+}
+
+/* Form content area */
+.comment-form-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-textarea-wrapper {
+  position: relative;
+}
+
+.comment-textarea {
+  width: 100%;
+  min-height: 90px;
+  background: var(--rc-bg);
+  border: 1.5px solid var(--rc-line);
+  border-radius: 12px;
+  padding: 12px 15px;
+  font-size: 14px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  color: var(--rc-ink);
+  resize: vertical;
+  outline: none;
+  transition: var(--rc-transition);
+  box-sizing: border-box;
+  line-height: 1.6;
+}
+
+.comment-textarea:focus {
+  background: var(--rc-white);
+  border-color: var(--rc-secondary);
+  box-shadow: 0 0 0 4px var(--rc-primary-light);
+}
+
+.comment-textarea::placeholder {
+  color: var(--rc-muted-light);
+}
+
+.comment-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+
+/* Character counter */
+.comment-char-counter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: var(--rc-muted-light);
+  user-select: none;
+}
+
+.comment-char-counter.comment-char-counter--warning {
+  color: var(--rc-warning);
+  font-weight: 600;
+}
+
+.comment-char-counter.comment-char-counter--danger {
+  color: var(--rc-danger);
+  font-weight: 700;
+}
+
+/* Validation message */
+.comment-validation-msg {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--rc-danger);
+  margin-top: 6px;
+}
+
+.comment-validation-msg.comment-validation-msg--visible {
+  display: flex;
+}
+
+/* Submit button row */
+.comment-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.btn-submit-comment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: var(--rc-primary);
+  color: var(--rc-white);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 10px 22px;
+  border: 1px solid var(--rc-primary);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: var(--rc-transition);
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.2);
+  outline: none;
+}
+
+.btn-submit-comment:hover:not(:disabled) {
+  background: var(--rc-primary-dark);
+  border-color: var(--rc-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.3);
+}
+
+.btn-submit-comment:focus-visible {
+  outline: 2px solid var(--rc-secondary);
+  outline-offset: 2px;
+}
+
+.btn-submit-comment:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   STATUS TOAST NOTIFICATION
+   -------------------------------------------------------------------------- */
+
+.comment-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  max-width: 360px;
+}
+
+.comment-toast.comment-toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.comment-toast--success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.comment-toast--error {
+  background: var(--rc-danger-light);
+  border: 1px solid var(--rc-danger-border);
+  color: var(--rc-danger);
+}
+
+.comment-toast--info {
+  background: var(--rc-info-light);
+  border: 1px solid #bae6fd;
+  color: var(--rc-info);
+}
+
+/* --------------------------------------------------------------------------
+   EMPTY STATE
+   -------------------------------------------------------------------------- */
+
+.comment-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--rc-muted);
+}
+
+.comment-empty-state-icon {
+  font-size: 42px;
+  margin-bottom: 10px;
+  opacity: 0.6;
+}
+
+.comment-empty-state-text {
+  font-size: 14.5px;
+  line-height: 1.7;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   COMMENT LIST & ITEMS
+   -------------------------------------------------------------------------- */
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Individual comment item */
+.comment-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 18px;
+  background: var(--rc-bg);
+  border: 1px solid var(--rc-line-soft);
+  border-radius: 14px;
+  transition: var(--rc-transition);
+}
+
+.comment-item:hover {
+  background: #f7fbf7;
+  border-color: #d1ebd1;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.05);
+}
+
+/* Comment body */
+.comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-header-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.comment-author-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--rc-ink);
+  white-space: nowrap;
+}
+
+.comment-timestamp {
+  font-size: 11.5px;
+  color: var(--rc-muted-light);
+  white-space: nowrap;
+}
+
+.comment-edited-tag {
+  font-size: 11px;
+  color: var(--rc-muted-light);
+  font-style: italic;
+}
+
+/* Comment text content (safe, uses textContent) */
+.comment-content-text {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--rc-ink-light);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* Own comment indicator */
+.comment-item--own {
+  border-left: 3px solid var(--rc-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   COMMENT ACTION BUTTONS (EDIT / DELETE)
+   -------------------------------------------------------------------------- */
+
+.comment-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-comment-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--rc-transition);
+  outline: none;
+  background: transparent;
+}
+
+.btn-comment-action:focus-visible {
+  outline: 2px solid var(--rc-secondary);
+  outline-offset: 2px;
+}
+
+.btn-comment-edit {
+  color: var(--rc-warning);
+  border-color: var(--rc-warning-border);
+  background: var(--rc-warning-light);
+}
+
+.btn-comment-edit:hover {
+  background: var(--rc-accent-yellow);
+  color: var(--rc-white);
+  border-color: var(--rc-accent-yellow);
+}
+
+.btn-comment-delete {
+  color: var(--rc-danger);
+  border-color: var(--rc-danger-border);
+  background: var(--rc-danger-light);
+}
+
+.btn-comment-delete:hover {
+  background: var(--rc-danger);
+  color: var(--rc-white);
+  border-color: var(--rc-danger);
+}
+
+/* --------------------------------------------------------------------------
+   INLINE EDIT FORM
+   -------------------------------------------------------------------------- */
+
+.comment-edit-form {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-edit-textarea {
+  width: 100%;
+  min-height: 80px;
+  background: var(--rc-white);
+  border: 1.5px solid var(--rc-secondary);
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-size: 14px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  color: var(--rc-ink);
+  resize: vertical;
+  outline: none;
+  transition: var(--rc-transition);
+  box-sizing: border-box;
+  line-height: 1.6;
+  box-shadow: 0 0 0 3px var(--rc-primary-light);
+}
+
+.comment-edit-textarea:focus {
+  border-color: var(--rc-primary);
+  box-shadow: 0 0 0 4px var(--rc-primary-light);
+}
+
+.comment-edit-char-counter {
+  text-align: right;
+  font-size: 11px;
+  color: var(--rc-muted-light);
+}
+
+.comment-edit-char-counter.comment-char-counter--warning {
+  color: var(--rc-warning);
+  font-weight: 600;
+}
+
+.comment-edit-char-counter.comment-char-counter--danger {
+  color: var(--rc-danger);
+  font-weight: 700;
+}
+
+.comment-edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-edit-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--rc-primary);
+  color: var(--rc-white);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 8px 18px;
+  border: 1px solid var(--rc-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--rc-transition);
+  outline: none;
+}
+
+.btn-edit-save:hover:not(:disabled) {
+  background: var(--rc-primary-dark);
+  border-color: var(--rc-primary-dark);
+}
+
+.btn-edit-save:focus-visible {
+  outline: 2px solid var(--rc-secondary);
+  outline-offset: 2px;
+}
+
+.btn-edit-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-edit-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f1f4f1;
+  color: var(--rc-ink-light);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 600;
+  font-size: 12.5px;
+  padding: 8px 18px;
+  border: 1px solid #dce4dc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--rc-transition);
+  outline: none;
+}
+
+.btn-edit-cancel:hover {
+  background: #e4ece4;
+  color: var(--rc-ink);
+}
+
+.btn-edit-cancel:focus-visible {
+  outline: 2px solid var(--rc-secondary);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   ARIA LIVE STATUS REGION (HIDDEN)
+   -------------------------------------------------------------------------- */
+
+.comment-sr-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE BREAKPOINTS
+   -------------------------------------------------------------------------- */
+
+/* Tablet */
+@media (max-width: 1023px) {
+  .comment-section {
+    padding: 24px 24px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .comment-section {
+    padding: 18px 16px;
+    border-radius: var(--rc-radius-md);
+    margin-top: 22px;
+  }
+
+  .comment-section-title {
+    font-size: 19px;
+  }
+
+  .comment-form-area {
+    gap: 10px;
+  }
+
+  .comment-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .comment-avatar.comment-avatar--small {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .comment-textarea {
+    min-height: 80px;
+    font-size: 13.5px;
+  }
+
+  .comment-item {
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .comment-header-row {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .comment-edit-actions {
+    flex-direction: column;
+  }
+
+  .btn-edit-save,
+  .btn-edit-cancel {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .comment-toast {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+  }
+
+  .comment-form-actions {
+    justify-content: stretch;
+  }
+
+  .btn-submit-comment {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 375px) {
+  .comment-section {
+    padding: 14px 12px;
+  }
+
+  .comment-actions-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+

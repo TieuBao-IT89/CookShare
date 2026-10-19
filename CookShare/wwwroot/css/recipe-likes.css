@@ -1,0 +1,216 @@
+/* ==========================================================================
+   COOKSHARE RECIPE LIKES MODULE STYLES
+   Đồng bộ giao diện Like / Unlike cho CookShare trên tất cả các trang
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. ANIMATION & HIỆU ỨNG TRÁI TIM
+   -------------------------------------------------------------------------- */
+
+@keyframes cookshareHeartPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.recipe-like-btn {
+  font-family: inherit;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.recipe-like-btn:focus-visible {
+  outline: 2px solid #2e7d32;
+  outline-offset: 2px;
+}
+
+.recipe-like-btn .like-icon {
+  display: inline-block;
+  font-style: normal;
+  line-height: 1;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.recipe-like-btn.liked .like-icon {
+  animation: cookshareHeartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recipe-like-btn,
+  .recipe-like-btn .like-icon {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. NÚT LIKE TRÊN FEED TRANG CHỦ (HOME FEED .post-action)
+   -------------------------------------------------------------------------- */
+
+.post-action.recipe-like-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #68736b;
+  font-weight: 500;
+}
+
+.post-action.recipe-like-btn:hover {
+  color: #e53935;
+  background: #fff5f5;
+}
+
+.post-action.recipe-like-btn.liked {
+  color: #e53935;
+  font-weight: 700;
+  background: #fff0f0;
+}
+
+.post-action.recipe-like-btn.liked .like-icon {
+  color: #e53935;
+}
+
+/* Hiển thị số like trên post feed */
+.post-info .recipe-like-count-display {
+  transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.post-info .recipe-like-count-display.liked {
+  color: #e53935;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   3. NÚT LIKE TRÊN THẺ RECIPE CARD (TRANG DANH SÁCH /Recipe)
+   -------------------------------------------------------------------------- */
+
+.recipe-card-like-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  color: #546e7a;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+}
+
+.recipe-card-like-btn:hover {
+  background: #ffffff;
+  color: #e53935;
+  border-color: #fecaca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.18);
+}
+
+.recipe-card-like-btn.liked {
+  background: #fff5f5;
+  color: #e53935;
+  border-color: #fca5a5;
+  box-shadow: 0 2px 10px rgba(229, 57, 53, 0.22);
+}
+
+.recipe-card-like-btn .like-icon {
+  font-size: 14px;
+}
+
+/* --------------------------------------------------------------------------
+   4. NÚT LIKE TRÊN TRANG CHI TIẾT CÔNG THỨC (RECIPE DETAILS)
+   -------------------------------------------------------------------------- */
+
+.btn-details-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: #ffffff;
+  border: 1.5px solid #d1ded1;
+  border-radius: 22px;
+  color: #37474f;
+  font-size: 13.5px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+}
+
+.btn-details-like:hover {
+  background: #fff5f5;
+  border-color: #fca5a5;
+  color: #e53935;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(229, 57, 53, 0.16);
+}
+
+.btn-details-like.liked {
+  background: #fff0f0;
+  border-color: #ef4444;
+  color: #e53935;
+  box-shadow: 0 4px 14px rgba(229, 57, 53, 0.2);
+}
+
+.btn-details-like .like-icon {
+  font-size: 16px;
+}
+
+.like-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #f1f5f1;
+  color: #455a64;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.btn-details-like.liked .like-count-pill {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Metadata like stat */
+.details-meta-likes b {
+  color: #e53935 !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. RESPONSIVE MEDIA QUERIES
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  .btn-details-like {
+    padding: 7px 14px;
+    font-size: 12.5px;
+  }
+
+  .recipe-card-like-btn {
+    top: 10px;
+    right: 10px;
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+}
+

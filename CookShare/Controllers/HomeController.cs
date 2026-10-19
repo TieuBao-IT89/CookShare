@@ -1,6 +1,6 @@
+using System.Diagnostics;
 using CookShare.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace CookShare.Controllers
 {
