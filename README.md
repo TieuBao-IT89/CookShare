@@ -232,13 +232,39 @@ Quy trình đóng góp cơ bản:
 
 Xem các công việc tại [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues).
 
-## 11. Giấy phép (License)
+## 11. Tích hợp liên tục (Continuous Integration - CI)
+
+CookShare sử dụng **GitHub Actions** để tự động kiểm tra mã nguồn trong quá trình phát triển.
+
+Workflow được cấu hình tại `.github/workflows/dotnet-ci.yml`.
+
+### Khi nào CI được kích hoạt?
+
+- Khi có commit được Push lên nhánh `main` hoặc `develop`.
+- Khi tạo hoặc cập nhật Pull Request hướng đến `main` hoặc `develop`.
+
+### Các bước kiểm tra tự động
+
+1. Checkout mã nguồn từ repository.
+2. Thiết lập môi trường .NET 8 SDK.
+3. Khôi phục dependencies bằng `dotnet restore`.
+4. Biên dịch Solution bằng `dotnet build`.
+
+**Lưu ý:** Unit Tests sẽ được tích hợp sau khi hoàn thành [Issue #30](https://github.com/TieuBao-IT89/CookShare/issues/30).
+
+### Xem kết quả CI
+
+Kết quả được hiển thị tại [GitHub Actions](https://github.com/TieuBao-IT89/CookShare/actions) hoặc tab **Checks** trong Pull Request.
+
+CI giúp phát hiện lỗi biên dịch sớm và hỗ trợ Maintainer đánh giá chất lượng mã nguồn trước khi Merge.
+
+## 12. Giấy phép (License)
 
 CookShare được phát hành theo giấy phép **MIT License**.
 
 Chi tiết xem tại [LICENSE](LICENSE).
 
-## 12. Liên kết dự án
+## 13. Liên kết dự án
 
 - [GitHub Repository](https://github.com/TieuBao-IT89/CookShare)
 - [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues)
