@@ -1,4 +1,4 @@
-﻿namespace CookShare.Models
+namespace CookShare.Models
 {
     public class ErrorViewModel
     {

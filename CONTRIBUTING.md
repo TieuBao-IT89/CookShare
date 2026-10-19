@@ -156,17 +156,37 @@ git commit -m "docs: update contributing guidelines"
 
 ## 8. Quy tắc Coding Convention
 
-Contributors cần tuân thủ các nguyên tắc sau:
+### Coding Standards
 
-- Sử dụng cách đặt tên rõ ràng, dễ hiểu.
-- Tuân thủ quy ước đặt tên của C#.
+CookShare sử dụng file `.editorconfig` để thống nhất quy tắc định dạng và phong cách viết mã C#.
+
+Các Contributors cần tuân thủ:
+
 - Class, Method và Property sử dụng PascalCase.
+- Interface sử dụng tiền tố `I` kết hợp PascalCase.
 - Biến cục bộ và tham số sử dụng camelCase.
-- Giữ mã nguồn dễ đọc, hạn chế lặp lại logic.
-- Không commit mã nguồn không liên quan đến Issue.
-- Không đưa thông tin bí mật vào repository.
-- Kiểm tra mã nguồn trước khi tạo Pull Request.
-- Tôn trọng cấu trúc và phong cách mã nguồn hiện có.
+- Private fields ưu tiên `_camelCase`.
+- Sử dụng 4 dấu cách để thụt lề trong C#.
+- Sử dụng dấu ngoặc `{ }` cho các khối điều kiện.
+- Không để khoảng trắng không cần thiết cuối dòng.
+- Không commit mã nguồn chưa được kiểm tra.
+
+### Kiểm tra chất lượng mã nguồn
+
+Trước khi tạo Pull Request, chạy:
+
+```bash
+dotnet restore CookShare.sln
+dotnet format whitespace CookShare.sln --verify-no-changes
+dotnet format style CookShare.sln --verify-no-changes --severity warn
+dotnet format analyzers CookShare.sln --verify-no-changes --severity warn
+dotnet build CookShare.sln
+dotnet test CookShare.sln
+```
+
+Nếu kiểm tra thất bại, Contributor cần xem thông báo, sửa lỗi hoặc trao đổi với Maintainer trước khi gửi Pull Request.
+
+Việc chỉnh sửa định dạng hàng loạt phải được kiểm tra kỹ để tránh đưa các thay đổi không liên quan vào PR.
 
 ## 9. Quy trình tạo Pull Request
 
