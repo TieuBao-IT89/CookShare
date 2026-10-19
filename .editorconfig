@@ -1,0 +1,55 @@
+
+# CookShare Coding Standards
+root = true
+
+# General formatting
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# C# files
+[*.cs]
+indent_size = 4
+
+# C# naming conventions
+dotnet_naming_rule.types_should_be_pascal_case.severity = warning
+dotnet_naming_rule.types_should_be_pascal_case.symbols = types
+dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum
+dotnet_naming_symbols.types.applicable_accessibilities = *
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+# C# coding preferences
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+csharp_style_expression_bodied_methods = false:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+
+# Prefer braces
+csharp_prefer_braces = true:suggestion
+
+# .NET analyzer preferences
+dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.IDE0055.severity = warning
+
+# Razor, JSON, YAML, Markdown
+[*.{cshtml,json,yml,yaml,md}]
+indent_size = 2
+
+# Solution and project files
+[*.{sln,csproj,props,targets}]
+indent_size = 2

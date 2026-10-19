@@ -36,3 +36,13 @@ jobs:
 
       - name: Run unit tests
         run: dotnet test CookShare.sln --configuration Release --no-build --no-restore
+
+      # Issue #32 - Code Quality
+      - name: Check code formatting
+        run: dotnet format whitespace CookShare.sln --verify-no-changes --no-restore
+
+      - name: Check coding style
+        run: dotnet format style CookShare.sln --verify-no-changes --no-restore --severity warn
+
+      - name: Run code analyzers
+        run: dotnet format analyzers CookShare.sln --verify-no-changes --no-restore --severity warn
