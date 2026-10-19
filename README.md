@@ -314,10 +314,24 @@ những cải tiến, sửa lỗi và cập nhật bảo mật trong quá trình
 
 Lịch sử thay đổi được tổ chức theo cấu trúc Keep a Changelog.
 
-Xem chi tiết tại [CHANGELOG.md](CHANGELOG.md).
+## Quản lý phiên bản và phát hành (Versioning & Releases)
 
-Các phiên bản chính thức khi được phát hành sẽ được công bố
-tại [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases).
+CookShare sử dụng Semantic Versioning (`MAJOR.MINOR.PATCH`)
+để quản lý các phiên bản phần mềm.
+
+- `main`: Nhánh ổn định để phát hành.
+- `develop`: Nhánh phát triển và tích hợp.
+- Git Tags sử dụng định dạng `vX.Y.Z`.
+- GitHub Releases ghi nhận các bản phát hành chính thức.
+
+Trước mỗi Release, mã nguồn phải được Build, kiểm thử
+và hoàn thành Code Review.
+
+Xem quy trình chi tiết tại [RELEASING.md](RELEASING.md).
+
+Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
+
+Các bản phát hành: [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases).
 
 ## 16. Liên kết dự án
 
