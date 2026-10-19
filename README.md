@@ -249,8 +249,27 @@ Workflow được cấu hình tại `.github/workflows/dotnet-ci.yml`.
 2. Thiết lập môi trường .NET 8 SDK.
 3. Khôi phục dependencies bằng `dotnet restore`.
 4. Biên dịch Solution bằng `dotnet build`.
+5. Chạy Unit Tests bằng `dotnet test`.
 
-**Lưu ý:** Unit Tests sẽ được tích hợp sau khi hoàn thành [Issue #30](https://github.com/TieuBao-IT89/CookShare/issues/30).
+### Unit Tests
+
+CookShare sử dụng **xUnit** để viết kiểm thử đơn vị.
+
+Các bài kiểm thử được lưu trong project `CookShare.Tests`.
+
+Để chạy toàn bộ Unit Tests:
+
+```bash
+dotnet test CookShare.sln
+```
+
+Để xem kết quả chi tiết:
+
+```bash
+dotnet test CookShare.sln --logger "console;verbosity=detailed"
+```
+
+GitHub Actions tự động chạy Unit Tests khi có Pull Request hướng đến `develop` hoặc `main`.
 
 ### Xem kết quả CI
 
