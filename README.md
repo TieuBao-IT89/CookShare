@@ -297,7 +297,7 @@ CookShare khuyến khích cộng đồng báo cáo các lỗ hổng bảo mật 
 
 Nếu phát hiện lỗ hổng, vui lòng không công khai chi tiết kỹ thuật trên GitHub Issues hoặc Pull Requests.
 
-Xem hướng dẫn báo cáo và quy trình xử lý tại [SECURITY.md](SECURITY.md).
+Xem hướng dẫn báo cáo và các quy trình xử lý tại [SECURITY.md](SECURITY.md).
 
 Bạn có thể truy cập [GitHub Security](https://github.com/TieuBao-IT89/CookShare/security) để tìm hiểu các tùy chọn báo cáo bảo mật đang được hỗ trợ.
 
