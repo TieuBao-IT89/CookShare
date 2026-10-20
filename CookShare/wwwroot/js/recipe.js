@@ -926,7 +926,7 @@ function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
               ${escapeHtml(recipe.name)}
             </a>
           </h3>
-          <span class="rating">★ ${escapeHtml(meta.rating)}</span>
+          <span class="rating recipe-rating-display" data-recipe-id="${recipe.id}">★ ${escapeHtml(meta.rating)}</span>
         </div>
         <p>${escapeHtml(recipe.description || "Công thức món ngon đặc sắc từ cộng đồng CookShare...")}</p>
         <div class="recipe-meta">
@@ -1032,6 +1032,10 @@ function initializeHomePage() {
     loadMoreBtn.addEventListener("click", function () {
       window.location.href = "/Recipe";
     });
+  }
+
+  if (window.CookShareRatings && typeof window.CookShareRatings.syncAllRecipeRatingsUI === "function") {
+    window.CookShareRatings.syncAllRecipeRatingsUI();
   }
 }
 

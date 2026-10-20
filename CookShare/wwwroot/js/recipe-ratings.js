@@ -441,6 +441,9 @@
         // Cập nhật thông tin trên Hero Card của Details
         updateHeroRatingDisplay(recipeId);
 
+        // Đồng bộ điểm trên các card khác trên toàn trang
+        syncAllRecipeRatingsUI();
+
         // Hiển thị thông báo phản hồi
         showFeedback(section, result.message, "success");
       } else {
@@ -478,6 +481,23 @@
       countText.textContent =
         stats.totalRatings > 0 ? `${stats.totalRatings} lượt đánh giá` : "Chưa có lượt đánh giá";
     }
+  }
+
+  /**
+   * Đồng bộ điểm đánh giá hiển thị trên toàn trang cho các phần tử
+   * có class .recipe-rating-display và data-recipe-id.
+   * Nếu công thức đã có đánh giá trong localStorage, cập nhật thành ★ X.X.
+   */
+  function syncAllRecipeRatingsUI() {
+    const elements = document.querySelectorAll(".recipe-rating-display[data-recipe-id]");
+    elements.forEach((el) => {
+      const id = el.getAttribute("data-recipe-id");
+      if (!id) return;
+      const stats = getRecipeRatingStatistics(id);
+      if (stats.totalRatings > 0) {
+        el.textContent = `★ ${stats.averageRating.toFixed(1)}`;
+      }
+    });
   }
 
   /**
@@ -549,6 +569,7 @@
       if (detailsRecipeId && detailsRecipeId.value) {
         initializeRecipeRatings(Number(detailsRecipeId.value));
       }
+      syncAllRecipeRatingsUI();
     }
   });
 
@@ -558,6 +579,7 @@
     if (idInput && idInput.value && !document.getElementById("recipeRatingSection")) {
       initializeRecipeRatings(Number(idInput.value));
     }
+    syncAllRecipeRatingsUI();
   });
 
   // ==========================================================================
@@ -570,6 +592,7 @@
     getRecipeRatingStatistics,
     initializeRecipeRatings,
     updateHeroRatingDisplay,
+    syncAllRecipeRatingsUI,
     RATING_LABELS
   };
 })();
