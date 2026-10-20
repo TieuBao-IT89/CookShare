@@ -1,4 +1,4 @@
-/**
+﻿/**
  * COOKSHARE - RECIPE MANAGEMENT MODULE
  * Quản lý dữ liệu công thức nấu ăn bằng localStorage
  */
@@ -192,6 +192,14 @@ function displayRecipes() {
           <span class="like-icon">♡</span>
           <span class="recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="badge">0</span>
         </button>
+        <button type="button"
+                class="recipe-save-btn"
+                data-recipe-id="${recipe.id}"
+                aria-label="Lưu ${escapeHtml(recipe.name)}"
+                aria-pressed="false"
+                title="Lưu công thức">
+          <span class="save-icon">🔖</span>
+        </button>
       </div>
       <div class="recipe-card-body">
         <h3 class="recipe-card-title">
@@ -222,6 +230,10 @@ function displayRecipes() {
   // Đồng bộ trạng thái Like cho danh sách công thức vừa render
   if (window.CookShareLikes && typeof window.CookShareLikes.syncAllRecipeLikesUI === "function") {
     window.CookShareLikes.syncAllRecipeLikesUI();
+  }
+  // Đồng bộ trạng thái Lưu cho danh sách công thức vừa render
+  if (window.CookShareSaved && typeof window.CookShareSaved.syncSavedRecipeUI === "function") {
+    window.CookShareSaved.syncSavedRecipeUI();
   }
 }
 
@@ -766,6 +778,16 @@ function initializeDetailsRecipe() {
                   data-recipe-id="${recipe.id}"
                   data-like-format="number">0</span>
           </button>
+          <button type="button"
+                  class="btn-details-save recipe-save-btn"
+                  data-recipe-id="${recipe.id}"
+                  data-recipe-name="${escapeHtml(recipe.name)}"
+                  aria-label="Lưu ${escapeHtml(recipe.name)}"
+                  aria-pressed="false"
+                  title="Lưu công thức này">
+            <span class="save-icon">🔖</span>
+            <span class="save-text">Lưu</span>
+          </button>
         </div>
       </div>
 
@@ -783,6 +805,9 @@ function initializeDetailsRecipe() {
         </div>
         <div class="details-meta-item details-meta-likes">
           <span>♡ Lượt thích:</span> <b class="recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="meta">0</b>
+        </div>
+        <div class="details-meta-item details-meta-saved">
+          <span>🔖 Đã lưu:</span> <b id="detailsSavedStatus">—</b>
         </div>
       </div>
 
@@ -848,6 +873,16 @@ function initializeDetailsRecipe() {
   if (window.CookShareLikes && typeof window.CookShareLikes.updateRecipeLikeUI === "function") {
     window.CookShareLikes.updateRecipeLikeUI(recipeId);
   }
+
+  // Đồng bộ trạng thái Lưu cho trang chi tiết công thức
+  if (window.CookShareSaved && typeof window.CookShareSaved.updateSavedRecipeUI === "function") {
+    window.CookShareSaved.updateSavedRecipeUI(recipeId);
+    // Cập nhật meta "Đã lưu"
+    const savedStatusEl = document.getElementById("detailsSavedStatus");
+    if (savedStatusEl) {
+      savedStatusEl.textContent = window.CookShareSaved.isRecipeSaved(recipeId) ? "Có ✓" : "Chưa";
+    }
+  }
 }
 
 function deleteRecipeInDetails(id) {
@@ -902,6 +937,7 @@ function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
   const imgSrc = recipe.image ? recipe.image : defaultImg;
   const meta = getHomeRecipeMeta(recipe, index);
   const likeBtnHtml = `<button type="button" class="like recipe-like-btn" data-recipe-id="${recipe.id}" data-recipe-name="${escapeHtml(recipe.name)}" aria-label="Thích ${escapeHtml(recipe.name)}" aria-pressed="false"><span class="like-icon">♡</span></button>`;
+  const saveBtnHtml = `<button type="button" class="recipe-save-btn" data-recipe-id="${recipe.id}" aria-label="Lưu ${escapeHtml(recipe.name)}" aria-pressed="false" title="Lưu công thức" style="position:absolute;top:44px;right:10px;"><span class="save-icon">🔖</span></button>`;
 
   return `
     <article class="recipe-card" data-id="${recipe.id}">
@@ -911,6 +947,7 @@ function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
         </a>
         <span class="recipe-tag">${escapeHtml(recipe.category || "Món ăn")}</span>
         ${likeBtnHtml}
+        ${saveBtnHtml}
       </div>
       <div class="recipe-content">
         <div class="recipe-title-row">
@@ -941,6 +978,12 @@ function attachHomeLikeEvents(container) {
   // Nếu đã nạp module CookShareLikes, sử dụng hệ thống Like chung
   if (window.CookShareLikes && typeof window.CookShareLikes.syncAllRecipeLikesUI === "function") {
     window.CookShareLikes.syncAllRecipeLikesUI();
+  }
+  // Đồng bộ trạng thái Lưu sau khi render xong card
+  if (window.CookShareSaved && typeof window.CookShareSaved.syncSavedRecipeUI === "function") {
+    window.CookShareSaved.syncSavedRecipeUI();
+  }
+  if (window.CookShareLikes && typeof window.CookShareLikes.syncAllRecipeLikesUI === "function") {
     return;
   }
 
