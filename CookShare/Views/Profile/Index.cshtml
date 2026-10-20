@@ -3,6 +3,7 @@
 }
 
 @section Styles {
+    <link rel="stylesheet" href="~/css/user-follow.css" asp-append-version="true" />
     <style>
         /* ================================
                    PROFILE PAGE
@@ -329,6 +330,8 @@
         <!-- ================================
              THÔNG TIN CÁ NHÂN
              ================================ -->
+
+        <input type="hidden" id="profileTargetUserId" value="@ViewData["TargetUserId"]" />
 
         <div class="profile-header">
 
@@ -669,3 +672,6 @@
 
     </div>
 </section>
+@section Scripts {
+    <script src="~/js/user-follow.js" asp-append-version="true"></script>
+}
