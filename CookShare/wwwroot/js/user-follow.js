@@ -320,7 +320,8 @@
 
     let avatarHtml = "";
     if (user.avatar) {
-      avatarHtml = `<img src="${escapeHtml(user.avatar)}" alt="${escapeHtml(user.name)}" class="user-card-avatar" />`;
+      const source = typeof recipeImageSource === "function" ? recipeImageSource(user.avatar) : user.avatar;
+      avatarHtml = `<img src="${escapeHtml(source)}" alt="${escapeHtml(user.name)}" class="user-card-avatar" />`;
     } else {
       avatarHtml = `<div class="user-card-avatar avatar-fallback">${escapeHtml(initials)}</div>`;
     }
@@ -406,12 +407,12 @@
 
     if (avatarEl) {
       if (user.avatar) {
-        avatarEl.src = user.avatar;
+        avatarEl.src = typeof recipeImageSource === "function" ? recipeImageSource(user.avatar) : user.avatar;
         avatarEl.alt = `Ảnh đại diện ${user.name}`;
       } else {
         // Thay thế bằng avatar fallback chứa chữ cái đầu
         const initials = user.initials || getInitials(user.name);
-        avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=e8f5e9&color=2e7d32&bold=true&size=240`;
+        avatarEl.src = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="#e6eddf"/><text x="120" y="145" text-anchor="middle" font-family="sans-serif" font-size="72" fill="#245c43">${escapeHtml(initials)}</text></svg>`);
         avatarEl.alt = `Ảnh đại diện ${user.name}`;
       }
     }
@@ -509,6 +510,19 @@
         const type = this.getAttribute("data-tab-type");
         if (type) switchTab(type);
       });
+      tab.addEventListener("keydown", event => {
+        const index = Array.from(tabs).indexOf(tab);
+        let target;
+        if (event.key === "ArrowRight") target = (index + 1) % tabs.length;
+        if (event.key === "ArrowLeft") target = (index + tabs.length - 1) % tabs.length;
+        if (event.key === "Home") target = 0;
+        if (event.key === "End") target = tabs.length - 1;
+        if (target !== undefined) {
+          event.preventDefault();
+          tabs[target].click();
+          tabs[target].focus();
+        }
+      });
     });
   }
 
@@ -524,9 +538,11 @@
       if (t.getAttribute("data-tab-type") === tabType) {
         t.classList.add("active");
         t.setAttribute("aria-selected", "true");
+        t.setAttribute("tabindex", "0");
       } else {
         t.classList.remove("active");
         t.setAttribute("aria-selected", "false");
+        t.setAttribute("tabindex", "-1");
       }
     });
 
@@ -541,8 +557,8 @@
     const user = getUserById(currentProfileUserId) || getUserById(CURRENT_DEMO_USER_ID);
 
     if (tabType === "recipes") {
-      if (headingH2) headingH2.textContent = "Công thức đã đăng";
-      if (headingP) headingP.textContent = `Những công thức được chia sẻ bởi ${user.name}`;
+      if (headingH2) headingH2.textContent = "Góc công thức";
+      if (headingP) headingP.textContent = "Bộ sưu tập công thức CookShare trên thiết bị này.";
       if (recipesGrid) recipesGrid.style.display = "grid";
       if (followersContainer) followersContainer.style.display = "none";
       if (followingContainer) followingContainer.style.display = "none";
@@ -628,6 +644,8 @@
    * Khởi tạo liên kết tác giả và nút theo dõi trên bài đăng feed trang chủ
    */
   function initializeHomepageAuthors() {
+    const community = document.getElementById("homeCommunityUsers");
+    if (community) community.innerHTML = DEMO_USERS.filter(user => user.id !== CURRENT_DEMO_USER_ID).map(renderUserCard).join("");
     const posts = document.querySelectorAll(".recipe-post");
     posts.forEach((post) => {
       const userEl = post.querySelector(".post-user strong");

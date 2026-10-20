@@ -1,25 +1,8 @@
-﻿@model ErrorViewModel
-@{
-    ViewData["Title"] = "Error";
-}
-
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+@model ErrorViewModel
+@{ ViewData["Title"] = "Có chút trục trặc"; }
+<section class="container error-page recipe-empty-container">
+    <span class="state-icon"><svg class="icon"><use href="#i-chef" /></svg></span>
+    <span class="eyebrow">BẾP ĐANG CẦN MỘT CHÚT THỜI GIAN</span><h1>Có chút trục trặc rồi.</h1><p>Chúng mình chưa thể tải nội dung này. Bạn hãy thử lại sau nhé.</p>
+    <a class="btn" href="/">Về trang chủ <svg class="icon"><use href="#i-arrow" /></svg></a>
+    @if (Model.ShowRequestId) { <p class="error-reference">Mã hỗ trợ: <code>@Model.RequestId</code></p> }
+</section>

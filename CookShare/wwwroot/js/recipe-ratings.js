@@ -496,6 +496,8 @@
       const stats = getRecipeRatingStatistics(id);
       if (stats.totalRatings > 0) {
         el.textContent = `★ ${stats.averageRating.toFixed(1)}`;
+      } else {
+        el.textContent = "☆ Chưa đánh giá";
       }
     });
   }
@@ -566,7 +568,7 @@
   window.addEventListener("storage", function (e) {
     if (e.key === RECIPE_RATINGS_STORAGE_KEY) {
       const detailsRecipeId = document.getElementById("detailsRecipeId");
-      if (detailsRecipeId && detailsRecipeId.value) {
+      if (detailsRecipeId && detailsRecipeId.value && document.getElementById("recipeDetailsContainer")?.dataset.recipeFound === "true") {
         initializeRecipeRatings(Number(detailsRecipeId.value));
       }
       syncAllRecipeRatingsUI();
@@ -576,7 +578,7 @@
   // Tự động khởi tạo nếu đã có sẵn recipeId khi DOM ready
   document.addEventListener("DOMContentLoaded", function () {
     const idInput = document.getElementById("detailsRecipeId");
-    if (idInput && idInput.value && !document.getElementById("recipeRatingSection")) {
+    if (idInput && idInput.value && document.getElementById("recipeDetailsContainer")?.dataset.recipeFound === "true" && !document.getElementById("recipeRatingSection")) {
       initializeRecipeRatings(Number(idInput.value));
     }
     syncAllRecipeRatingsUI();

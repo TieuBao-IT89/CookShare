@@ -1,20 +1,38 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var home = controller == "Home" && action == "Index";
+    var explore = controller == "Recipe" && action != "Saved" && action != "Create";
+    var saved = controller == "Recipe" && action == "Saved";
+}
 <header class="site-header">
     <div class="container nav">
-        <a class="logo" href="/">♨ <span>Cook<span>Share</span></span></a>
-        <button class="menu-btn" aria-label="Mở menu">☰</button>
-        <nav class="nav-links">
-            <a href="/">Trang chủ</a>
-            <a class="active" href="/Recipe">Công thức</a>
-            <a href="/#categories">Danh mục</a>
-            <a href="/Recipe/Create">Chia sẻ công thức</a>
+        <a class="logo" asp-controller="Home" asp-action="Index" aria-label="CookShare — Trang chủ">
+            <span class="logo-mark"><svg class="icon"><use href="#i-chef" /></svg></span>
+            <span>Cook<span class="brand-accent">Share</span><span class="brand-dot">.</span></span>
+        </a>
+        <button type="button" class="menu-btn icon-button" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="primaryNav"><svg class="icon"><use href="#i-menu" /></svg></button>
+        <nav class="nav-links" id="primaryNav" aria-label="Điều hướng chính">
+            <a class="@(home ? "active" : "")" aria-current="@(home ? "page" : null)" asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <a class="@(explore ? "active" : "")" aria-current="@(explore ? "page" : null)" asp-controller="Recipe" asp-action="Index">Khám phá</a>
+            <a href="@Url.Action("Index", "Home")#categories">Danh mục</a>
+            <a class="@(saved ? "active" : "")" aria-current="@(saved ? "page" : null)" asp-controller="Recipe" asp-action="Saved">Đã lưu</a>
+            <div class="mobile-nav-actions">
+                <a asp-controller="Recipe" asp-action="Create">+ Chia sẻ công thức</a>
+                <a asp-controller="Profile" asp-action="Index">Trang cá nhân</a>
+                <a asp-controller="Home" asp-action="Login">Đăng nhập</a>
+                <a asp-controller="Home" asp-action="Register">Đăng ký</a>
+            </div>
         </nav>
         <div class="nav-actions">
-            <label class="search">
-                <input type="search" id="headerGlobalSearch" placeholder="Tìm kiếm công thức món ăn..." />
-                ⌕
-            </label>
-            <a class="login" href="@Url.Action("Username", "Home")">Đăng nhập</a>
-            <a class="btn btn-small" href="/#signup">Đăng ký</a>
+            <form class="header-search" asp-controller="Recipe" asp-action="Index" method="get" role="search">
+                <label class="sr-only" for="headerGlobalSearch">Tìm công thức</label>
+                <input id="headerGlobalSearch" name="q" type="search" placeholder="Tìm món ngon..." value="@Context.Request.Query["q"]" />
+                <button type="submit" aria-label="Tìm kiếm"><svg class="icon"><use href="#i-search" /></svg></button>
+            </form>
+            <a class="icon-button profile-link" asp-controller="Profile" asp-action="Index" aria-label="Trang cá nhân"><svg class="icon"><use href="#i-user" /></svg></a>
+            <a class="login" asp-controller="Home" asp-action="Login">Đăng nhập</a>
+            <a class="btn btn-small" asp-controller="Recipe" asp-action="Create"><svg class="icon"><use href="#i-plus" /></svg> Chia sẻ</a>
         </div>
     </div>
 </header>

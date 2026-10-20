@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#edf1e6" />
+  <circle cx="320" cy="220" r="100" fill="#fffdf5" />
+  <circle cx="320" cy="220" r="74" fill="none" stroke="#cedac0" stroke-width="3" />
+  <g fill="none" stroke="#4d7454" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M277 220h86c0 56-86 56-86 0Zm-8 0h102m-70-24c-14-14 13-19 0-32m37 32c-14-14 13-19 0-32" />
+  </g>
+  <text x="320" y="365" font-family="Georgia, serif" font-size="24" fill="#4d7454" text-anchor="middle">CookShare</text>
+</svg>
