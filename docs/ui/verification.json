@@ -1,8 +1,10 @@
 {
   "checks": [
     "Header search, clear search, category links/pills, empty results and reset",
+    "Star ratings persist after reload and synchronize with Home cards",
     "Likes/saves persist between pages, saved removal/count/empty state, ingredient checklist",
     "Add comment and retain after reload",
+    "Home follow links/buttons, target Profile, counters, followers/following lists and keyboard tabs",
     "Create/edit/upload/validation, escaped content, delete confirmation with cancel/Escape/confirm",
     "Password visibility/mismatch validation, truthful registration status",
     "10 routes × 5 viewport widths; mobile menu open and Escape; no horizontal overflow",

@@ -1,6 +1,6 @@
 /* Recipe surfaces; aliases retain the existing comments module's token contract. */
 :root {
-    --rc-primary: var(--primary); --rc-primary-dark: var(--primary-dark); --rc-primary-light: var(--light);
+    --rc-primary: var(--primary); --rc-primary-dark: var(--primary-dark); --rc-primary-light: var(--light); --rc-primary-soft: var(--light);
     --rc-secondary: #557649; --rc-bg: var(--paper); --rc-white: var(--white);
     --rc-ink: var(--ink); --rc-ink-light: #4d6054; --rc-muted: var(--muted); --rc-muted-light: #7e887f;
     --rc-line: var(--line); --rc-line-soft: #eef0e9; --rc-radius-lg: var(--radius); --rc-radius-md: var(--radius-sm);

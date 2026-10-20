@@ -263,6 +263,7 @@
 
     _checkSavedPageEmpty();
     window.CookShareLikes?.syncAllRecipeLikesUI();
+    window.CookShareRatings?.syncAllRecipeRatingsUI();
     syncSavedRecipeUI();
   }
 

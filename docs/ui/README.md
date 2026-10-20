@@ -8,6 +8,8 @@ Giao diện dùng tông xanh lá, nền kem và typography thống nhất. Home 
 
 Các vấn đề trước khi nâng cấp: Home dùng bài đăng viết cứng, header luôn đánh dấu Trang chủ, tìm kiếm trên header chưa hoạt động, CSS tài khoản nằm trong view, Create/Edit lặp biểu mẫu và trạng thái Đã lưu trống hiển thị “404”. Layout mới sửa các điểm đó, có menu mobile, liên kết danh mục/tìm kiếm hoạt động và các trạng thái tải, trống, lỗi phù hợp.
 
+Đã tích hợp `develop` tại `2c39631`, giữ đánh giá sao (#82) và theo dõi người dùng (#83). Điểm sao đồng bộ trên các thẻ công thức; Home có thẻ kết nối cộng đồng, Profile có Follow/Unfollow, bộ đếm và các tab người theo dõi/đang theo dõi hỗ trợ bàn phím. Các khóa dữ liệu của hai module được giữ nguyên.
+
 Controllers, model, API, database và các khóa lưu trữ không thay đổi. Các luồng công thức, thích, lưu và bình luận tiếp tục dùng dữ liệu trên trình duyệt. Việc ghi công thức chỉ báo thành công sau khi lưu được; dữ liệu hỏng không bị ghi đè bằng một danh sách mới.
 
 ## Design system và tái sử dụng
@@ -69,7 +71,7 @@ python tools/ui_review.py verify
 python tools/ui_review.py after
 ```
 
-`verify` kiểm tra tìm kiếm từ header, xóa từ khóa, bộ lọc, kết quả trống, thích/lưu qua nhiều trang, checklist nguyên liệu, bình luận, validation, upload ảnh, Create/Edit/Delete và xác nhận xóa bằng bàn phím. Kiểm tra bố cục bao gồm 10 route ở 320, 390, 768, 1024 và 1440 px; kiểm tra lỗi bao gồm công thức không tồn tại, Home trống, dữ liệu hỏng và lỗi ghi localStorage. Kết quả máy đọc được nằm trong [verification.json](verification.json).
+`verify` kiểm tra tìm kiếm từ header, xóa từ khóa, bộ lọc, kết quả trống, thích/lưu qua nhiều trang, đánh giá sao, Follow/Unfollow, bộ đếm và các tab Profile, checklist nguyên liệu, bình luận, validation, upload ảnh, Create/Edit/Delete và xác nhận xóa bằng bàn phím. Kiểm tra bố cục bao gồm 10 route ở 320, 390, 768, 1024 và 1440 px; kiểm tra lỗi bao gồm công thức không tồn tại, Home trống, dữ liệu hỏng và lỗi ghi localStorage. Kết quả máy đọc được nằm trong [verification.json](verification.json). Bộ unit tests sau khi tích hợp `develop` có **21 tests**, đã pass ở cấu hình Release.
 
 ## Giới hạn hiện có
 

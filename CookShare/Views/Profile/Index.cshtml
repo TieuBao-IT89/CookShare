@@ -1,17 +1,39 @@
 @{ ViewData["Title"] = "Trang cá nhân"; }
-@section Styles { <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" /> }
-<section class="profile-page container">
+@section Styles {
+    <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/user-follow.css" asp-append-version="true" />
+}
+<section class="profile-page"><div class="container">
+    <input type="hidden" id="profileTargetUserId" value="@ViewData["TargetUserId"]" />
     <div class="profile-cover"><span>the joy of home cooking.</span><svg class="icon"><use href="#i-leaf" /></svg></div>
     <header class="profile-header">
         <img class="profile-avatar" src="~/img/recipes/profile-avatar.webp" alt="Ảnh đại diện Nguyễn Hải" width="120" height="120" />
-        <div class="profile-main"><span class="eyebrow">MỘT NGƯỜI BẠN YÊU BẾP</span><h1>Nguyễn Hải <span class="verified-mark" title="Thành viên CookShare"><svg class="icon"><use href="#i-check" /></svg></span></h1><p class="profile-username">@@haivo200c-lang</p><p class="profile-description">Yêu những bữa cơm nhà, thích khám phá món ngon và lưu lại những câu chuyện từ căn bếp nhỏ.</p><div class="profile-stats"><span><strong>120</strong> người theo dõi</span><span><strong>85</strong> đang theo dõi</span><span><strong id="profileRecipeCount">6</strong> công thức</span></div></div>
+        <div class="profile-main">
+            <span class="eyebrow">MỘT NGƯỜI BẠN YÊU BẾP</span>
+            <div class="profile-name-row"><h1><span class="profile-name">Nguyễn Hải</span> <span class="verified-mark" title="Thành viên CookShare"><svg class="icon"><use href="#i-check" /></svg></span></h1></div>
+            <p class="profile-username">@@haivo200c-lang</p>
+            <p class="profile-description">Yêu những bữa cơm nhà, thích khám phá món ngon và lưu lại những câu chuyện từ căn bếp nhỏ.</p>
+            <div class="profile-stats"><span class="stat"><strong>0</strong> người theo dõi</span><span class="stat"><strong>0</strong> đang theo dõi</span><span class="stat"><strong id="profileRecipeCount">6</strong> công thức</span></div>
+        </div>
         <a class="btn btn-secondary" href="/Recipe/Create"><svg class="icon"><use href="#i-plus" /></svg> Chia sẻ món mới</a>
     </header>
-    <nav class="profile-tabs" aria-label="Nội dung trang cá nhân"><a class="active" href="#profileRecipes" aria-current="page"><svg class="icon"><use href="#i-grid" /></svg> Góc công thức</a><a href="/Recipe/Saved"><svg class="icon"><use href="#i-bookmark" /></svg> Công thức đã lưu</a></nav>
-    <div id="profileRecipes"><div class="section-heading"><div><span class="eyebrow">MÓN NGON TỪ CĂN BẾP NHỎ</span><h2>Góc công thức</h2><p>Các công thức trong bộ sưu tập CookShare trên thiết bị này.</p></div><a class="text-link" href="/Recipe">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div><div id="profileRecipeGrid" class="recipe-grid"><partial name="_RecipeLoading" /></div></div>
-</section>
+    <nav class="profile-tabs" aria-label="Nội dung trang cá nhân">
+        <div class="profile-tab-list" role="tablist" aria-label="Công thức và kết nối">
+            <button class="profile-tab active" id="profileRecipesTab" type="button" role="tab" aria-selected="true" aria-controls="profileRecipeGrid">Góc công thức</button>
+            <button class="profile-tab" id="profileFollowersTab" type="button" role="tab" aria-selected="false" aria-controls="profileFollowersContainer" tabindex="-1">Người theo dõi</button>
+            <button class="profile-tab" id="profileFollowingTab" type="button" role="tab" aria-selected="false" aria-controls="profileFollowingContainer" tabindex="-1">Đang theo dõi</button>
+        </div>
+        <a href="/Recipe/Saved"><svg class="icon"><use href="#i-bookmark" /></svg> Đã lưu</a>
+    </nav>
+    <div class="section-heading profile-section-heading"><div><span class="eyebrow">MÓN NGON TỪ CĂN BẾP NHỎ</span><h2>Góc công thức</h2><p>Các công thức trong bộ sưu tập CookShare trên thiết bị này.</p></div><a class="text-link" href="/Recipe">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div>
+    <div id="profileRecipeGrid" class="recipe-grid profile-recipe-grid" role="tabpanel" aria-labelledby="profileRecipesTab"><partial name="_RecipeLoading" /></div>
+    <div id="profileFollowersContainer" role="tabpanel" aria-labelledby="profileFollowersTab" style="display:none"></div>
+    <div id="profileFollowingContainer" role="tabpanel" aria-labelledby="profileFollowingTab" style="display:none"></div>
+</div></section>
 @section Scripts {
     <script src="~/js/recipe.js" asp-append-version="true"></script>
     <script src="~/js/recipe-likes.js" asp-append-version="true"></script>
     <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-ratings.js" asp-append-version="true"></script>
+    <script src="~/js/user-follow.js" asp-append-version="true"></script>
 }

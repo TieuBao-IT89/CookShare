@@ -138,7 +138,8 @@ function recipeImageSource(value) {
       "photo-1621996346565-e3dbc646d9a9": "pasta",
       "photo-1512621776951-a57141f2eefd": "salad",
       "photo-1571877227200-a0d98ea607e9": "tiramisu",
-      "photo-1499638673689-79a0b5115d87": "peach-tea"
+      "photo-1499638673689-79a0b5115d87": "peach-tea",
+      "photo-1494790108377-be9c29b29330": "profile-avatar"
     };
     const localPhoto = url.hostname === "images.unsplash.com" && sampleImages[url.pathname.slice(1)];
     if (localPhoto) return `/img/recipes/${localPhoto}.webp`;
@@ -168,7 +169,7 @@ function renderRecipeCard(recipe, options = {}) {
   card.querySelector(".recipe-card-desc").textContent = recipe.description || "Món ngon được chia sẻ từ căn bếp CookShare.";
   card.querySelector(".card-author-name").textContent = recipe.author || "Đầu bếp CookShare";
   card.querySelector(".recipe-link").href = detailsUrl;
-  card.querySelectorAll(".recipe-save-btn, .recipe-like-btn, .recipe-like-count-display").forEach(element => {
+  card.querySelectorAll(".recipe-save-btn, .recipe-like-btn, .recipe-like-count-display, .recipe-rating-display").forEach(element => {
     element.dataset.recipeId = id;
     if (element.matches("button")) {
       element.dataset.recipeName = recipe.name;
@@ -185,6 +186,7 @@ function renderRecipeCard(recipe, options = {}) {
 function syncRecipeCards() {
   window.CookShareLikes?.syncAllRecipeLikesUI();
   window.CookShareSaved?.syncSavedRecipeUI();
+  window.CookShareRatings?.syncAllRecipeRatingsUI();
 }
 
 // ==========================================================================
@@ -751,6 +753,7 @@ function initializeDetailsRecipe() {
     return;
   }
   document.getElementById("detailsBreadcrumbCurrent").textContent = recipe.name;
+  container.dataset.recipeFound = "true";
   document.title = `${recipe.name} · CookShare`;
   const ingredients = String(recipe.ingredients || "").split("\n").map(line => line.trim()).filter(Boolean);
   const instructions = String(recipe.instructions || "").split("\n").map(line => line.trim()).filter(Boolean);
@@ -773,6 +776,7 @@ function initializeDetailsRecipe() {
       <div class="details-meta-row">
         <span class="details-meta-item"><svg class="icon"><use href="#i-user" /></svg> Công thức từ <b>${escapeHtml(recipe.author || "Đầu bếp CookShare")}</b></span>
         <span class="details-meta-item"><svg class="icon"><use href="#i-grid" /></svg> ${ingredients.length} nguyên liệu · ${instructions.length} bước</span>
+        <span class="details-meta-item details-meta-rating">☆ <b id="detailsAverageRatingDisplay">Chưa có đánh giá</b></span>
         <span class="details-meta-item"><svg class="icon"><use href="#i-bookmark" /></svg> Đã lưu: <b id="detailsSavedStatus">Chưa</b></span>
       </div>
       <p class="details-desc-box">${escapeHtml(recipe.description)}</p>
@@ -790,6 +794,7 @@ function initializeDetailsRecipe() {
     document.getElementById("ingredientCheckedCount").textContent = container.querySelectorAll(".ingredient-checkbox:checked").length;
   });
   if (typeof initializeRecipeComments === "function") initializeRecipeComments(id);
+  window.CookShareRatings?.initializeRecipeRatings(id);
   syncRecipeCards();
 }
 
