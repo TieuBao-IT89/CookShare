@@ -1,4 +1,3 @@
-
 using CookShare.Controllers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -64,6 +63,19 @@ namespace CookShare.Tests.Controllers
             // Assert
             Assert.IsType<ViewResult>(result);
             Assert.Equal(id, controller.ViewData["RecipeId"]);
+        }
+
+        [Fact]
+        public void Saved_ShouldReturnView()
+        {
+            // Arrange
+            var controller = new RecipeController();
+
+            // Act
+            var result = controller.Saved();
+
+            // Assert
+            Assert.IsType<ViewResult>(result);
         }
     }
 }

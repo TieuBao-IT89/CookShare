@@ -2,6 +2,7 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
 }
 
 <link rel="stylesheet"
@@ -68,10 +69,10 @@
                     </a>
 
 
-                    <a href="#">
+                    <a href="/Recipe/Saved">
 
-                        <span class="side-icon">♡</span>
-                        <span>Công thức yêu thích</span>
+                        <span class="side-icon">⇓</span>
+                        <span>Công thức đã lưu</span>
 
                     </a>
 
@@ -266,6 +267,15 @@
 
                         </button>
 
+                        <button type="button"
+                                class="post-action recipe-save-btn"
+                                data-recipe-id="1"
+                                aria-label="Lưu Phở bò Hà Nội"
+                                aria-pressed="false"
+                                title="Lưu công thức">
+                            <span class="save-icon">⇓</span> <span class="save-text">Lưu</span>
+                        </button>
+
 
                         <button type="button"
                                 class="post-action">
@@ -394,6 +404,15 @@
 
                             <span class="like-icon">♡</span> <span class="like-text">Thích</span>
 
+                        </button>
+
+                        <button type="button"
+                                class="post-action recipe-save-btn"
+                                data-recipe-id="2"
+                                aria-label="Lưu Bánh Tiramisu mềm mịn"
+                                aria-pressed="false"
+                                title="Lưu công thức">
+                            <span class="save-icon">⇓</span> <span class="save-text">Lưu</span>
                         </button>
 
 
@@ -525,6 +544,15 @@
 
                             <span class="like-icon">♡</span> <span class="like-text">Thích</span>
 
+                        </button>
+
+                        <button type="button"
+                                class="post-action recipe-save-btn"
+                                data-recipe-id="3"
+                                aria-label="Lưu Cơm gà Hội An"
+                                aria-pressed="false"
+                                title="Lưu công thức">
+                            <span class="save-icon">⇓</span> <span class="save-text">Lưu</span>
                         </button>
 
 
@@ -736,5 +764,6 @@
 
 @section Scripts {
     <script src="~/js/recipe-likes.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
     <script src="~/js/recipe-ratings.js" asp-append-version="true"></script>
 }
