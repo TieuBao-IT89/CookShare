@@ -198,7 +198,7 @@ function displayRecipes() {
                 aria-label="Lưu ${escapeHtml(recipe.name)}"
                 aria-pressed="false"
                 title="Lưu công thức">
-          <span class="save-icon">🔖</span>
+          <span class="save-icon">⇓</span>
         </button>
       </div>
       <div class="recipe-card-body">
@@ -785,7 +785,7 @@ function initializeDetailsRecipe() {
                   aria-label="Lưu ${escapeHtml(recipe.name)}"
                   aria-pressed="false"
                   title="Lưu công thức này">
-            <span class="save-icon">🔖</span>
+            <span class="save-icon">⇓</span>
             <span class="save-text">Lưu</span>
           </button>
         </div>
@@ -807,7 +807,7 @@ function initializeDetailsRecipe() {
           <span>♡ Lượt thích:</span> <b class="recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="meta">0</b>
         </div>
         <div class="details-meta-item details-meta-saved">
-          <span>🔖 Đã lưu:</span> <b id="detailsSavedStatus">—</b>
+          <span>⇓ Đã lưu:</span> <b id="detailsSavedStatus">—</b>
         </div>
       </div>
 
@@ -937,7 +937,7 @@ function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
   const imgSrc = recipe.image ? recipe.image : defaultImg;
   const meta = getHomeRecipeMeta(recipe, index);
   const likeBtnHtml = `<button type="button" class="like recipe-like-btn" data-recipe-id="${recipe.id}" data-recipe-name="${escapeHtml(recipe.name)}" aria-label="Thích ${escapeHtml(recipe.name)}" aria-pressed="false"><span class="like-icon">♡</span></button>`;
-  const saveBtnHtml = `<button type="button" class="recipe-save-btn" data-recipe-id="${recipe.id}" aria-label="Lưu ${escapeHtml(recipe.name)}" aria-pressed="false" title="Lưu công thức" style="position:absolute;top:44px;right:10px;"><span class="save-icon">🔖</span></button>`;
+  const saveBtnHtml = `<button type="button" class="recipe-save-btn" data-recipe-id="${recipe.id}" aria-label="Lưu ${escapeHtml(recipe.name)}" aria-pressed="false" title="Lưu công thức" style="position:absolute;top:44px;right:10px;"><span class="save-icon">⇓</span></button>`;
 
   return `
     <article class="recipe-card" data-id="${recipe.id}">

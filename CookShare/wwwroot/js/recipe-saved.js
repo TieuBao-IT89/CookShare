@@ -1,4 +1,4 @@
-/**
+﻿/**
  * COOKSHARE - RECIPE SAVED (FAVORITES) MODULE
  * Quản lý tính năng Lưu / Bỏ lưu công thức (Saved / Unsaved) bằng localStorage.
  * Hoạt động độc lập với hệ thống Like (Issue #44) và Bình luận (Issue #43).
@@ -145,7 +145,7 @@
         btn.setAttribute("title", "Bỏ lưu công thức này");
         const iconEl = btn.querySelector(".save-icon");
         const textEl = btn.querySelector(".save-text");
-        if (iconEl) iconEl.textContent = "🔖";
+        if (iconEl) iconEl.textContent = "⇓";
         if (textEl) textEl.textContent = "Đã lưu";
       } else {
         btn.classList.remove("saved");
@@ -153,7 +153,7 @@
         btn.setAttribute("title", "Lưu công thức này");
         const iconEl = btn.querySelector(".save-icon");
         const textEl = btn.querySelector(".save-text");
-        if (iconEl) iconEl.textContent = "🔖";
+        if (iconEl) iconEl.textContent = "⇓";
         if (textEl) textEl.textContent = "Lưu";
       }
     });
@@ -283,7 +283,7 @@
             data-recipe-id="${recipe.id}"
             aria-label="Bỏ lưu ${esc(recipe.name)}"
             title="Bỏ lưu công thức này">
-            <span class="save-icon">🔖</span>
+            <span class="save-icon">⇓</span>
           </button>
         </div>
         <div class="saved-card-body">
@@ -299,7 +299,7 @@
               data-recipe-id="${recipe.id}"
               aria-label="Bỏ lưu ${esc(recipe.name)}"
               title="Bỏ lưu">
-              <span class="save-icon">🔖</span>
+              <span class="save-icon">⇓</span>
               <span class="save-text">Bỏ lưu</span>
             </button>
           </div>

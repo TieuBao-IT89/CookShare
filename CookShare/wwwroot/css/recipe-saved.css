@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    COOKSHARE - SAVED RECIPES (FAVORITES) MODULE STYLES
    Sử dụng biến CSS từ recipe.css (:root --rc-*)
    ========================================================================== */
@@ -37,6 +37,12 @@
   color: var(--rc-primary, #2e7d32);
   transform: scale(1.04);
   box-shadow: 0 3px 10px rgba(46, 125, 50, 0.18);
+}
+
+.save-icon {
+  font-size: 14px;
+  line-height: 1;
+  display: inline-block;
 }
 
 .recipe-save-btn:focus-visible {
