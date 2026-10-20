@@ -7,8 +7,32 @@
    NÚT LƯU CÔNG THỨC (.recipe-save-btn)
    ========================================================================== */
 
-/* Nút lưu dạng badge nhỏ trên card ảnh (Recipe Index, Home cards) */
+/* Lớp cơ sở dùng chung cho tất cả các nút Save (để JS bắt sự kiện) */
 .recipe-save-btn {
+  font-family: inherit;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+
+.recipe-save-btn:focus-visible {
+  outline: 2px solid var(--rc-primary, #2e7d32);
+  outline-offset: 2px;
+}
+
+.save-icon {
+  display: inline-block;
+  line-height: 1;
+}
+
+/* --------------------------------------------------------------------------
+   1. NÚT LƯU DẠNG BADGE TRÊN CARD ẢNH (Recipe Index, Home cards)
+   -------------------------------------------------------------------------- */
+.recipe-card .recipe-image .recipe-save-btn,
+.recipe-card-save-btn {
+  position: absolute;
+  top: 44px;
+  right: 10px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -19,19 +43,17 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--rc-muted, #617174);
-  cursor: pointer;
-  transition: var(--rc-transition, all 0.25s ease);
   line-height: 1;
   white-space: nowrap;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  user-select: none;
-  position: relative;
   z-index: 2;
+  transition: var(--rc-transition, all 0.25s ease);
 }
 
-.recipe-save-btn:hover {
+.recipe-card .recipe-image .recipe-save-btn:hover,
+.recipe-card-save-btn:hover {
   background: var(--rc-primary-light, #e8f5e9);
   border-color: var(--rc-primary, #2e7d32);
   color: var(--rc-primary, #2e7d32);
@@ -39,31 +61,29 @@
   box-shadow: 0 3px 10px rgba(46, 125, 50, 0.18);
 }
 
-.save-icon {
+.recipe-card .recipe-image .recipe-save-btn .save-icon,
+.recipe-card-save-btn .save-icon {
   font-size: 14px;
-  line-height: 1;
-  display: inline-block;
 }
 
-.recipe-save-btn:focus-visible {
-  outline: 2px solid var(--rc-primary, #2e7d32);
-  outline-offset: 2px;
-}
-
-/* Trạng thái ĐÃ LƯU */
-.recipe-save-btn.saved {
+/* Trạng thái ĐÃ LƯU cho badge */
+.recipe-card .recipe-image .recipe-save-btn.saved,
+.recipe-card-save-btn.saved {
   background: var(--rc-primary-light, #e8f5e9);
   border-color: var(--rc-primary, #2e7d32);
   color: var(--rc-primary, #2e7d32);
 }
 
-.recipe-save-btn.saved:hover {
+.recipe-card .recipe-image .recipe-save-btn.saved:hover,
+.recipe-card-save-btn.saved:hover {
   background: var(--rc-primary, #2e7d32);
   color: #fff;
   border-color: var(--rc-primary, #2e7d32);
 }
 
-/* Nút lưu dạng chi tiết trên trang Details (có chữ) */
+/* --------------------------------------------------------------------------
+   2. NÚT LƯU DẠNG CHI TIẾT TRÊN TRANG DETAILS (có chữ)
+   -------------------------------------------------------------------------- */
 .btn-details-save {
   display: inline-flex;
   align-items: center;
@@ -97,45 +117,106 @@
   color: #fff;
 }
 
-/* Vị trí nút Save trên card ảnh của Recipe Index */
-.recipe-card .recipe-image .recipe-save-btn {
-  position: absolute;
-  top: 44px;
-  right: 10px;
-}
-
-/* Vị trí nút Save trên card ảnh của Home (renderHomeRecipeCard) */
-.recipe-card .recipe-image .recipe-card-save-btn {
-  position: absolute;
-  top: 44px;
-  right: 10px;
-}
-
-/* Nút Save trên post feed của trang Home */
+/* --------------------------------------------------------------------------
+   3. NÚT LƯU TRÊN FEED TRANG CHỦ (HOME FEED .post-action)
+   Đồng bộ 100% với các nút Thích (.recipe-like-btn), Bình luận, Chia sẻ
+   -------------------------------------------------------------------------- */
+.post-action.recipe-save-btn,
+.post-actions .post-action.recipe-save-btn,
 .post-actions .recipe-save-btn {
-  background: transparent;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: none;
-  border-radius: 8px;
-  padding: 7px 14px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--muted, #617174);
+  border-radius: 0;
+  background: transparent;
+  padding: 12px;
+  color: #68736b;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: .3s;
   box-shadow: none;
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: none;
+  line-height: normal;
+  user-select: none;
+  text-decoration: none;
 }
 
+.post-action.recipe-save-btn:hover,
+.post-actions .post-action.recipe-save-btn:hover,
 .post-actions .recipe-save-btn:hover {
-  background: #f0f4f0;
-  color: var(--rc-primary, #2e7d32);
+  color: var(--primary, #2e7d32);
+  background: #f6faf6;
+  border: none;
+  box-shadow: none;
   transform: none;
 }
 
+.post-action.recipe-save-btn:focus-visible,
+.post-actions .post-action.recipe-save-btn:focus-visible,
+.post-actions .recipe-save-btn:focus-visible {
+  outline: none;
+}
+
+/* Trạng thái ĐÃ LƯU trên feed */
+.post-action.recipe-save-btn.saved,
+.post-actions .post-action.recipe-save-btn.saved,
 .post-actions .recipe-save-btn.saved {
-  background: #e8f5e9;
-  color: var(--rc-primary, #2e7d32);
+  color: var(--primary, #2e7d32);
+  font-weight: 600;
+  background: #f1f8f1;
   border: none;
+  box-shadow: none;
+}
+
+.post-action.recipe-save-btn.saved:hover,
+.post-actions .post-action.recipe-save-btn.saved:hover,
+.post-actions .recipe-save-btn.saved:hover {
+  color: var(--primary, #2e7d32);
+  background: #e8f5e9;
+  border: none;
+  box-shadow: none;
+}
+
+.post-action.recipe-save-btn .save-icon,
+.post-actions .post-action.recipe-save-btn .save-icon,
+.post-actions .recipe-save-btn .save-icon {
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1;
+  display: inline-block;
+}
+
+.post-action.recipe-save-btn .save-text,
+.post-actions .post-action.recipe-save-btn .save-text,
+.post-actions .recipe-save-btn .save-text {
+  font-size: 13px;
+  font-weight: inherit;
+}
+
+@media (max-width: 768px) {
+  .post-action.recipe-save-btn,
+  .post-actions .post-action.recipe-save-btn,
+  .post-actions .recipe-save-btn {
+    padding: 11px 5px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .post-action.recipe-save-btn .save-icon,
+  .post-actions .post-action.recipe-save-btn .save-icon,
+  .post-actions .recipe-save-btn .save-icon,
+  .post-action.recipe-save-btn .save-text,
+  .post-actions .post-action.recipe-save-btn .save-text,
+  .post-actions .recipe-save-btn .save-text {
+    font-size: 11px;
+  }
 }
 
 /* ==========================================================================
