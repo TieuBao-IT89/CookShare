@@ -25,5 +25,10 @@ namespace CookShare.Controllers
             ViewBag.RecipeId = id;
             return View();
         }
+
+        public IActionResult Saved()
+        {
+            return View();
+        }
     }
 }
