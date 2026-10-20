@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Header search, clear search, category links/pills, empty results and reset",
+    "Likes/saves persist between pages, saved removal/count/empty state, ingredient checklist",
+    "Add comment and retain after reload",
+    "Create/edit/upload/validation, escaped content, delete confirmation with cancel/Escape/confirm",
+    "Password visibility/mismatch validation, truthful registration status",
+    "10 routes × 5 viewport widths; mobile menu open and Escape; no horizontal overflow",
+    "Missing recipe, empty Home, corrupted data retained, write failure reported"
+  ],
+  "javascript_errors": [],
+  "result": "passed"
+}

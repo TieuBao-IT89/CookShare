@@ -1,0 +1,25 @@
+@* All listing surfaces use this template through renderRecipeCard in recipe.js. *@
+<template id="recipeCardTemplate">
+    <article class="recipe-card">
+        <div class="recipe-image">
+            <a class="recipe-image-link"><img loading="lazy" decoding="async" width="640" height="480" /></a>
+            <span class="recipe-category-badge"></span>
+            <button type="button" class="recipe-save-btn card-save" aria-pressed="false"><span class="save-icon"><svg class="icon" aria-hidden="true"><use href="#i-bookmark" /></svg></span></button>
+        </div>
+        <div class="recipe-card-body">
+            <div class="recipe-card-meta"><span class="card-category"></span><span class="card-ingredient-count"></span></div>
+            <h3 class="recipe-card-title"><a></a></h3>
+            <p class="recipe-card-desc"></p>
+            <div class="recipe-card-author"><span class="avatar-small">CS</span><span class="card-author-name"></span><svg class="icon"><use href="#i-check" /></svg></div>
+            <div class="recipe-card-footer">
+                <a class="recipe-link">Xem công thức <svg class="icon"><use href="#i-arrow" /></svg></a>
+                <button type="button" class="card-like recipe-like-btn" aria-pressed="false"><span class="like-icon">♡</span><span class="recipe-like-count-display" data-like-format="number">0</span></button>
+            </div>
+            <div class="recipe-manage-actions" hidden>
+                <a class="btn-action-edit"><svg class="icon"><use href="#i-edit" /></svg> Chỉnh sửa</a>
+                <button type="button" class="btn-action-delete"><svg class="icon"><use href="#i-trash" /></svg> Xóa</button>
+            </div>
+            <button type="button" class="saved-card-unsave-btn recipe-save-btn" hidden><span class="save-icon"><svg class="icon" aria-hidden="true"><use href="#i-bookmark" /></svg></span> Bỏ lưu công thức</button>
+        </div>
+    </article>
+</template>

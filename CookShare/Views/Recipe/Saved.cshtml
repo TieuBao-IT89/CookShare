@@ -1,94 +1,20 @@
-﻿@{
-    ViewData["Title"] = "Công thức đã lưu";
-}
-
+@{ ViewData["Title"] = "Công thức đã lưu"; }
 @section Styles {
     <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
 }
-
-<div class="saved-page-wrapper">
-
-    <!-- ================================
-         HEADER TRANG ĐÃ LƯU
-         ================================ -->
-
-    <header class="saved-page-header">
-        <div class="saved-header-inner">
-            <div class="saved-header-left">
-                <span class="saved-header-icon">⇓</span>
-                <div class="saved-header-text">
-                    <h1>Công thức đã lưu</h1>
-                    <p>Danh sách công thức bạn đã đánh dấu để nấu sau</p>
-                </div>
-            </div>
-            <div class="saved-header-badge">
-                <span id="savedRecipeCount">0</span> công thức
-            </div>
-        </div>
-    </header>
-
-    <!-- ================================
-         NỘI DUNG CHÍNH
-         ================================ -->
-
-    <div class="saved-page-body">
-
-        <!-- Toolbar -->
-        <div class="saved-toolbar">
-            <p class="saved-toolbar-info">
-                Hiển thị <strong id="savedRecipeCountInline">0</strong> công thức đã lưu
-            </p>
-            <a href="/Recipe" class="saved-explore-link">
-                ⌕ Khám phá thêm công thức
-            </a>
-        </div>
-
-        <!-- Lưới công thức đã lưu (render bằng JavaScript) -->
-        <div class="saved-recipe-grid" id="savedRecipeGrid">
-            <!-- Các card sẽ được render bởi recipe-saved.js -->
-        </div>
-
-        <!-- Trạng thái trống -->
-        <div class="saved-empty-state" id="savedEmptyState">
-            <h1>404</h1>
-            <h2 class="saved-empty-title">Chưa có công thức nào được lưu</h2>
-            <p class="saved-empty-desc">
-                Khám phá các công thức hấp dẫn và nhấn nút
-                <strong>⇓ Lưu</strong> để thêm vào danh sách yêu thích của bạn.
-            </p>
-            <div class="saved-empty-actions">
-                <a href="/Recipe" class="saved-empty-btn-primary">
-                    ⌕ Khám phá công thức
-                </a>
-                <a href="/" class="saved-empty-btn-secondary">
-                    ⌂ Về trang chủ
-                </a>
-            </div>
-        </div>
-
+<div class="saved-page-wrapper container">
+    <header class="page-intro saved-page-header"><div><span class="eyebrow"><svg class="icon"><use href="#i-bookmark" /></svg> GÓC NHỎ CỦA RIÊNG BẠN</span><h1>Để dành <em>món ngon.</em></h1><p>Những công thức bạn muốn thử, luôn ở đây chờ bạn vào bếp.</p></div><span class="count-badge"><span id="savedRecipeCount">0</span> công thức đã lưu</span></header>
+    <div class="saved-toolbar"><p>Hiển thị <strong id="savedRecipeCountInline">0</strong> công thức trong bộ sưu tập</p><a class="text-link" href="/Recipe">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div>
+    <div class="recipe-grid saved-recipe-grid" id="savedRecipeGrid"><partial name="_RecipeLoading" /></div>
+    <div class="saved-empty-state recipe-empty-container" id="savedEmptyState" style="display:none" role="status">
+        <span class="state-icon"><svg class="icon"><use href="#i-bookmark" /></svg></span>
+        <span class="eyebrow">MỘT BỘ SƯU TẬP ĐANG CHỜ BẠN</span><h2>Giữ lại những món bạn yêu</h2><p>Nhấn nút lưu trên công thức yêu thích.<br />Lần tới vào bếp, bạn sẽ không cần tìm lại.</p><a class="btn" href="/Recipe">Tìm món ngon đầu tiên <svg class="icon"><use href="#i-arrow" /></svg></a>
     </div>
-
 </div>
-
 @section Scripts {
     <script src="~/js/recipe.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-likes.js" asp-append-version="true"></script>
     <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
-    <script>
-        // Đồng bộ badge count với inline count sau khi render
-        document.addEventListener("DOMContentLoaded", function () {
-            var countEl = document.getElementById("savedRecipeCount");
-            var inlineEl = document.getElementById("savedRecipeCountInline");
-            if (countEl && inlineEl) {
-                // Theo dõi thay đổi của countEl để cập nhật inlineEl
-                var observer = new MutationObserver(function () {
-                    inlineEl.textContent = countEl.textContent;
-                });
-                observer.observe(countEl, { childList: true, characterData: true, subtree: true });
-                // Cập nhật ngay lần đầu
-                inlineEl.textContent = countEl.textContent;
-            }
-        });
-    </script>
 }
-

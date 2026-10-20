@@ -1,163 +1,66 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="CookShare - Cộng đồng chia sẻ công thức nấu ăn" />
-
-    <title>@ViewData["Title"] - CookShare</title>
-
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CookShare — khám phá món ngon, chia sẻ công thức và tìm cảm hứng cho căn bếp của bạn." />
+    <meta name="theme-color" content="#245c43" />
+    <title>@ViewData["Title"] · CookShare</title>
+    <link rel="icon" href="~/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap"
-          rel="stylesheet" />
-
-    <link rel="stylesheet" href="~/css/style.css" />
-
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-
 <body>
-
-    <!-- Header dùng chung cho toàn bộ website -->
-    <header class="site-header">
-
-    <div class="container nav">
-
-        <!-- LOGO -->
-        <a class="logo" href="@Url.Action("Index", "Home")">
-            ♨ <span>Cook<span>Share</span></span>
-        </a>
-
-
-        <!-- NAVIGATION -->
-        <nav class="nav-links">
-
-            <a class="active"
-               href="@Url.Action("Index", "Home")">
-                Trang chủ
-            </a>
-
-            <a href="/Recipe">
-                Khám phá
-            </a>
-
-            <a href="#categories">
-                Danh mục
-            </a>
-
-            <a href="/Recipe/Create">
-                Chia sẻ công thức
-            </a>
-
-        </nav>
-
-
-        <!-- ACTIONS -->
-        <div class="nav-actions">
-
-            <!-- SEARCH -->
-            <label class="search">
-
-                <input type="search"
-                       placeholder="Tìm kiếm công thức..." />
-
-                <span>⌕</span>
-
-            </label>
-
-
-            <!-- LOGIN -->
-            <a class="login"
-               href="@Url.Action("Login", "Home")">
-                Đăng nhập
-            </a>
-
-
-            <!-- REGISTER -->
-            <a class="btn btn-small"
-               href="@Url.Action("Register", "Home")">
-                Đăng ký
-            </a>
-
-        </div>
-
-    </div>
-
-</header> 
-    <!-- Nội dung từng trang -->
-    <main>
-        @RenderBody()
-    </main>
+    <a class="skip-link" href="#main-content">Chuyển đến nội dung</a>
+    <partial name="_Icons" />
+    <partial name="_RecipeHeader" />
+    <main id="main-content" tabindex="-1">@RenderBody()</main>
     <footer class="footer">
         <div class="container footer-content">
-
             <div class="footer-brand">
-                <div class="footer-logo">
-                    ♨ <span>Cook<span>Share</span></span>
-                </div>
-
-                <p>
-                    Cộng đồng chia sẻ công thức nấu ăn,
-                    nơi mọi người cùng khám phá và chia sẻ những món ăn ngon.
-                </p>
+                <a class="logo" asp-controller="Home" asp-action="Index" aria-label="CookShare — Trang chủ">
+                    <span class="logo-mark"><svg class="icon"><use href="#i-chef" /></svg></span>
+                    <span>Cook<span class="brand-accent">Share</span><span class="brand-dot">.</span></span>
+                </a>
+                <p>Mỗi công thức là một câu chuyện.<br />Cùng nhau làm cho căn bếp thêm ấm áp.</p>
+                <span class="footer-note">Nấu bằng đam mê. Chia sẻ bằng cả trái tim.</span>
             </div>
-
             <div class="footer-links">
-                <h4>Khám phá</h4>
-
-                <a asp-controller="Home" asp-action="Index">
-                    Trang chủ
-                </a>
-
-                <a asp-controller="Recipe" asp-action="Index">
-                    Công thức
-                </a>
-
-                <a href="@Url.Action("Index", "Home")#categories">
-                    Danh mục
-                </a>
+                <h2>Khám phá</h2>
+                <a asp-controller="Recipe" asp-action="Index">Tất cả công thức</a>
+                <a href="@Url.Action("Index", "Home")#categories">Danh mục món ăn</a>
+                <a asp-controller="Recipe" asp-action="Saved">Công thức đã lưu</a>
             </div>
-
             <div class="footer-links">
-                <h4>Cộng đồng</h4>
-
-                <a asp-controller="Recipe" asp-action="Create">
-                    Chia sẻ công thức
-                </a>
-
-                <a asp-controller="Profile" asp-action="Index">
-                    Trang cá nhân
-                </a>
+                <h2>Cùng CookShare</h2>
+                <a asp-controller="Recipe" asp-action="Create">Chia sẻ công thức</a>
+                <a asp-controller="Profile" asp-action="Index">Trang cá nhân</a>
+                <a asp-controller="Home" asp-action="Register">Tham gia cộng đồng</a>
             </div>
-
-            <div class="footer-links">
-                <h4>CookShare</h4>
-
-                <a href="#">
-                    Về chúng tôi
-                </a>
-
-                <a href="#">
-                    Liên hệ
-                </a>
-
-                <a href="#">
-                    Chính sách
-                </a>
-            </div>
-
+            <div class="footer-kitchen"><svg class="icon"><use href="#i-heart" /></svg><p>Món ngon hơn<br />khi được sẻ chia.</p></div>
         </div>
-
-        <div class="footer-bottom">
-            <div class="container">
-                <p>© 2026 CookShare. All rights reserved.</p>
-            </div>
+        <div class="container footer-bottom">
+            <span>© @DateTime.Now.Year CookShare. Cộng đồng yêu bếp.</span>
+            <span>Một chút cảm hứng cho bữa cơm mỗi ngày <svg class="icon"><use href="#i-leaf" /></svg></span>
         </div>
     </footer>
-    <!-- Footer / Scripts -->
+    <partial name="_RecipeCardTemplate" />
+    <div id="uiToast" class="ui-toast" role="status" aria-live="polite" hidden></div>
+    <dialog id="confirmDialog" class="confirm-dialog" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+        <form method="dialog" asp-antiforgery="false">
+            <span class="state-icon danger"><svg class="icon"><use href="#i-trash" /></svg></span>
+            <h2 id="confirmTitle">Xóa công thức?</h2><p id="confirmMessage"></p>
+            <div class="dialog-actions">
+                <button class="btn btn-secondary" value="cancel" autofocus>Giữ lại</button>
+                <button class="btn btn-danger" value="confirm">Xóa công thức</button>
+            </div>
+        </form>
+    </dialog>
+    <noscript><div class="notice container">Vui lòng bật JavaScript để xem, lưu và quản lý công thức.</div></noscript>
+    <script src="~/js/style.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
-</html> 
+</html>

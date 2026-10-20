@@ -1,4 +1,4 @@
-﻿/**
+/**
  * COOKSHARE - RECIPE SAVED (FAVORITES) MODULE
  * Quản lý tính năng Lưu / Bỏ lưu công thức (Saved / Unsaved) bằng localStorage.
  * Hoạt động độc lập với hệ thống Like (Issue #44) và Bình luận (Issue #43).
@@ -106,7 +106,12 @@
       saveRecipe(id);
     }
 
-    const nowSaved = !wasSaved;
+    const nowSaved = isRecipeSaved(id);
+    if (nowSaved === wasSaved) {
+      window.CookShareUI?.toast("Chưa thể thay đổi danh sách đã lưu. Hãy kiểm tra bộ nhớ trình duyệt.", "error");
+      return wasSaved;
+    }
+    window.CookShareUI?.toast(nowSaved ? "Đã thêm vào góc công thức của bạn." : "Đã bỏ lưu công thức.");
     updateSavedRecipeUI(id);
 
     // Nếu đang ở trang Saved, xóa card đó ra khỏi danh sách
@@ -114,9 +119,11 @@
     if (savedGrid && !nowSaved) {
       const removedCard = savedGrid.querySelector(`[data-saved-recipe-id="${id}"]`);
       if (removedCard) {
+        const nextCard = removedCard.nextElementSibling || removedCard.previousElementSibling;
         removedCard.remove();
         _refreshSavedPageCount();
         _checkSavedPageEmpty();
+        (nextCard?.querySelector(".recipe-save-btn") || document.querySelector("#savedEmptyState .btn"))?.focus();
       }
     }
 
@@ -139,13 +146,15 @@
     const buttons = document.querySelectorAll(`.recipe-save-btn[data-recipe-id="${id}"]`);
 
     buttons.forEach((btn) => {
+      const name = btn.dataset.recipeName || "công thức";
+      btn.setAttribute("aria-label", `${saved ? "Bỏ lưu" : "Lưu"} ${name}`);
       if (saved) {
         btn.classList.add("saved");
         btn.setAttribute("aria-pressed", "true");
         btn.setAttribute("title", "Bỏ lưu công thức này");
         const iconEl = btn.querySelector(".save-icon");
         const textEl = btn.querySelector(".save-text");
-        if (iconEl) iconEl.textContent = "⇓";
+        if (iconEl) iconEl.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-bookmark" /></svg>';
         if (textEl) textEl.textContent = "Đã lưu";
       } else {
         btn.classList.remove("saved");
@@ -153,7 +162,7 @@
         btn.setAttribute("title", "Lưu công thức này");
         const iconEl = btn.querySelector(".save-icon");
         const textEl = btn.querySelector(".save-text");
-        if (iconEl) iconEl.textContent = "⇓";
+        if (iconEl) iconEl.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-bookmark" /></svg>';
         if (textEl) textEl.textContent = "Lưu";
       }
     });
@@ -230,6 +239,7 @@
       allRecipes = getRecipes();
     }
 
+    gridEl.innerHTML = "";
     if (savedIds.length === 0) {
       if (countEl) countEl.textContent = "0";
       if (inlineEl) inlineEl.textContent = "0";
@@ -252,6 +262,8 @@
       .join("");
 
     _checkSavedPageEmpty();
+    window.CookShareLikes?.syncAllRecipeLikesUI();
+    syncSavedRecipeUI();
   }
 
   /**
@@ -260,52 +272,7 @@
    * @returns {string} Chuỗi HTML.
    */
   function _renderSavedRecipeCard(recipe) {
-    // Dùng escapeHtml từ recipe.js nếu có
-    const esc =
-      typeof escapeHtml === "function"
-        ? escapeHtml
-        : (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-    const defaultImg =
-      "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=900&q=85";
-    const imgSrc = recipe.image || defaultImg;
-
-    return `
-      <article class="saved-recipe-card" data-saved-recipe-id="${recipe.id}">
-        <div class="saved-card-image">
-          <a href="/Recipe/Details/${recipe.id}" title="${esc(recipe.name)}">
-            <img src="${imgSrc}" alt="${esc(recipe.name)}" loading="lazy" />
-          </a>
-          <span class="saved-card-category">${esc(recipe.category || "Công thức")}</span>
-          <button
-            type="button"
-            class="saved-card-remove-btn recipe-save-btn"
-            data-recipe-id="${recipe.id}"
-            aria-label="Bỏ lưu ${esc(recipe.name)}"
-            title="Bỏ lưu công thức này">
-            <span class="save-icon">⇓</span>
-          </button>
-        </div>
-        <div class="saved-card-body">
-          <h3 class="saved-card-title">
-            <a href="/Recipe/Details/${recipe.id}">${esc(recipe.name)}</a>
-          </h3>
-          <p class="saved-card-desc">${esc(recipe.description || "Công thức món ngon từ cộng đồng CookShare...")}</p>
-          <div class="saved-card-footer">
-            <a href="/Recipe/Details/${recipe.id}" class="saved-card-view-btn">👁 Xem công thức</a>
-            <button
-              type="button"
-              class="saved-card-unsave-btn recipe-save-btn"
-              data-recipe-id="${recipe.id}"
-              aria-label="Bỏ lưu ${esc(recipe.name)}"
-              title="Bỏ lưu">
-              <span class="save-icon">⇓</span>
-              <span class="save-text">Bỏ lưu</span>
-            </button>
-          </div>
-        </div>
-      </article>
-    `;
+    return renderRecipeCard(recipe, { saved: true });
   }
 
   // ==========================================================================
