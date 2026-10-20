@@ -1,4 +1,4 @@
-/**
+﻿/**
  * COOKSHARE - RECIPE MANAGEMENT MODULE
  * Quản lý dữ liệu công thức nấu ăn bằng localStorage
  */
@@ -778,8 +778,8 @@ function initializeDetailsRecipe() {
         <div class="details-meta-item">
           <span>⏱ Chuẩn bị:</span> <b>Dễ thực hiện</b>
         </div>
-        <div class="details-meta-item">
-          <span>★ Đánh giá:</span> <b>5.0 / 5.0</b>
+        <div class="details-meta-item details-meta-rating">
+          <span>★ Đánh giá:</span> <b id="detailsAverageRatingDisplay">5.0 / 5.0</b>
         </div>
         <div class="details-meta-item details-meta-likes">
           <span>♡ Lượt thích:</span> <b class="recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="meta">0</b>
@@ -838,6 +838,13 @@ function initializeDetailsRecipe() {
 
 </div>
   `;
+
+  // Khởi tạo module đánh giá công thức
+  if (window.CookShareRatings && typeof window.CookShareRatings.initializeRecipeRatings === "function") {
+    window.CookShareRatings.initializeRecipeRatings(recipeId);
+  } else if (typeof initializeRecipeRatings === "function") {
+    initializeRecipeRatings(recipeId);
+  }
 
   // Khởi tạo module bình luận sau khi render xong chi tiết công thức
   if (typeof initializeRecipeComments === "function") {
