@@ -128,7 +128,118 @@ Khi cần sử dụng thông tin bí mật như mật khẩu hoặc chuỗi kế
 
 Không commit mật khẩu, API Keys hoặc Access Tokens lên GitHub.
 
-## 7. Hướng dẫn chạy dự án (Getting Started)
+## 7. Cấu hình cơ sở dữ liệu (Database Setup)
+
+CookShare sử dụng **PostgreSQL (Neon)** kết hợp với **Entity Framework Core 8** để quản lý và lưu trữ dữ liệu.
+
+### Yêu cầu
+
+Để cấu hình cơ sở dữ liệu, cần chuẩn bị:
+
+- Tài khoản [Neon PostgreSQL](https://console.neon.tech).
+- .NET 8 SDK.
+- Công cụ Entity Framework Core CLI (`dotnet-ef`).
+
+### Bước 1. Tạo cơ sở dữ liệu trên Neon
+
+Truy cập [Neon Console](https://console.neon.tech) và tạo PostgreSQL Project nếu chưa có.
+
+Tạo một database branch riêng dành cho môi trường phát triển.
+
+Chọn database `neondb`, sau đó nhấn **Connect** để lấy thông tin kết nối.
+
+Ưu tiên sử dụng kết nối trực tiếp khi chạy Migrations.
+
+### Bước 2. Cấu hình Connection String
+
+Tại thư mục gốc repository, chạy:
+
+```bash
+dotnet user-secrets init --project CookShare/CookShare.csproj
+```
+
+Cấu hình Connection String bằng .NET User Secrets:
+
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=YOUR_NEON_HOST;Port=5432;Database=neondb;Username=YOUR_USERNAME;Password=YOUR_PASSWORD;SSL Mode=Require" --project CookShare/CookShare.csproj
+```
+
+Thay `YOUR_NEON_HOST`, `YOUR_USERNAME` và `YOUR_PASSWORD` bằng thông tin thực tế từ Neon.
+
+**Lưu ý:** Không commit mật khẩu hoặc Connection String chứa thông tin nhạy cảm lên GitHub. Tránh để mật khẩu trong lịch sử lệnh Terminal; nên sử dụng phương thức nhập bí mật an toàn.
+
+### Bước 3. Kiểm tra Entity Framework Core
+
+Kiểm tra phiên bản công cụ:
+
+```bash
+dotnet ef --version
+```
+
+Nếu chưa cài đặt, chạy:
+
+```bash
+dotnet tool install --global dotnet-ef --version 8.0.11
+```
+
+Sử dụng phiên bản tương thích với các thư viện Entity Framework Core của dự án.
+
+### Bước 4. Cập nhật cơ sở dữ liệu
+
+Tại thư mục gốc repository, chạy:
+
+```bash
+dotnet restore CookShare.sln
+dotnet ef database update --project CookShare/CookShare.csproj
+```
+
+Nếu kết nối thành công, Entity Framework Core sẽ áp dụng các Migrations để tạo hoặc cập nhật bảng dữ liệu trong database.
+
+Khi có thay đổi cấu trúc Entity, Contributors có thể tạo Migration mới:
+
+```bash
+dotnet ef migrations add MigrationName --project CookShare/CookShare.csproj
+```
+
+Không tạo lại Migration `InitialCreate` nếu đã tồn tại trong repository.
+
+### Bước 5. Kiểm tra dữ liệu
+
+Trong Neon Console, mở **SQL Editor** và chạy:
+
+```sql
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY table_name;
+```
+
+Để kiểm tra dữ liệu công thức:
+
+```sql
+SELECT * FROM "Recipes";
+```
+
+Để kiểm tra lịch sử Migrations:
+
+```sql
+SELECT * FROM "__EFMigrationsHistory";
+```
+
+### Bước 6. Kiểm tra kết nối và Build dự án
+
+Chạy:
+
+```bash
+dotnet build CookShare.sln
+dotnet test CookShare.sln
+```
+
+Để xác nhận database hoạt động, cần kiểm tra thao tác đọc và ghi dữ liệu thông qua `ApplicationDbContext`.
+
+**Lưu ý:** Nên sử dụng database branch riêng để phát triển và kiểm thử. Không chạy các Migrations thử nghiệm trực tiếp trên môi trường Production.
+
+## 8. Hướng dẫn chạy dự án (Getting Started)
 
 Tại thư mục gốc repository, chạy:
 
@@ -146,7 +257,7 @@ Mở địa chỉ được hiển thị để sử dụng ứng dụng.
 
 Nhấn `Ctrl + C` trong Terminal để dừng ứng dụng.
 
-## 8. Cấu trúc thư mục (Project Structure)
+## 9. Cấu trúc thư mục (Project Structure)
 
 ```text
 CookShare/
@@ -192,7 +303,7 @@ CookShare/
 - `CONTRIBUTING.md`: Hướng dẫn đóng góp mã nguồn.
 - `LICENSE`: Giấy phép mã nguồn mở MIT.
 
-## 9. Hướng dẫn đóng góp (Contributing)
+## 10. Hướng dẫn đóng góp (Contributing)
 
 CookShare hoan nghênh các đóng góp từ cộng đồng.
 
@@ -207,7 +318,7 @@ Contributors có thể tham gia:
 
 Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) để tìm hiểu quy trình đóng góp chi tiết.
 
-## 10. Bộ quy tắc ứng xử (Code of Conduct)
+## 11. Bộ quy tắc ứng xử (Code of Conduct)
 
 CookShare cam kết xây dựng môi trường cộng tác thân thiện,
 chuyên nghiệp và tôn trọng giữa Maintainer, Core Developers
@@ -221,7 +332,7 @@ Vui lòng đọc [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 để tìm hiểu các nguyên tắc ứng xử, hành vi không được
 chấp nhận và quy trình báo cáo vi phạm.
 
-## 11. Quy trình làm việc với Git/GitHub (Git Workflow)
+## 12. Quy trình làm việc với Git/GitHub (Git Workflow)
 
 Dự án sử dụng các nhánh:
 
@@ -246,7 +357,7 @@ Quy trình đóng góp cơ bản:
 
 Xem các công việc tại [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues).
 
-## 12. Tích hợp liên tục (Continuous Integration - CI)
+## 13. Tích hợp liên tục (Continuous Integration - CI)
 
 CookShare sử dụng **GitHub Actions** để tự động kiểm tra mã nguồn trong quá trình phát triển.
 
@@ -291,7 +402,7 @@ Kết quả được hiển thị tại [GitHub Actions](https://github.com/Tieu
 
 CI giúp phát hiện lỗi biên dịch sớm và hỗ trợ Maintainer đánh giá chất lượng mã nguồn trước khi Merge.
 
-## 13. Chính sách bảo mật (Security Policy)
+## 14. Chính sách bảo mật (Security Policy)
 
 CookShare khuyến khích cộng đồng báo cáo các lỗ hổng bảo mật một cách có trách nhiệm.
 
@@ -301,13 +412,13 @@ Xem hướng dẫn báo cáo và các quy trình xử lý tại [SECURITY.md](SE
 
 Bạn có thể truy cập [GitHub Security](https://github.com/TieuBao-IT89/CookShare/security) để tìm hiểu các tùy chọn báo cáo bảo mật đang được hỗ trợ.
 
-## 14. Giấy phép (License)
+## 15. Giấy phép (License)
 
 CookShare được phát hành theo giấy phép **MIT License**.
 
 Chi tiết xem tại [LICENSE](LICENSE).
 
-## 15. Lịch sử thay đổi (Changelog)
+## 16. Lịch sử thay đổi (Changelog)
 
 CookShare sử dụng tài liệu Changelog để ghi nhận các tính năng mới,
 những cải tiến, sửa lỗi và cập nhật bảo mật trong quá trình phát triển.
@@ -333,7 +444,7 @@ Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
 
 Các bản phát hành: [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases).
 
-## 16. Liên kết dự án
+## 17. Liên kết dự án
 
 - [GitHub Repository](https://github.com/TieuBao-IT89/CookShare)
 - [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues)
