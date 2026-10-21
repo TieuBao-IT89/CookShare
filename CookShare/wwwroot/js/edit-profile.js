@@ -771,3 +771,4 @@
     closeEditModal: closeEditModal
   };
 })();
+
