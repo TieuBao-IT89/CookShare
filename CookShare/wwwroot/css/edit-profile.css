@@ -1,0 +1,514 @@
+/* ==========================================================================
+   COOKSHARE - EDIT PROFILE MODULE
+   Modal chỉnh sửa hồ sơ: avatar preview, form fields, validation, toast
+   ========================================================================== */
+
+/* ===== NÚT CHỈNH SỬA HỒ SƠ ===== */
+.btn-edit-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-edit-profile:hover {
+  background: var(--light);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-edit-profile:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.btn-edit-profile .icon {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.8;
+}
+
+/* ===== MODAL OVERLAY ===== */
+#editProfileModal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(24, 40, 30, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  animation: ep-fade-in 0.2s ease;
+}
+
+#editProfileModal[hidden] {
+  display: none !important;
+}
+
+@keyframes ep-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ===== DIALOG PANEL ===== */
+.ep-dialog {
+  background: white;
+  border-radius: var(--radius-lg, 24px);
+  box-shadow: 0 24px 64px rgba(24, 40, 30, 0.18);
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: ep-slide-up 0.22s ease;
+}
+
+@keyframes ep-slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ===== DIALOG HEADER ===== */
+.ep-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.ep-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.ep-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.ep-close-btn:hover {
+  background: var(--light);
+  color: var(--ink);
+}
+
+.ep-close-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ep-close-btn .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ===== DIALOG BODY (SCROLLABLE) ===== */
+.ep-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ===== AVATAR PREVIEW ===== */
+.ep-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ep-avatar-preview {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--line);
+  background: var(--light);
+}
+
+.ep-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ep-avatar-preview .ep-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--light);
+  user-select: none;
+}
+
+.ep-avatar-preview .ep-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(24, 40, 30, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.ep-avatar-preview:hover .ep-avatar-overlay {
+  opacity: 1;
+}
+
+.ep-avatar-overlay .icon {
+  color: white;
+  width: 24px;
+  height: 24px;
+}
+
+.ep-avatar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ep-avatar-info p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.ep-avatar-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+
+.ep-avatar-upload-btn:hover {
+  background: var(--light);
+  border-color: var(--primary);
+}
+
+.ep-avatar-upload-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ep-avatar-upload-btn .icon {
+  width: 15px;
+  height: 15px;
+}
+
+#epAvatarInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ===== FORM FIELDS ===== */
+.ep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ep-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ep-field label .ep-required {
+  color: var(--accent);
+  margin-left: 3px;
+}
+
+.ep-input,
+.ep-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--ink);
+  font-size: 14px;
+  font-family: var(--font);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  resize: none;
+}
+
+.ep-input:focus,
+.ep-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(36, 92, 67, 0.1);
+}
+
+.ep-input.ep-invalid,
+.ep-textarea.ep-invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(179, 57, 57, 0.1);
+}
+
+.ep-textarea {
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.ep-field-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 20px;
+}
+
+.ep-error-msg {
+  font-size: 12px;
+  color: var(--danger);
+  display: none;
+  line-height: 1.4;
+}
+
+.ep-error-msg.ep-visible {
+  display: block;
+}
+
+.ep-char-count {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.ep-char-count.ep-over-limit {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* ===== DIALOG FOOTER / ACTIONS ===== */
+.ep-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 28px 24px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.ep-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.ep-btn-cancel:hover {
+  background: var(--light);
+  color: var(--ink);
+}
+
+.ep-btn-cancel:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ep-btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 24px;
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.ep-btn-save:hover {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.ep-btn-save:active {
+  transform: translateY(0);
+}
+
+.ep-btn-save:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ep-btn-save:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+.ep-btn-save .icon,
+.ep-btn-cancel .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== AVATAR ERROR MESSAGE ===== */
+.ep-avatar-error {
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 4px;
+  display: none;
+}
+
+.ep-avatar-error.ep-visible {
+  display: block;
+}
+
+/* ===== SUCCESS TOAST ===== */
+.ep-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 300;
+  background: var(--primary);
+  color: white;
+  padding: 13px 22px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(24, 40, 30, 0.22);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  white-space: nowrap;
+}
+
+.ep-toast.ep-toast-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.ep-toast .icon {
+  width: 18px;
+  height: 18px;
+  color: #a8e6c4;
+  stroke-width: 2;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .ep-dialog {
+    max-width: 100%;
+    max-height: calc(100dvh - 20px);
+    border-radius: 20px 20px 0 0;
+    margin-top: auto;
+  }
+
+  #editProfileModal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .ep-header,
+  .ep-body,
+  .ep-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .ep-avatar-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .ep-footer {
+    flex-direction: column-reverse;
+  }
+
+  .ep-btn-cancel,
+  .ep-btn-save {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  #editProfileModal,
+  .ep-dialog,
+  .ep-toast,
+  .btn-edit-profile,
+  .ep-avatar-preview .ep-avatar-overlay {
+    animation: none !important;
+    transition: none !important;
+  }
+}
