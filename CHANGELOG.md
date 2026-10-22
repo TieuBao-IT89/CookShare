@@ -10,6 +10,10 @@ CookShare đang trong giai đoạn phát triển ban đầu. Phiên bản `v0.1.
 
 Các thay đổi được thực hiện sau khi chốt phiên bản `v0.1.0` sẽ được ghi nhận tại đây.
 
+### Added
+
+- Thiết lập triển khai tự động lên Azure App Service (Staging) bằng GitHub Actions, kèm kiểm tra `/health` và phương án rollback.
+
 ## [0.1.0] - YYYY-MM-DD
 
 **Initial Release – Phiên bản phát hành đầu tiên của CookShare (dự kiến)**
