@@ -91,9 +91,11 @@ namespace CookShare.Tests.Integration
             using var ownerPage = await ownerClient.GetAsync(
                 "/Notifications/Index");
             Assert.Equal(HttpStatusCode.OK, ownerPage.StatusCode);
+            var notificationsHtml = WebUtility.HtmlDecode(
+                await ownerPage.Content.ReadAsStringAsync());
             Assert.Contains(
                 "đã thích công thức",
-                await ownerPage.Content.ReadAsStringAsync());
+                notificationsHtml);
 
             var ownerToken = await GetTokenAsync(
                 ownerClient,
