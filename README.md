@@ -29,13 +29,13 @@ CookShare được phát triển theo mô hình phần mềm mã nguồn mở (O
 
 - **Trang chủ:** Hiển thị giao diện khám phá công thức nấu ăn.
 - **Công thức nấu ăn:** Giao diện danh sách, chi tiết, tạo và chỉnh sửa công thức.
-- **Tài khoản:** Giao diện đăng nhập và đăng ký.
+- **Tài khoản:** Đăng ký, đăng nhập bằng username hoặc email, ghi nhớ đăng nhập và đăng xuất bằng ASP.NET Core Identity.
 - **Hồ sơ:** Giao diện thông tin người dùng.
 - **Tìm kiếm và danh mục:** Các chức năng khám phá công thức theo nhu cầu người dùng.
 
 ### Các chức năng định hướng phát triển
 
-- Xác thực và quản lý tài khoản người dùng.
+- Xác minh email, khôi phục mật khẩu và mở rộng quản lý tài khoản người dùng.
 - Lưu trữ dữ liệu công thức trong cơ sở dữ liệu.
 - Lưu công thức yêu thích.
 - Bình luận và đánh giá công thức.
@@ -256,6 +256,24 @@ Now listening on: http://localhost:xxxx
 Mở địa chỉ được hiển thị để sử dụng ứng dụng.
 
 Nhấn `Ctrl + C` trong Terminal để dừng ứng dụng.
+
+### Xác thực người dùng (Authentication)
+
+CookShare sử dụng **ASP.NET Core Identity** kết hợp với **Neon PostgreSQL** để quản lý tài khoản người dùng.
+
+Các chức năng hỗ trợ:
+
+- Đăng ký tài khoản.
+- Đăng nhập bằng username hoặc email.
+- Đăng xuất qua HTTP POST.
+- Ghi nhớ đăng nhập.
+- Bảo vệ chức năng yêu cầu xác thực: tạo công thức, công thức đã lưu và chỉnh sửa công thức; quyền truy cập chỉnh sửa được kiểm tra theo tác giả ở backend.
+
+Thông tin tài khoản được lưu trong các bảng ASP.NET Core Identity trên PostgreSQL. Mật khẩu được xử lý bằng cơ chế Password Hashing của ASP.NET Core Identity, không lưu dưới dạng văn bản thuần.
+
+Người dùng cần cấu hình database theo hướng dẫn **Database Setup** ở mục 7 trước khi sử dụng chức năng Authentication.
+
+**Lưu ý:** Email Verification và Password Recovery chưa được triển khai trong phạm vi chức năng hiện tại. Trang tạo công thức hiện chỉ có giao diện; việc lưu công thức và kiểm tra quyền sở hữu khi cập nhật/xóa dữ liệu sẽ được hoàn thiện trong Issue #75.
 
 ## 9. Cấu trúc thư mục (Project Structure)
 
