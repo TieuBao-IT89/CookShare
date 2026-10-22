@@ -8,8 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CookShare.Tests.Integration
 {
+    [Collection(CookShareDatabaseCollection.Name)]
     public class RecipeCrudIntegrationTests
-        : IClassFixture<CookShareWebApplicationFactory>
     {
         private readonly CookShareWebApplicationFactory _factory;
 

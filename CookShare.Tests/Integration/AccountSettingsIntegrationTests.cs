@@ -11,8 +11,8 @@ using Microsoft.Extensions.Options;
 
 namespace CookShare.Tests.Integration
 {
+    [Collection(CookShareDatabaseCollection.Name)]
     public class AccountSettingsIntegrationTests
-        : IClassFixture<CookShareWebApplicationFactory>
     {
         private const string Password = "TestPassword123!";
 
@@ -180,13 +180,16 @@ namespace CookShare.Tests.Integration
             Assert.Equal(missing, known);
             Assert.Contains(
                 AccountController.PasswordResetNotice,
-                known,
+                VisibleText(known),
                 StringComparison.Ordinal);
             Assert.DoesNotContain(
                 user.Email!,
-                known,
+                VisibleText(known),
                 StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("code=", known, StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                "code=",
+                VisibleText(known),
+                StringComparison.Ordinal);
             Assert.Single(
                 _factory.Emails.Messages,
                 message => message.Email == user.Email);
@@ -208,7 +211,7 @@ namespace CookShare.Tests.Integration
             Assert.Equal(HttpStatusCode.OK, rejected.StatusCode);
             Assert.Contains(
                 "Liên kết không hợp lệ hoặc đã hết hạn.",
-                rejectedHtml,
+                VisibleText(rejectedHtml),
                 StringComparison.Ordinal);
             Assert.True(await CheckPasswordAsync(user.Id, Password));
 
@@ -285,6 +288,10 @@ namespace CookShare.Tests.Integration
                 follow.FollowerId == owner.Id ||
                 follow.FollowingId == owner.Id));
         }
+
+        // Razor encodes characters outside Basic Latin as HTML entities.
+        private static string VisibleText(string html) =>
+            WebUtility.HtmlDecode(html);
 
         private async Task<string> ForgotPasswordAsync(
             HttpClient client,

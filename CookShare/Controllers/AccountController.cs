@@ -458,11 +458,9 @@ namespace CookShare.Controllers
         [AllowAnonymous]
         public IActionResult ForgotPasswordConfirmation()
         {
-            return View(new AccountNoticeViewModel
-            {
-                Title = "Kiểm tra email",
-                Message = PasswordResetNotice
-            });
+            return Notice(
+                "Kiểm tra email",
+                PasswordResetNotice);
         }
 
         [HttpGet]
@@ -534,11 +532,9 @@ namespace CookShare.Controllers
         [AllowAnonymous]
         public IActionResult ResetPasswordConfirmation()
         {
-            return View(new AccountNoticeViewModel
-            {
-                Title = "Đã đặt lại mật khẩu",
-                Message = "Bạn có thể đăng nhập bằng mật khẩu mới."
-            });
+            return Notice(
+                "Đã đặt lại mật khẩu",
+                "Bạn có thể đăng nhập bằng mật khẩu mới.");
         }
 
         [HttpGet]
