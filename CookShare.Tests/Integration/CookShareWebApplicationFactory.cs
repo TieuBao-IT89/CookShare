@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using CookShare.Data;
 using CookShare.Models.Identity;
+using CookShare.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -33,6 +34,10 @@ namespace CookShare.Tests.Integration
             ?? throw new InvalidOperationException(
                 "Test users have not been initialized.");
 
+        public RecordingAccountEmailSender Emails
+            => Services.GetRequiredService<
+                RecordingAccountEmailSender>();
+
         protected override void ConfigureWebHost(
             Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
@@ -54,6 +59,12 @@ namespace CookShare.Tests.Integration
 
                 services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseNpgsql(connection));
+
+                services.RemoveAll<IAccountEmailSender>();
+                services.AddSingleton<RecordingAccountEmailSender>();
+                services.AddSingleton<IAccountEmailSender>(
+                    provider => provider.GetRequiredService<
+                        RecordingAccountEmailSender>());
 
                 services.AddAuthentication()
                     .AddScheme<

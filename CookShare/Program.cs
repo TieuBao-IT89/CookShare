@@ -1,6 +1,8 @@
-
 using CookShare.Data;
+using CookShare.Identity;
 using CookShare.Models.Identity;
+using CookShare.Options;
+using CookShare.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,11 +39,24 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.AllowedForNewUsers = true;
 
-        // Email verification sẽ triển khai riêng
+        // Người dùng vẫn đăng nhập được trước khi xác minh email.
         options.SignIn.RequireConfirmedAccount = false;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddErrorDescriber<VietnameseIdentityErrorDescriber>();
+
+builder.Services
+    .Configure<DataProtectionTokenProviderOptions>(options =>
+    {
+        options.TokenLifespan = TimeSpan.FromHours(1);
+    });
+
+builder.Services.Configure<EmailOptions>(
+    builder.Configuration.GetSection(EmailOptions.SectionName));
+builder.Services.AddScoped<
+    IAccountEmailSender, SmtpAccountEmailSender>();
+builder.Services.AddScoped<AccountDeletionService>();
 
 // Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>

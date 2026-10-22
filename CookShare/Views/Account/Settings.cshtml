@@ -1,0 +1,129 @@
+@model CookShare.ViewModels.AccountSettingsViewModel
+
+@{
+    ViewData["Title"] = "Tài khoản";
+    var activeForm = ViewData["ActiveForm"] as string;
+}
+
+<section class="settings-page">
+    <div class="container settings-layout">
+        <article class="settings-card">
+            <a class="back-link" asp-controller="Home" asp-action="Index">← Về trang chủ</a>
+            <span class="eyebrow">TÀI KHOẢN</span>
+            <h1>Cài đặt của bạn</h1>
+            <p class="settings-note">
+                @Model.UserName
+                @if (Model.EmailConfirmed)
+                {
+                    <span> · Email đã xác minh</span>
+                }
+                else
+                {
+                    <span> · Email chưa xác minh</span>
+                }
+            </p>
+        </article>
+
+        <article class="settings-card">
+            <h2>Tên hiển thị</h2>
+            <p>Tên này xuất hiện trên công thức bạn chia sẻ.</p>
+            <form asp-action="UpdateDisplayName" method="post">
+                @Html.AntiForgeryToken()
+                @if (activeForm == "display")
+                {
+                    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+                }
+                <div class="form-field-group">
+                    <label class="form-label" asp-for="DisplayNameForm.DisplayName">Tên hiển thị</label>
+                    <input class="form-input" asp-for="DisplayNameForm.DisplayName" autocomplete="nickname" />
+                    <span asp-validation-for="DisplayNameForm.DisplayName" class="text-danger"></span>
+                </div>
+                <button class="btn" type="submit">Lưu tên</button>
+            </form>
+        </article>
+
+        <article class="settings-card">
+            <h2>Email</h2>
+            <p>Địa chỉ hiện tại: @Model.Email. Email chỉ đổi sau khi địa chỉ mới được xác minh.</p>
+            @if (!Model.EmailConfirmed)
+            {
+                <form asp-action="SendEmailConfirmation" method="post" class="settings-inline">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-secondary" type="submit">Gửi lại email xác minh</button>
+                </form>
+            }
+            <form asp-action="ChangeEmail" method="post">
+                @Html.AntiForgeryToken()
+                @if (activeForm == "email")
+                {
+                    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+                }
+                <div class="form-field-group">
+                    <label class="form-label" asp-for="EmailForm.NewEmail">Email mới</label>
+                    <input class="form-input" asp-for="EmailForm.NewEmail" autocomplete="email" />
+                    <span asp-validation-for="EmailForm.NewEmail" class="text-danger"></span>
+                </div>
+                <div class="form-field-group">
+                    <label class="form-label" asp-for="EmailForm.CurrentPassword">Mật khẩu hiện tại</label>
+                    <input class="form-input" asp-for="EmailForm.CurrentPassword" autocomplete="current-password" />
+                    <span asp-validation-for="EmailForm.CurrentPassword" class="text-danger"></span>
+                </div>
+                <button class="btn" type="submit">Gửi xác nhận đổi email</button>
+            </form>
+        </article>
+
+        <article class="settings-card">
+            <h2>Mật khẩu</h2>
+            <p>Đổi mật khẩu cần đúng mật khẩu đang dùng.</p>
+            <form asp-action="ChangePassword" method="post">
+                @Html.AntiForgeryToken()
+                @if (activeForm == "password")
+                {
+                    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+                }
+                <div class="form-field-group">
+                    <label class="form-label" asp-for="PasswordForm.CurrentPassword">Mật khẩu hiện tại</label>
+                    <input class="form-input" asp-for="PasswordForm.CurrentPassword" autocomplete="current-password" />
+                    <span asp-validation-for="PasswordForm.CurrentPassword" class="text-danger"></span>
+                </div>
+                <div class="form-field-group">
+                    <label class="form-label" asp-for="PasswordForm.NewPassword">Mật khẩu mới</label>
+                    <input class="form-input" asp-for="PasswordForm.NewPassword" autocomplete="new-password" />
+                    <span asp-validation-for="PasswordForm.NewPassword" class="text-danger"></span>
+                </div>
+                <div class="form-field-group">
+                    <label class="form-label" asp-for="PasswordForm.ConfirmPassword">Xác nhận mật khẩu mới</label>
+                    <input class="form-input" asp-for="PasswordForm.ConfirmPassword" autocomplete="new-password" />
+                    <span asp-validation-for="PasswordForm.ConfirmPassword" class="text-danger"></span>
+                </div>
+                <button class="btn" type="submit">Đổi mật khẩu</button>
+            </form>
+        </article>
+
+        <article class="settings-card settings-danger">
+            <h2>Xóa tài khoản</h2>
+            <p>
+                Thao tác này xóa tài khoản, công thức bạn đã đăng, bình luận,
+                lượt thích, đánh giá, công thức đã lưu và quan hệ theo dõi.
+            </p>
+            <form asp-action="DeleteAccount" method="post">
+                @Html.AntiForgeryToken()
+                @if (activeForm == "delete")
+                {
+                    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+                }
+                <div class="form-field-group">
+                    <label class="form-label" asp-for="DeleteForm.Password">Mật khẩu</label>
+                    <input class="form-input" asp-for="DeleteForm.Password" autocomplete="current-password" />
+                    <span asp-validation-for="DeleteForm.Password" class="text-danger"></span>
+                </div>
+                <label class="checkbox-label">
+                    <input asp-for="DeleteForm.Confirm" />
+                    Tôi hiểu tài khoản và dữ liệu liên quan sẽ bị xóa.
+                </label>
+                <span asp-validation-for="DeleteForm.Confirm" class="text-danger"></span>
+                <button class="btn btn-danger" type="submit">Xóa tài khoản</button>
+            </form>
+        </article>
+    </div>
+</section>

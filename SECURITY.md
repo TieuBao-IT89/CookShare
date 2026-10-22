@@ -166,7 +166,29 @@ Nhóm CookShare khuyến khích:
 - Sử dụng Unit Tests và GitHub Actions CI.
 - Áp dụng nguyên tắc phân quyền tối thiểu.
 
-## 8. Liên hệ và hỗ trợ (Contact)
+## 8. Quản lý tài khoản (Account Management)
+
+Người dùng đã đăng nhập quản lý tài khoản của chính mình tại `/Account/Settings`. Mỗi thao tác ghi dữ liệu dùng Authentication và Anti-Forgery. Người dùng không cập nhật được tài khoản của người khác.
+
+- Đổi tên hiển thị chỉ thay `DisplayName`.
+- Đổi email yêu cầu mật khẩu hiện tại. Địa chỉ cũ được giữ cho đến khi địa chỉ mới mở liên kết xác nhận.
+- Đổi mật khẩu yêu cầu mật khẩu hiện tại. Security stamp được cập nhật và phiên đăng nhập được làm mới.
+- Email xác minh và liên kết đặt lại mật khẩu hết hạn sau 1 giờ.
+- Trang quên mật khẩu luôn trả cùng một thông báo, dù email có tài khoản hay không. Trang đó không hiển thị email, token hoặc mật khẩu.
+- Token và mật khẩu không được ghi vào log hoặc thông báo thành công.
+
+Dịch vụ email đọc cấu hình `Email`. `Email__SmtpPassword` và `Email__SmtpUser` được đặt bằng biến môi trường hoặc .NET User Secrets.
+
+Khi người dùng xác nhận xóa tài khoản bằng mật khẩu hiện tại, CookShare xóa theo thứ tự:
+
+1. Lượt thích, bình luận, đánh giá và công thức đã lưu của người đó.
+2. Quan hệ theo dõi mà người đó là người theo dõi hoặc người được theo dõi.
+3. Công thức do người đó đăng, cùng tương tác của người khác trên những công thức này.
+4. Bản ghi ASP.NET Core Identity của tài khoản.
+
+Các quan hệ này đang dùng `DeleteBehavior.Restrict`. Xóa dữ liệu phụ thuộc trước giúp không để lại khóa ngoại mồ côi và không chặn lệnh xóa tài khoản.
+
+## 9. Liên hệ và hỗ trợ (Contact)
 
 - Repository: https://github.com/TieuBao-IT89/CookShare
 - Security: https://github.com/TieuBao-IT89/CookShare/security

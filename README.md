@@ -268,12 +268,24 @@ Các chức năng hỗ trợ:
 - Đăng xuất qua HTTP POST.
 - Ghi nhớ đăng nhập.
 - Bảo vệ chức năng yêu cầu xác thực: tạo công thức, công thức đã lưu và chỉnh sửa công thức; quyền truy cập chỉnh sửa được kiểm tra theo tác giả ở backend.
+- Cập nhật tên hiển thị, đổi email sau khi xác minh địa chỉ mới, đổi mật khẩu và xóa tài khoản tại `/Account/Settings`.
+- Xác minh email, quên mật khẩu và đặt lại mật khẩu bằng token hết hạn sau 1 giờ.
 
 Thông tin tài khoản được lưu trong các bảng ASP.NET Core Identity trên PostgreSQL. Mật khẩu được xử lý bằng cơ chế Password Hashing của ASP.NET Core Identity, không lưu dưới dạng văn bản thuần.
 
 Người dùng cần cấu hình database theo hướng dẫn **Database Setup** ở mục 7 trước khi sử dụng chức năng Authentication.
 
-**Lưu ý:** Email Verification và Password Recovery chưa được triển khai trong phạm vi chức năng hiện tại. Trang tạo công thức hiện chỉ có giao diện; việc lưu công thức và kiểm tra quyền sở hữu khi cập nhật/xóa dữ liệu sẽ được hoàn thiện trong Issue #75.
+Email xác minh và đặt lại mật khẩu được gửi qua SMTP. Cấu hình bằng biến môi trường hoặc User Secrets, không ghi mật khẩu vào `appsettings.json`:
+
+- `Email__FromAddress`
+- `Email__FromName`
+- `Email__SmtpHost`
+- `Email__SmtpPort`
+- `Email__SmtpUser`
+- `Email__SmtpPassword`
+- `Email__UseStartTls`
+
+Chính sách xóa tài khoản và cách xử lý token nằm trong [SECURITY.md](SECURITY.md).
 
 ## 9. Cấu trúc thư mục (Project Structure)
 
