@@ -39,6 +39,17 @@
                 <span class="details-meta-item">@ingredients.Length nguyên liệu · @instructions.Length bước</span>
             </div>
             <p class="details-desc-box">@Model.Description</p>
+            <div class="details-actions">
+                <form asp-action="Like" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-secondary">
+                        @(Model.Likes.Any(like => like.UserId == currentUserId)
+                            ? "Bỏ thích"
+                            : "Thích")
+                        (@Model.Likes.Count)
+                    </button>
+                </form>
+            </div>
             <div class="details-cover-image">
                 <img src="@(string.IsNullOrEmpty(Model.Image) ? "/img/recipe-placeholder.svg" : Model.Image)"
                      alt="@Model.Name"
@@ -74,6 +85,56 @@
                 </div>
             </section>
         </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <p class="notice" role="alert">@TempData["Error"]</p>
+        }
+
+        <section class="comment-section" id="comments" aria-labelledby="commentsHeading">
+            <header class="comment-section-header">
+                <h2 class="comment-section-title" id="commentsHeading">
+                    Bình luận
+                    <span class="comment-count-badge">@Model.Comments.Count</span>
+                </h2>
+            </header>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-action="AddComment" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <label for="commentContent">Chia sẻ cảm nhận của bạn</label>
+                    <textarea id="commentContent"
+                              name="content"
+                              class="comment-textarea"
+                              maxlength="1000"
+                              required></textarea>
+                    <button type="submit" class="btn">Gửi bình luận</button>
+                </form>
+            }
+            else
+            {
+                <p><a asp-controller="Account" asp-action="Login">Đăng nhập</a> để bình luận.</p>
+            }
+
+            @if (Model.Comments.Count == 0)
+            {
+                <p>Chưa có bình luận nào.</p>
+            }
+            else
+            {
+                <ul class="notification-list">
+                    @foreach (var comment in Model.Comments.OrderByDescending(item => item.CreatedAt))
+                    {
+                        <li class="notification-item">
+                            <strong>@(comment.User?.DisplayName ?? comment.User?.UserName ?? "CookShare User")</strong>
+                            <p>@comment.Content</p>
+                            <time datetime="@comment.CreatedAt.ToString("O")">@comment.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</time>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
 
         <div class="details-footer-nav">
             <a class="btn btn-secondary" asp-controller="Recipe" asp-action="Index">← Khám phá thêm</a>

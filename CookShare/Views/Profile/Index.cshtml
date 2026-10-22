@@ -101,11 +101,16 @@
             }
             else if (User.Identity?.IsAuthenticated == true)
             {
-                <span class="btn btn-secondary">
-                    @(Model.IsFollowing
-                        ? "Đang theo dõi"
-                        : "Chưa theo dõi")
-                </span>
+                <form asp-controller="Profile"
+                      asp-action="@(Model.IsFollowing ? "Unfollow" : "Follow")"
+                      method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="userId" value="@Model.UserId" />
+                    <button type="submit"
+                            class="btn-follow-action @(Model.IsFollowing ? "is-following" : "")">
+                        @(Model.IsFollowing ? "Bỏ theo dõi" : "Theo dõi")
+                    </button>
+                </form>
             }
 
         </header>
