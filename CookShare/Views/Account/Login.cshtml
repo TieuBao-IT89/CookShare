@@ -1,0 +1,90 @@
+
+@model CookShare.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<section class="auth-page container">
+    <div class="auth-shell">
+        <partial name="_AuthAside" />
+
+        <div class="auth-form-area">
+            <a class="back-link" asp-controller="Home"
+               asp-action="Index">← Về trang chủ</a>
+
+            <span class="eyebrow">CHÀO MỪNG BẠN TRỞ LẠI</span>
+            <h1>Lại cùng <em>vào bếp.</em></h1>
+
+            <p class="auth-subtitle">
+                Một chút cảm hứng mới đang chờ bạn.
+            </p>
+
+            <form asp-controller="Account"
+                  asp-action="Login"
+                  asp-route-returnUrl="@ViewData["ReturnUrl"]"
+                  method="post"
+                  class="auth-form">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All"
+                     class="text-danger"
+                     role="alert"></div>
+
+                <div class="form-field-group">
+                    <label class="form-label"
+                           asp-for="UserNameOrEmail">
+                        Tên người dùng hoặc email
+                    </label>
+                    <input class="form-input"
+                           asp-for="UserNameOrEmail"
+                           autocomplete="username"
+                           placeholder="Nhập email hoặc username" />
+                </div>
+
+                <div class="form-field-group">
+                    <label class="form-label"
+                           asp-for="Password">Mật khẩu</label>
+
+                    <div class="password-field">
+                        <input class="form-input"
+                               asp-for="Password"
+                               id="loginPassword"
+                               autocomplete="current-password"
+                               placeholder="Nhập mật khẩu" />
+
+                        <button type="button"
+                                class="password-toggle"
+                                data-password-target="loginPassword"
+                                aria-label="Hiện mật khẩu">
+                            Hiện
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input asp-for="RememberMe" />
+                        Ghi nhớ đăng nhập
+                    </label>
+
+                    <span class="text-link">
+                        Quên mật khẩu?
+                    </span>
+                </div>
+
+                <button class="btn btn-full" type="submit">
+                    Đăng nhập
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                Chưa có tài khoản?
+                <a asp-controller="Account" asp-action="Register">
+                    Tham gia CookShare
+                </a>
+            </p>
+        </div>
+    </div>
+</section>

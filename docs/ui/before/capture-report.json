@@ -1,0 +1,85 @@
+{
+  "pages": [
+    {
+      "route": "/",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "route": "/Recipe",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "route": "/Recipe",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "route": "/Recipe/Details/1",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "route": "/Recipe/Details/1",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "route": "/Recipe/Create",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "route": "/Recipe/Create",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "route": "/Recipe/Saved",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "route": "/Recipe/Saved",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "route": "/Profile",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "route": "/Profile",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "route": "/Home/Login",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "route": "/Home/Login",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "route": "/Home/Register",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "route": "/Home/Register",
+      "width": 390,
+      "overflow": false
+    }
+  ],
+  "javascript_errors": []
+}

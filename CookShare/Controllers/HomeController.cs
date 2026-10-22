@@ -25,12 +25,12 @@ namespace CookShare.Controllers
 
         public IActionResult Login()
         {
-            return View();
+            return RedirectToAction("Login", "Account");
         }
 
         public IActionResult Register()
         {
-            return View();
+            return RedirectToAction("Register", "Account");
         }
 
         public IActionResult Privacy()

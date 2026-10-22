@@ -4,6 +4,7 @@
  */
 
 const RECIPE_STORAGE_KEY = "cookshare_recipes";
+let recipeStorageReadable = true;
 
 // Dữ liệu mẫu khởi tạo ban đầu nếu localStorage hoàn toàn trống
 const DEFAULT_SAMPLE_RECIPES = [
@@ -67,29 +68,50 @@ const DEFAULT_SAMPLE_RECIPES = [
 // STORAGE UTILITIES
 // ==========================================================================
 
-function getRecipes() {
-  const data = localStorage.getItem(RECIPE_STORAGE_KEY);
-
-  if (data === null) {
-    // Nếu chưa từng có trong localStorage, khởi tạo dữ liệu mẫu mặc định
-    saveRecipes(DEFAULT_SAMPLE_RECIPES);
-    return DEFAULT_SAMPLE_RECIPES;
+function reportRecipeStorageError(message) {
+  window.CookShareUI.toast(message, "error");
+  let notice = document.getElementById("recipeDataError");
+  if (!notice) {
+    notice = document.createElement("p");
+    notice.id = "recipeDataError";
+    notice.className = "notice container storage-error";
+    notice.setAttribute("role", "alert");
+    document.getElementById("main-content").prepend(notice);
   }
+  notice.textContent = message;
+}
 
+function getRecipes() {
   try {
+    const data = localStorage.getItem(RECIPE_STORAGE_KEY);
+    recipeStorageReadable = true;
+    if (data === null) {
+      saveRecipes(DEFAULT_SAMPLE_RECIPES);
+      return [...DEFAULT_SAMPLE_RECIPES];
+    }
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    console.error("Lỗi parse dữ liệu recipe từ localStorage:", err);
+    if (!Array.isArray(parsed)) throw new Error("Invalid recipe collection");
+    const valid = parsed.every(recipe => recipe && typeof recipe.name === "string" && Number.isSafeInteger(Number(recipe.id)) && Number(recipe.id) > 0);
+    if (!valid) throw new Error("Invalid recipe data");
+    return parsed;
+  } catch {
+    recipeStorageReadable = false;
+    reportRecipeStorageError("Không thể đọc công thức trên thiết bị này. Hãy kiểm tra quyền lưu trữ của trình duyệt rồi tải lại trang. Dữ liệu hiện có chưa bị thay đổi.");
     return [];
   }
 }
 
 function saveRecipes(recipes) {
+  if (!recipeStorageReadable) {
+    reportRecipeStorageError("Chưa thể lưu vì dữ liệu công thức hiện tại không đọc được. Hãy kiểm tra bộ nhớ trình duyệt để giữ lại dữ liệu của bạn.");
+    return false;
+  }
   try {
     localStorage.setItem(RECIPE_STORAGE_KEY, JSON.stringify(recipes));
-  } catch (err) {
-    console.error("Lỗi ghi dữ liệu recipe vào localStorage:", err);
+    return true;
+  } catch {
+    reportRecipeStorageError("Chưa thể lưu công thức. Bộ nhớ có thể đã đầy hoặc bị chặn. Hãy thử ảnh nhỏ hơn hoặc kiểm tra cài đặt trình duyệt.");
+    return false;
   }
 }
 
@@ -101,6 +123,70 @@ function escapeHtml(text) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+// One Razor template for Home, Explore, Saved and Profile.
+function recipeImageSource(value) {
+  if (typeof value !== "string" || !value) return "/img/recipe-placeholder.svg";
+  if (/^data:image\/(png|jpe?g|webp|gif|avif);base64,/i.test(value)) return value;
+  try {
+    const url = new URL(value, location.origin);
+    // Keep existing localStorage records working while serving bundled sample photos.
+    const sampleImages = {
+      "photo-1582878826629-29b7ad1cdc43": "pho",
+      "photo-1569058242253-92a9c755a0ec": "chicken-rice",
+      "photo-1621996346565-e3dbc646d9a9": "pasta",
+      "photo-1512621776951-a57141f2eefd": "salad",
+      "photo-1571877227200-a0d98ea607e9": "tiramisu",
+      "photo-1499638673689-79a0b5115d87": "peach-tea",
+      "photo-1494790108377-be9c29b29330": "profile-avatar"
+    };
+    const localPhoto = url.hostname === "images.unsplash.com" && sampleImages[url.pathname.slice(1)];
+    if (localPhoto) return `/img/recipes/${localPhoto}.webp`;
+    if (["http:", "https:"].includes(url.protocol)) return url.href;
+  } catch { /* Use the local fallback for invalid image sources. */ }
+  return "/img/recipe-placeholder.svg";
+}
+
+function renderRecipeCard(recipe, options = {}) {
+  const card = document.getElementById("recipeCardTemplate").content.firstElementChild.cloneNode(true);
+  const id = Number(recipe.id);
+  const detailsUrl = `/Recipe/Details/${id}`;
+  card.dataset.id = id;
+  if (options.saved) card.dataset.savedRecipeId = id;
+  const image = card.querySelector("img");
+  image.src = recipeImageSource(recipe.image);
+  image.alt = recipe.name;
+  card.querySelector(".recipe-image-link").href = detailsUrl;
+  card.querySelector(".recipe-image-link").setAttribute("aria-label", `Xem công thức ${recipe.name}`);
+  card.querySelector(".recipe-category-badge").textContent = recipe.category || "Món ngon";
+  card.querySelector(".card-category").textContent = recipe.category || "Công thức cộng đồng";
+  const count = String(recipe.ingredients || "").split("\n").filter(line => line.trim()).length;
+  card.querySelector(".card-ingredient-count").textContent = `${count} nguyên liệu`;
+  const title = card.querySelector(".recipe-card-title a");
+  title.textContent = recipe.name;
+  title.href = detailsUrl;
+  card.querySelector(".recipe-card-desc").textContent = recipe.description || "Món ngon được chia sẻ từ căn bếp CookShare.";
+  card.querySelector(".card-author-name").textContent = recipe.author || "Đầu bếp CookShare";
+  card.querySelector(".recipe-link").href = detailsUrl;
+  card.querySelectorAll(".recipe-save-btn, .recipe-like-btn, .recipe-like-count-display, .recipe-rating-display").forEach(element => {
+    element.dataset.recipeId = id;
+    if (element.matches("button")) {
+      element.dataset.recipeName = recipe.name;
+      element.setAttribute("aria-label", `${element.classList.contains("recipe-like-btn") ? "Thích" : "Lưu"} ${recipe.name}`);
+    }
+  });
+  card.querySelector(".recipe-manage-actions").hidden = !options.manage;
+  card.querySelector(".btn-action-edit").href = `/Recipe/Edit/${id}`;
+  card.querySelector(".btn-action-delete").dataset.deleteRecipe = id;
+  card.querySelector(".saved-card-unsave-btn").hidden = !options.saved;
+  return card.outerHTML;
+}
+
+function syncRecipeCards() {
+  window.CookShareLikes?.syncAllRecipeLikesUI();
+  window.CookShareSaved?.syncSavedRecipeUI();
+  window.CookShareRatings?.syncAllRecipeRatingsUI();
 }
 
 // ==========================================================================
@@ -120,12 +206,7 @@ function displayRecipes() {
   const headerSearch = document.getElementById("headerGlobalSearch");
   const categoryFilter = document.getElementById("categoryFilter");
 
-  let searchText = "";
-  if (searchInput && searchInput.value) {
-    searchText = searchInput.value.toLowerCase().trim();
-  } else if (headerSearch && headerSearch.value) {
-    searchText = headerSearch.value.toLowerCase().trim();
-  }
+  const searchText = (searchInput ? searchInput.value : headerSearch?.value || "").toLowerCase().trim();
 
   const category = currentSelectedCategory || (categoryFilter ? categoryFilter.value : "");
 
@@ -133,8 +214,8 @@ function displayRecipes() {
 
   const filteredRecipes = recipes.filter((recipe) => {
     const nameMatch = recipe.name && recipe.name.toLowerCase().includes(searchText);
-    const descMatch = recipe.description && recipe.description.toLowerCase().includes(searchText);
-    const ingredientMatch = recipe.ingredients && recipe.ingredients.toLowerCase().includes(searchText);
+    const descMatch = String(recipe.description || "").toLowerCase().includes(searchText);
+    const ingredientMatch = String(recipe.ingredients || "").toLowerCase().includes(searchText);
     const matchesSearch = !searchText || nameMatch || descMatch || ingredientMatch;
 
     const matchesCategory = !category || recipe.category === category;
@@ -170,58 +251,15 @@ function displayRecipes() {
     emptyRecipe.style.display = "none";
   }
 
-  filteredRecipes.forEach((recipe) => {
-    const card = document.createElement("article");
-    card.className = "recipe-card";
-
-    const imageHtml = recipe.image
-      ? `<img src="${recipe.image}" alt="${escapeHtml(recipe.name)}" loading="lazy">`
-      : `<div class="recipe-no-image"><span class="recipe-no-image-icon">🍳</span><span class="recipe-no-image-text">CookShare Recipe</span></div>`;
-
-    card.innerHTML = `
-      <div class="recipe-image">
-        ${imageHtml}
-        <span class="recipe-category-badge">${escapeHtml(recipe.category || "Công thức")}</span>
-        <button type="button"
-                class="recipe-card-like-btn recipe-like-btn"
-                data-recipe-id="${recipe.id}"
-                data-recipe-name="${escapeHtml(recipe.name)}"
-                aria-label="Thích ${escapeHtml(recipe.name)}"
-                aria-pressed="false"
-                title="Thích công thức">
-          <span class="like-icon">♡</span>
-          <span class="recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="badge">0</span>
-        </button>
-      </div>
-      <div class="recipe-card-body">
-        <h3 class="recipe-card-title">
-          <a href="/Recipe/Details/${recipe.id}" title="${escapeHtml(recipe.name)}">${escapeHtml(recipe.name)}</a>
-        </h3>
-        <p class="recipe-card-desc">
-          ${escapeHtml(recipe.description || "Công thức món ngon hấp dẫn từ cộng đồng CookShare...")}
-        </p>
-        <div class="recipe-card-footer">
-          <div class="recipe-actions">
-            <a href="/Recipe/Details/${recipe.id}" class="btn-action-view" title="Xem chi tiết">
-              <span>👁 Xem</span>
-            </a>
-            <a href="/Recipe/Edit/${recipe.id}" class="btn-action-edit" title="Chỉnh sửa">
-              <span>✏ Sửa</span>
-            </a>
-            <button type="button" class="btn-action-delete" onclick="deleteRecipe(${recipe.id})" title="Xóa công thức">
-              <span>🗑 Xóa</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    recipeList.appendChild(card);
-  });
+  recipeList.innerHTML = filteredRecipes.map(recipe => renderRecipeCard(recipe, { manage: true })).join("");
 
   // Đồng bộ trạng thái Like cho danh sách công thức vừa render
   if (window.CookShareLikes && typeof window.CookShareLikes.syncAllRecipeLikesUI === "function") {
     window.CookShareLikes.syncAllRecipeLikesUI();
+  }
+  // Đồng bộ trạng thái Lưu cho danh sách công thức vừa render
+  if (window.CookShareSaved && typeof window.CookShareSaved.syncSavedRecipeUI === "function") {
+    window.CookShareSaved.syncSavedRecipeUI();
   }
 }
 
@@ -236,35 +274,56 @@ function selectCategoryPill(catName, buttonElem) {
     pill.classList.remove("active");
   });
 
-  if (buttonElem) {
-    buttonElem.classList.add("active");
-  }
+  if (buttonElem) buttonElem.classList.add("active");
+  document.querySelectorAll(".category-pill").forEach(pill => pill.setAttribute("aria-pressed", String(pill.classList.contains("active"))));
 
   displayRecipes();
 }
 
-function deleteRecipe(id) {
+async function deleteRecipe(id) {
   const recipes = getRecipes();
   const recipe = recipes.find((r) => Number(r.id) === Number(id));
 
   if (!recipe) {
-    alert("Không tìm thấy công thức cần xóa.");
+    window.CookShareUI.toast("Không tìm thấy công thức cần xóa.", "error");
     return;
   }
 
-  const confirmed = confirm(`Bạn có chắc chắn muốn xóa công thức "${recipe.name}" không? Thao tác này không thể hoàn tác.`);
+  const confirmed = await window.CookShareUI.confirmDelete(`Công thức "${recipe.name}" sẽ được xóa khỏi thiết bị này. Thao tác này không thể hoàn tác.`);
   if (!confirmed) return;
 
   const newRecipes = recipes.filter((r) => Number(r.id) !== Number(id));
-  saveRecipes(newRecipes);
-
+  if (!saveRecipes(newRecipes)) return;
   displayRecipes();
+  initializeProfilePage();
+  window.CookShareUI.toast("Đã xóa công thức.");
 }
 
 function initializeIndexPage() {
   const recipeList = document.getElementById("recipeList");
   if (!recipeList) return;
 
+  const parameters = new URLSearchParams(location.search);
+  const initialSearch = document.getElementById("searchRecipe");
+  const initialCategory = document.getElementById("categoryFilter");
+  if (initialSearch) initialSearch.value = parameters.get("q") || "";
+  const categoryParam = parameters.get("category") || "";
+  if (initialCategory && Array.from(initialCategory.options).some(option => option.value === categoryParam)) {
+    initialCategory.value = categoryParam;
+    currentSelectedCategory = categoryParam;
+  }
+  document.querySelectorAll(".category-pill").forEach(pill => {
+    const active = pill.dataset.category === currentSelectedCategory;
+    pill.classList.toggle("active", active);
+    pill.setAttribute("aria-pressed", String(active));
+  });
+  document.getElementById("resetRecipeFilters")?.addEventListener("click", () => {
+    initialSearch.value = "";
+    document.getElementById("headerGlobalSearch").value = "";
+    selectCategoryPill("", document.querySelector('.category-pill[data-category=""]'));
+    history.replaceState(null, "", location.pathname);
+    initialSearch.focus();
+  });
   displayRecipes();
 
   const searchInput = document.getElementById("searchRecipe");
@@ -293,6 +352,7 @@ function initializeIndexPage() {
           pill.classList.remove("active");
         }
       });
+      document.querySelectorAll(".category-pill").forEach(pill => pill.setAttribute("aria-pressed", String(pill.classList.contains("active"))));
       displayRecipes();
     });
   }
@@ -322,17 +382,21 @@ function initializeCreateRecipe() {
   function handleImageFile(file) {
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      alert("Vui lòng chọn file định dạng hình ảnh (JPG, PNG, WEBP).");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      window.CookShareUI.toast("Vui lòng chọn ảnh JPG, PNG hoặc WEBP.", "error");
       return;
     }
 
     if (file.size > 3 * 1024 * 1024) {
-      alert("Dung lượng ảnh tối đa là 3MB. Vui lòng chọn ảnh nhỏ hơn.");
+      window.CookShareUI.toast("Ảnh tối đa 3 MB. Bạn hãy chọn ảnh nhỏ hơn nhé.", "error");
       return;
     }
 
     const reader = new FileReader();
+    const submitButton = form.querySelector('[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
+    reader.onerror = () => window.CookShareUI.toast("Chưa thể đọc ảnh. Vui lòng chọn lại.", "error");
+    reader.onloadend = () => { if (submitButton) submitButton.disabled = false; };
     reader.onload = function (event) {
       imageDataUrl = event.target.result;
       renderImagePreview(imageDataUrl);
@@ -354,7 +418,7 @@ function initializeCreateRecipe() {
 
     imagePreviewBox.innerHTML = `
       <div class="image-preview-wrapper">
-        <img src="${src}" alt="Ảnh xem trước">
+        <img src="${escapeHtml(recipeImageSource(src))}" alt="Ảnh xem trước">
         <div class="image-preview-overlay">
           <span>✓ Ảnh món ăn đã tải lên</span>
           <button type="button" class="btn-remove-image" id="btnRemoveImage">Thay ảnh khác</button>
@@ -426,6 +490,8 @@ function initializeCreateRecipe() {
 
     function validateField(val, errorElemId, message) {
       const errElem = document.getElementById(errorElemId);
+      const field = document.querySelector(`[aria-describedby~="${errorElemId}"]`);
+      field?.setAttribute("aria-invalid", String(!val));
       if (!val) {
         if (errElem) {
           errElem.textContent = message;
@@ -449,7 +515,7 @@ function initializeCreateRecipe() {
     if (hasError) {
       const firstError = document.querySelector(".form-error.visible");
       if (firstError) {
-        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+        firstError.parentElement.querySelector("input, select, textarea")?.focus();
       }
       return;
     }
@@ -468,9 +534,8 @@ function initializeCreateRecipe() {
     };
 
     recipes.unshift(newRecipe);
-    saveRecipes(recipes);
-
-    alert(`🎉 Chúc mừng! Công thức "${name}" đã được lưu thành công vào CookShare!`);
+    if (!saveRecipes(recipes)) return;
+    window.CookShareUI.flash(`Đã lưu công thức "${name}". Cảm ơn bạn đã chia sẻ!`);
     window.location.href = "/Recipe";
   });
 }
@@ -498,7 +563,7 @@ function initializeEditRecipe() {
   const recipe = recipes.find((r) => Number(r.id) === Number(recipeId));
 
   if (!recipe) {
-    alert("Không tìm thấy công thức cần chỉnh sửa.");
+    window.CookShareUI.flash("Không tìm thấy công thức cần chỉnh sửa.");
     window.location.href = "/Recipe";
     return;
   }
@@ -536,7 +601,7 @@ function initializeEditRecipe() {
 
     imagePreviewBox.innerHTML = `
       <div class="image-preview-wrapper">
-        <img src="${src}" alt="${escapeHtml(recipe.name)}">
+        <img src="${escapeHtml(recipeImageSource(src))}" alt="${escapeHtml(recipe.name)}">
         <div class="image-preview-overlay">
           <span>✓ Ảnh món ăn hiện tại</span>
           <button type="button" class="btn-remove-image" id="btnRemoveImage">Đổi ảnh khác</button>
@@ -560,15 +625,19 @@ function initializeEditRecipe() {
 
   function handleImageFile(file) {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      alert("Vui lòng chọn file hình ảnh (JPG, PNG, WEBP).");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      window.CookShareUI.toast("Vui lòng chọn ảnh JPG, PNG hoặc WEBP.", "error");
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
-      alert("Dung lượng ảnh tối đa là 3MB.");
+      window.CookShareUI.toast("Ảnh tối đa 3 MB. Bạn hãy chọn ảnh nhỏ hơn nhé.", "error");
       return;
     }
     const reader = new FileReader();
+    const submitButton = form.querySelector('[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
+    reader.onerror = () => window.CookShareUI.toast("Chưa thể đọc ảnh. Vui lòng chọn lại.", "error");
+    reader.onloadend = () => { if (submitButton) submitButton.disabled = false; };
     reader.onload = function (event) {
       imageDataUrl = event.target.result;
       renderImagePreview(imageDataUrl);
@@ -619,6 +688,8 @@ function initializeEditRecipe() {
 
     function validateField(val, errorElemId, message) {
       const errElem = document.getElementById(errorElemId);
+      const field = document.querySelector(`[aria-describedby~="${errorElemId}"]`);
+      field?.setAttribute("aria-invalid", String(!val));
       if (!val) {
         if (errElem) {
           errElem.textContent = message;
@@ -639,13 +710,16 @@ function initializeEditRecipe() {
     validateField(ingredients, "ingredientsError", "Vui lòng nhập nguyên liệu.");
     validateField(instructions, "instructionsError", "Vui lòng nhập hướng dẫn chế biến.");
 
-    if (hasError) return;
+    if (hasError) {
+      document.querySelector('.form-error.visible')?.parentElement.querySelector('input, select, textarea')?.focus();
+      return;
+    }
 
     const allRecipes = getRecipes();
     const index = allRecipes.findIndex((r) => Number(r.id) === Number(recipeId));
 
     if (index === -1) {
-      alert("Không tìm thấy công thức để cập nhật.");
+      window.CookShareUI.toast("Không tìm thấy công thức để cập nhật.", "error");
       return;
     }
 
@@ -659,9 +733,8 @@ function initializeEditRecipe() {
       instructions: instructions
     };
 
-    saveRecipes(allRecipes);
-
-    alert(`✓ Cập nhật công thức "${name}" thành công!`);
+    if (!saveRecipes(allRecipes)) return;
+    window.CookShareUI.flash(`Đã cập nhật công thức "${name}".`);
     window.location.href = `/Recipe/Details/${recipeId}`;
   });
 }
@@ -671,366 +744,105 @@ function initializeEditRecipe() {
 // ==========================================================================
 
 function initializeDetailsRecipe() {
-  const detailsContainer = document.getElementById("recipeDetailsContainer");
-  if (!detailsContainer) return;
-
-  const idInput = document.getElementById("detailsRecipeId");
-  let recipeId = idInput ? Number(idInput.value) : 0;
-
-  if (!recipeId) {
-    const pathParts = window.location.pathname.split("/").filter(Boolean);
-    const lastPart = pathParts[pathParts.length - 1];
-    if (lastPart && !isNaN(Number(lastPart))) {
-      recipeId = Number(lastPart);
-    }
-  }
-
-  const recipes = getRecipes();
-  const recipe = recipes.find((r) => Number(r.id) === Number(recipeId));
-
+  const container = document.getElementById("recipeDetailsContainer");
+  if (!container) return;
+  const id = Number(document.getElementById("detailsRecipeId").value);
+  const recipe = getRecipes().find(item => Number(item.id) === id);
   if (!recipe) {
-    detailsContainer.innerHTML = `
-      <div class="recipe-empty-container">
-        <div class="recipe-empty-icon-box">🔍</div>
-        <h2 class="recipe-empty-title">Không tìm thấy công thức</h2>
-        <p class="recipe-empty-desc">Công thức này có thể đã bị xóa hoặc đường dẫn không chính xác.</p>
-        <a href="/Recipe" class="btn-primary-cookshare">← Quay lại danh sách công thức</a>
-      </div>
-    `;
+    container.innerHTML = `<div class="recipe-empty-container"><span class="state-icon"><svg class="icon"><use href="#i-search" /></svg></span><h1>Không tìm thấy công thức</h1><p>Công thức có thể đã được xóa hoặc đường dẫn chưa chính xác.</p><a class="btn" href="/Recipe">Khám phá món ngon khác</a></div>`;
     return;
   }
-
-  // Cập nhật Breadcrumb & Title trang
-  const breadcrumbCurrent = document.getElementById("detailsBreadcrumbCurrent");
-  if (breadcrumbCurrent) breadcrumbCurrent.textContent = recipe.name;
-  document.title = `${recipe.name} - CookShare`;
-
-  // Tách dòng nguyên liệu
-  const ingredientsLines = (recipe.ingredients || "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
-
-  const ingredientsHtml = ingredientsLines.length > 0
-    ? ingredientsLines
-        .map((ing, idx) => `
-          <li class="ingredient-item" onclick="this.classList.toggle('checked')">
-            <input type="checkbox" class="ingredient-checkbox" id="ing_${idx}">
-            <label for="ing_${idx}">${escapeHtml(ing)}</label>
-          </li>
-        `)
-        .join("")
-    : `<li class="ingredient-item">Chưa có thông tin nguyên liệu</li>`;
-
-  // Tách dòng hướng dẫn chế biến
-  const instructionLines = (recipe.instructions || "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
-
-  const instructionsHtml = instructionLines.length > 0
-    ? instructionLines
-        .map((step, idx) => {
-          let cleanStep = step;
-          // Tự loại bỏ tiền tố Bước X: nếu đã có sẵn trong chuỗi
-          cleanStep = cleanStep.replace(/^(Bước\s*\d+[:.-]?\s*)/i, "");
-          return `
-            <div class="instruction-step-item">
-              <div class="step-number">${idx + 1}</div>
-              <p class="step-text">${escapeHtml(cleanStep)}</p>
-            </div>
-          `;
-        })
-        .join("")
-    : `<p class="step-text">Chưa có hướng dẫn chế biến.</p>`;
-
-  const imageHtml = recipe.image
-    ? `<div class="details-cover-image"><img src="${recipe.image}" alt="${escapeHtml(recipe.name)}"></div>`
-    : ``;
-
-  detailsContainer.innerHTML = `
-    <!-- Top Details Hero -->
+  document.getElementById("detailsBreadcrumbCurrent").textContent = recipe.name;
+  container.dataset.recipeFound = "true";
+  document.title = `${recipe.name} · CookShare`;
+  const ingredients = String(recipe.ingredients || "").split("\n").map(line => line.trim()).filter(Boolean);
+  const instructions = String(recipe.instructions || "").split("\n").map(line => line.trim()).filter(Boolean);
+  const ingredientHtml = ingredients.map((ingredient, index) => `
+    <li class="ingredient-item"><label for="ingredient_${index}"><input type="checkbox" class="ingredient-checkbox" id="ingredient_${index}" /><span>${escapeHtml(ingredient)}</span></label></li>
+  `).join("");
+  const instructionHtml = instructions.map((step, index) => `
+    <div class="instruction-step-item"><span class="step-number">${index + 1}</span><p class="step-text">${escapeHtml(step.replace(/^(Bước\s*\d+[:.-]?\s*)/i, ""))}</p></div>
+  `).join("");
+  container.innerHTML = `
     <article class="details-hero-card">
       <div class="details-top-bar">
-        <span class="details-category-tag">🏷 ${escapeHtml(recipe.category || "Món ăn")}</span>
+        <span class="details-category-tag"><svg class="icon"><use href="#i-leaf" /></svg>${escapeHtml(recipe.category || "Món ngon")}</span>
         <div class="details-actions">
-          <button type="button"
-                  class="btn-details-like recipe-like-btn"
-                  data-recipe-id="${recipe.id}"
-                  data-recipe-name="${escapeHtml(recipe.name)}"
-                  aria-label="Thích ${escapeHtml(recipe.name)}"
-                  aria-pressed="false">
-            <span class="like-icon">♡</span>
-            <span class="like-text">Thích</span>
-            <span class="like-count-pill recipe-like-count-display"
-                  data-recipe-id="${recipe.id}"
-                  data-like-format="number">0</span>
-          </button>
+          <button type="button" class="btn btn-secondary recipe-like-btn" data-recipe-id="${id}" data-recipe-name="${escapeHtml(recipe.name)}" aria-pressed="false" aria-label="Thích ${escapeHtml(recipe.name)}"><span class="like-icon">♡</span><span class="like-text">Thích</span><span class="recipe-like-count-display" data-recipe-id="${id}" data-like-format="number">0</span></button>
+          <button type="button" class="btn btn-secondary btn-details-save recipe-save-btn" data-recipe-id="${id}" data-recipe-name="${escapeHtml(recipe.name)}" aria-pressed="false" aria-label="Lưu ${escapeHtml(recipe.name)}"><span class="save-icon"><svg class="icon" aria-hidden="true"><use href="#i-bookmark" /></svg></span><span class="save-text">Lưu công thức</span></button>
         </div>
       </div>
-
       <h1 class="details-title">${escapeHtml(recipe.name)}</h1>
-
       <div class="details-meta-row">
-        <div class="details-meta-item">
-          <span>👨‍🍳 Tác giả:</span> <b>Đầu bếp CookShare</b>
-        </div>
-        <div class="details-meta-item">
-          <span>⏱ Chuẩn bị:</span> <b>Dễ thực hiện</b>
-        </div>
-        <div class="details-meta-item">
-          <span>★ Đánh giá:</span> <b>5.0 / 5.0</b>
-        </div>
-        <div class="details-meta-item details-meta-likes">
-          <span>♡ Lượt thích:</span> <b class="recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="meta">0</b>
-        </div>
+        <span class="details-meta-item"><svg class="icon"><use href="#i-user" /></svg> Công thức từ <b>${escapeHtml(recipe.author || "Đầu bếp CookShare")}</b></span>
+        <span class="details-meta-item"><svg class="icon"><use href="#i-grid" /></svg> ${ingredients.length} nguyên liệu · ${instructions.length} bước</span>
+        <span class="details-meta-item details-meta-rating">☆ <b id="detailsAverageRatingDisplay">Chưa có đánh giá</b></span>
+        <span class="details-meta-item"><svg class="icon"><use href="#i-bookmark" /></svg> Đã lưu: <b id="detailsSavedStatus">Chưa</b></span>
       </div>
-
-      ${recipe.description ? `<div class="details-desc-box">${escapeHtml(recipe.description)}</div>` : ""}
-
-      ${imageHtml}
+      <p class="details-desc-box">${escapeHtml(recipe.description)}</p>
+      <div class="details-cover-image"><img src="${escapeHtml(recipeImageSource(recipe.image))}" alt="${escapeHtml(recipe.name)}" width="1100" height="700" fetchpriority="high" /></div>
     </article>
-
-    <!-- Two Columns: Ingredients & Instructions -->
     <div class="details-content-grid">
-      <!-- Cột Nguyên liệu -->
-      <section class="ingredients-card">
-        <h2 class="section-card-title">
-          <span class="title-icon">🛒</span> Nguyên liệu chuẩn bị
-        </h2>
-        <ul class="ingredient-list">
-          ${ingredientsHtml}
-        </ul>
-      </section>
-
-      <!-- Cột Hướng dẫn chế biến -->
-      <section class="instructions-card">
-        <h2 class="section-card-title">
-          <span class="title-icon">👩‍🍳</span> Các bước thực hiện
-        </h2>
-        <div class="instruction-steps">
-          ${instructionsHtml}
-        </div>
-      </section>
+      <section class="ingredients-card" aria-labelledby="ingredientHeading"><h2 class="section-card-title" id="ingredientHeading"><svg class="icon"><use href="#i-leaf" /></svg> Nguyên liệu</h2><p class="ingredient-progress" role="status" aria-live="polite">Đã chuẩn bị <span id="ingredientCheckedCount">0</span> / ${ingredients.length} nguyên liệu</p><ul class="ingredient-list">${ingredientHtml || '<li>Chưa có thông tin nguyên liệu.</li>'}</ul></section>
+      <section class="instructions-card" aria-labelledby="instructionHeading"><h2 class="section-card-title" id="instructionHeading"><svg class="icon"><use href="#i-chef" /></svg> Cùng vào bếp</h2><div class="instruction-steps">${instructionHtml || '<p>Chưa có hướng dẫn chế biến.</p>'}</div></section>
     </div>
-
-    <!-- Bottom Navigation Bar -->
-<div class="details-footer-nav">
-
-  <a href="/Recipe" class="btn-secondary-cookshare">
-    ← Quay lại danh sách món ăn
-  </a>
-
-  <a href="/Recipe/Edit/${recipe.id}" class="btn-primary-cookshare">
-    ✏ Sửa công thức
-  </a>
-
-  <button
-    type="button"
-    class="btn-secondary-cookshare"
-    onclick="deleteRecipeInDetails(${recipe.id})">
-    🗑 Xóa công thức
-  </button>
-
-  <a href="/Recipe/Create" class="btn-primary-cookshare">
-    + Chia sẻ công thức
-  </a>
-
-</div>
+    <div class="details-footer-nav"><a class="btn btn-secondary" href="/Recipe">← Khám phá thêm</a><div><a class="btn btn-secondary" href="/Recipe/Edit/${id}"><svg class="icon"><use href="#i-edit" /></svg> Chỉnh sửa</a><button class="btn btn-secondary delete-link" type="button" data-delete-details="${id}"><svg class="icon"><use href="#i-trash" /></svg> Xóa công thức</button></div></div>
   `;
-
-  // Khởi tạo module bình luận sau khi render xong chi tiết công thức
-  if (typeof initializeRecipeComments === "function") {
-    initializeRecipeComments(recipeId);
-  }
-
-  // Đồng bộ trạng thái Like cho trang chi tiết công thức
-  if (window.CookShareLikes && typeof window.CookShareLikes.updateRecipeLikeUI === "function") {
-    window.CookShareLikes.updateRecipeLikeUI(recipeId);
-  }
-}
-
-function deleteRecipeInDetails(id) {
-  const recipes = getRecipes();
-  const recipe = recipes.find((r) => Number(r.id) === Number(id));
-
-  if (!recipe) return;
-
-  const confirmed = confirm(`Bạn có chắc muốn xóa công thức "${recipe.name}" không?`);
-  if (!confirmed) return;
-
-  const newRecipes = recipes.filter((r) => Number(r.id) !== Number(id));
-  saveRecipes(newRecipes);
-
-  alert("Đã xóa công thức thành công!");
-  window.location.href = "/Recipe";
-}
-
-// ==========================================================================
-// 5. HOME PAGE CONTROLLER
-// ==========================================================================
-
-function getHomeRecipeMeta(recipe, index = 0) {
-  const presetMetas = [
-    { time: "2 giờ 30 phút", difficulty: "Trung bình", author: "Linh Nguyễn", likes: 128 },
-    { time: "55 phút", difficulty: "Dễ", author: "Minh Anh", likes: 96 },
-    { time: "35 phút", difficulty: "Dễ", author: "Hà Phương", likes: 75 },
-    { time: "15 phút", difficulty: "Dễ", author: "Tú Quỳnh", likes: 61 },
-    { time: "45 phút", difficulty: "Khó", author: "Yến Nhi", likes: 119 },
-    { time: "20 phút", difficulty: "Dễ", author: "Khánh Vy", likes: 84 }
-  ];
-
-  let meta = presetMetas[index % presetMetas.length];
-  if (recipe.id === 1) meta = presetMetas[0];
-  else if (recipe.id === 2) meta = presetMetas[1];
-  else if (recipe.id === 3) meta = presetMetas[2];
-  else if (recipe.id === 4) meta = presetMetas[3];
-  else if (recipe.id === 5) meta = presetMetas[4];
-  else if (recipe.id === 6) meta = presetMetas[5];
-
-  return {
-    time: recipe.time || meta.time,
-    difficulty: recipe.difficulty || meta.difficulty,
-    author: recipe.author || meta.author,
-    likes: recipe.likes !== undefined ? recipe.likes : meta.likes,
-    rating: recipe.rating || "4.9"
-  };
-}
-
-function renderHomeRecipeCard(recipe, index = 0, isFeatured = false) {
-  const defaultImg = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=900&q=85";
-  const imgSrc = recipe.image ? recipe.image : defaultImg;
-  const meta = getHomeRecipeMeta(recipe, index);
-  const likeBtnHtml = `<button type="button" class="like recipe-like-btn" data-recipe-id="${recipe.id}" data-recipe-name="${escapeHtml(recipe.name)}" aria-label="Thích ${escapeHtml(recipe.name)}" aria-pressed="false"><span class="like-icon">♡</span></button>`;
-
-  return `
-    <article class="recipe-card" data-id="${recipe.id}">
-      <div class="recipe-image">
-        <a href="/Recipe/Details/${recipe.id}" style="display:block; width:100%; height:100%;">
-          <img src="${imgSrc}" alt="${escapeHtml(recipe.name)}" loading="lazy" />
-        </a>
-        <span class="recipe-tag">${escapeHtml(recipe.category || "Món ăn")}</span>
-        ${likeBtnHtml}
-      </div>
-      <div class="recipe-content">
-        <div class="recipe-title-row">
-          <h3>
-            <a href="/Recipe/Details/${recipe.id}" style="color: inherit; text-decoration: none;">
-              ${escapeHtml(recipe.name)}
-            </a>
-          </h3>
-          <span class="rating">★ ${escapeHtml(meta.rating)}</span>
-        </div>
-        <p>${escapeHtml(recipe.description || "Công thức món ngon đặc sắc từ cộng đồng CookShare...")}</p>
-        <div class="recipe-meta">
-          <span>◷ ${escapeHtml(meta.time)}</span>
-          <span class="difficulty">${escapeHtml(meta.difficulty)}</span>
-        </div>
-        <div class="recipe-bottom">
-          <span class="author">♙ ${escapeHtml(meta.author)}</span>
-          <span class="likes recipe-like-count-display" data-recipe-id="${recipe.id}" data-like-format="feed">♡ ${escapeHtml(meta.likes)}</span>
-        </div>
-        <a class="recipe-link" href="/Recipe/Details/${recipe.id}">Xem công thức →</a>
-      </div>
-    </article>
-  `;
-}
-
-function attachHomeLikeEvents(container) {
-  if (!container) return;
-  // Nếu đã nạp module CookShareLikes, sử dụng hệ thống Like chung
-  if (window.CookShareLikes && typeof window.CookShareLikes.syncAllRecipeLikesUI === "function") {
-    window.CookShareLikes.syncAllRecipeLikesUI();
-    return;
-  }
-
-  container.querySelectorAll(".like").forEach((btn) => {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.classList.toggle("liked");
-      if (this.classList.contains("liked")) {
-        this.textContent = "♥";
-        this.style.color = "#e53935";
-      } else {
-        this.textContent = "♡";
-        this.style.color = "";
-      }
-    });
+  container.addEventListener("change", event => {
+    if (!event.target.matches(".ingredient-checkbox")) return;
+    event.target.closest(".ingredient-item").classList.toggle("checked", event.target.checked);
+    document.getElementById("ingredientCheckedCount").textContent = container.querySelectorAll(".ingredient-checkbox:checked").length;
   });
+  if (typeof initializeRecipeComments === "function") initializeRecipeComments(id);
+  window.CookShareRatings?.initializeRecipeRatings(id);
+  syncRecipeCards();
+}
+
+async function deleteRecipeInDetails(id) {
+  const recipes = getRecipes();
+  const recipe = recipes.find(item => Number(item.id) === Number(id));
+  if (!recipe) return;
+  const confirmed = await window.CookShareUI.confirmDelete(`Công thức "${recipe.name}" sẽ được xóa khỏi thiết bị này. Thao tác này không thể hoàn tác.`);
+  if (!confirmed) return;
+  if (!saveRecipes(recipes.filter(item => Number(item.id) !== Number(id)))) return;
+  window.CookShareUI.flash("Đã xóa công thức.");
+  location.href = "/Recipe";
+}
+
+function emptyRecipeCollection() {
+  return '<div class="recipe-empty-container collection-empty"><span class="state-icon"><svg class="icon"><use href="#i-chef" /></svg></span><h2>Căn bếp đang chờ bạn</h2><p>Chia sẻ một công thức để bắt đầu câu chuyện món ngon.</p><a class="btn" href="/Recipe/Create">Chia sẻ món đầu tiên</a></div>';
 }
 
 function initializeHomePage() {
-  const featuredGrid = document.getElementById("homeFeaturedGrid");
-  const latestGrid = document.getElementById("homeLatestGrid");
-
-  if (!featuredGrid && !latestGrid) return;
-
+  const featured = document.getElementById("homeFeaturedGrid");
+  const latest = document.getElementById("homeLatestGrid");
+  if (!featured && !latest) return;
   const recipes = getRecipes();
-
-  // 1. Render Công thức nổi bật (3 công thức đầu tiên)
-  if (featuredGrid) {
-    featuredGrid.innerHTML = "";
-    if (recipes.length === 0) {
-      featuredGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 30px;">Chưa có công thức nổi bật nào.</p>`;
-    } else {
-      const featuredList = recipes.slice(0, 3);
-      featuredGrid.innerHTML = featuredList.map((r, idx) => renderHomeRecipeCard(r, idx, true)).join("");
-      attachHomeLikeEvents(featuredGrid);
-    }
+  if (featured) featured.innerHTML = recipes.length ? recipes.slice(0, 3).map(recipe => renderRecipeCard(recipe)).join("") : emptyRecipeCollection();
+  if (latest) latest.innerHTML = recipes.length ? (recipes.length > 3 ? recipes.slice(3, 6) : recipes).map(recipe => renderRecipeCard(recipe)).join("") : emptyRecipeCollection();
+  const suggestion = document.querySelector(".hero-recipe-note");
+  if (suggestion && !recipes.some(recipe => Number(recipe.id) === 4)) {
+    suggestion.href = "/Recipe";
+    suggestion.querySelector("strong").textContent = "Tìm món ngon của bạn";
   }
-
-  // 2. Render Công thức mới nhất (Tối đa 4 công thức theo bộ lọc)
-  if (latestGrid) {
-    let currentFilter = "latest";
-
-    function renderLatestGrid() {
-      latestGrid.innerHTML = "";
-      if (recipes.length === 0) {
-        latestGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 30px;">Chưa có công thức nào.</p>`;
-        return;
-      }
-
-      let displayList = [...recipes];
-      if (currentFilter === "popular") {
-        displayList.sort((a, b) => {
-          const metaA = getHomeRecipeMeta(a);
-          const metaB = getHomeRecipeMeta(b);
-          return (Number(metaB.likes) || 0) - (Number(metaA.likes) || 0);
-        });
-      } else if (currentFilter === "favorite") {
-        displayList.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
-      }
-
-      const latestItems = displayList.slice(0, 4);
-      latestGrid.innerHTML = latestItems.map((r, idx) => renderHomeRecipeCard(r, idx, false)).join("");
-      attachHomeLikeEvents(latestGrid);
-    }
-
-    renderLatestGrid();
-
-    const filterButtons = document.querySelectorAll(".section.latest .filter");
-    filterButtons.forEach((btn) => {
-      btn.addEventListener("click", function () {
-        filterButtons.forEach((b) => b.classList.remove("active"));
-        this.classList.add("active");
-        currentFilter = this.getAttribute("data-filter") || "latest";
-        renderLatestGrid();
-      });
-    });
-  }
-
-  const loadMoreBtn = document.getElementById("btnLoadMoreHome");
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener("click", function () {
-      window.location.href = "/Recipe";
-    });
-  }
+  syncRecipeCards();
 }
 
-// ==========================================================================
-// AUTO INITIALIZATION BASED ON PAGE DOM
-// ==========================================================================
+function initializeProfilePage() {
+  const grid = document.getElementById("profileRecipeGrid");
+  if (!grid) return;
+  const recipes = getRecipes();
+  document.getElementById("profileRecipeCount").textContent = recipes.length;
+  grid.innerHTML = recipes.length ? recipes.map(recipe => renderRecipeCard(recipe, { manage: true })).join("") : emptyRecipeCollection();
+  syncRecipeCards();
+}
+
+document.addEventListener("click", event => {
+  const button = event.target.closest("[data-delete-recipe], [data-delete-details]");
+  if (!button) return;
+  if (button.dataset.deleteDetails) deleteRecipeInDetails(Number(button.dataset.deleteDetails));
+  else deleteRecipe(Number(button.dataset.deleteRecipe));
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   initializeHomePage();
@@ -1038,4 +850,5 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeCreateRecipe();
   initializeEditRecipe();
   initializeDetailsRecipe();
+  initializeProfilePage();
 });

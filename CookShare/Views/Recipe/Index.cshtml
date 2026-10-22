@@ -1,106 +1,78 @@
+@model IEnumerable<CookShare.Models.Recipe>
+@using System.Security.Claims
+
 @{
-    ViewData["Title"] = "Công thức nấu ăn";
+    ViewData["Title"] = "Khám phá công thức";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/recipe.css"
+          asp-append-version="true" />
 }
 
-@* Header CookShare đồng bộ *@
+<div class="recipe-page-wrapper">
+    <div class="container recipe-grid-section">
+        <header class="page-intro">
+            <h1>Khám phá <em>món ngon.</em></h1>
+            <a asp-controller="Recipe" asp-action="Create" class="btn">
+                + Chia sẻ công thức
+            </a>
+        </header>
 
+        @if (TempData["Success"] != null)
+        {
+            <p class="notice" role="status">@TempData["Success"]</p>
+        }
 
-<main class="recipe-page-wrapper">
-    <!-- HERO SECTION -->
-    <section class="recipe-hero-section">
-        <div class="recipe-container">
-            <div class="recipe-hero-card">
-                <div class="recipe-hero-text">
-                    <span class="recipe-hero-eyebrow">🍳 CỘNG ĐỒNG ẨM THỰC COOKSHARE</span>
-                    <h1 class="recipe-hero-title">Khám phá <span>công thức nấu ăn</span></h1>
-                    <p class="recipe-hero-desc">
-                        Từ những bữa cơm gia đình đầm ấm đến các món tráng miệng thanh mát. Tự do sáng tạo, quản lý và chia sẻ bí quyết nấu nướng với cộng đồng yêu bếp.
-                    </p>
-                </div>
-                <div class="recipe-hero-action">
-                    <a asp-controller="Recipe" asp-action="Create" class="btn-primary-cookshare">
-                        <span class="btn-icon">＋</span> Thêm công thức
-                    </a>
-                </div>
+        @if (!Model.Any())
+        {
+            <div class="recipe-empty-container">
+                <h2>Chưa có công thức nào</h2>
+                <p>Hãy chia sẻ món ngon đầu tiên của bạn!</p>
             </div>
-        </div>
-    </section>
+        }
+        else
+        {
+            <div class="recipe-grid">
+                @foreach (var recipe in Model)
+                {
+                    <article class="recipe-card">
+                        <a asp-controller="Recipe" asp-action="Details" asp-route-id="@recipe.Id">
+                            <img src="@(string.IsNullOrEmpty(recipe.Image) ? "/img/recipe-placeholder.svg" : recipe.Image)"
+                                 alt="@recipe.Name"
+                                 loading="lazy" />
+                            <h2>@recipe.Name</h2>
+                        </a>
 
-    <!-- SEARCH & FILTER TOOLBAR -->
-    <section class="recipe-toolbar-section">
-        <div class="recipe-container">
-            <div class="recipe-toolbar-grid">
-                <div class="recipe-search-wrap">
-                    <span class="recipe-search-icon">⌕</span>
-                    <input type="text"
-                           id="searchRecipe"
-                           placeholder="Tìm kiếm công thức theo tên, mô tả hoặc nguyên liệu..."
-                           autocomplete="off" />
-                </div>
+                        <p>@recipe.Description</p>
+                        <p>Danh mục: @recipe.Category</p>
+                        <p>Tác giả: @(recipe.User?.DisplayName ?? recipe.User?.UserName ?? "CookShare")</p>
 
-                <div class="recipe-filter-select-wrap">
-                    <select id="categoryFilter" class="recipe-filter-select">
-                        <option value="">Tất cả danh mục</option>
-                        <option value="Món Việt">Món Việt</option>
-                        <option value="Món Á">Món Á</option>
-                        <option value="Món Âu">Món Âu</option>
-                        <option value="Món chính">Món chính</option>
-                        <option value="Món phụ">Món phụ</option>
-                        <option value="Món chay">Món chay</option>
-                        <option value="Món tráng miệng">Món tráng miệng</option>
-                        <option value="Đồ uống">Đồ uống</option>
-                        <option value="Ăn sáng">Ăn sáng</option>
-                    </select>
-                </div>
+                        @if (!string.IsNullOrEmpty(currentUserId) && recipe.UserId == currentUserId)
+                        {
+                            <div class="recipe-manage-actions">
+                                <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@recipe.Id">
+                                    Chỉnh sửa
+                                </a>
+
+                                <form asp-action="Delete"
+                                      asp-route-id="@recipe.Id"
+                                      method="post"
+                                      data-confirm-delete="Bạn có chắc muốn xóa công thức này không?">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger">Xóa</button>
+                                </form>
+                            </div>
+                        }
+                    </article>
+                }
             </div>
-
-            <!-- Quick Category Pills -->
-            <div class="recipe-category-pills">
-                <button type="button" class="category-pill active" data-category="">🍽 Tất cả</button>
-                <button type="button" class="category-pill" data-category="Món Việt">🍜 Món Việt</button>
-                <button type="button" class="category-pill" data-category="Món Á">🥢 Món Á</button>
-                <button type="button" class="category-pill" data-category="Món Âu">🍝 Món Âu</button>
-                <button type="button" class="category-pill" data-category="Món chính">🍲 Món chính</button>
-                <button type="button" class="category-pill" data-category="Món chay">🥗 Món chay</button>
-                <button type="button" class="category-pill" data-category="Món tráng miệng">🍰 Tráng miệng</button>
-                <button type="button" class="category-pill" data-category="Đồ uống">🧋 Đồ uống</button>
-                <button type="button" class="category-pill" data-category="Ăn sáng">🥐 Ăn sáng</button>
-            </div>
-
-            <!-- Results Count Bar -->
-            <div class="recipe-results-bar">
-                <div id="recipeResultsCount" class="recipe-results-count">
-                    Đang tải danh sách công thức...
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- RECIPE GRID & EMPTY STATE -->
-    <section class="recipe-grid-section">
-        <div class="recipe-container">
-            <div id="recipeList" class="recipe-grid">
-                <!-- JavaScript sẽ render danh sách recipe cards tại đây -->
-            </div>
-
-            <div id="emptyRecipe" class="recipe-empty-container" style="display: none;">
-                <div class="recipe-empty-icon-box"></div>
-                <h3 class="recipe-empty-title">Chưa có công thức nào</h3>
-                <p class="recipe-empty-desc">Hãy là người đầu tiên chia sẻ món ăn ngon đến cộng đồng CookShare!</p>
-                <a asp-controller="Recipe" asp-action="Create" class="btn-primary-cookshare">
-                    <span class="btn-icon">＋</span> Thêm công thức ngay
-                </a>
-            </div>
-        </div>
-    </section>
-</main>
+        }
+    </div>
+</div>
 
 @section Scripts {
-    <script src="~/js/recipe.js" asp-append-version="true"></script>
-    <script src="~/js/recipe-likes.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
 }

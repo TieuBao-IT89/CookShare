@@ -28,5 +28,19 @@ namespace CookShare.Models
         [Required(ErrorMessage = "Vui lòng chọn danh mục.")]
         [Display(Name = "Danh mục")]
         public string Category { get; set; } = string.Empty;
+
+        public string? UserId { get; set; }
+
+        public CookShare.Models.Identity.ApplicationUser? User { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<RecipeLike> Likes { get; set; } = new List<RecipeLike>();
+
+        public ICollection<RecipeComment> Comments { get; set; } = new List<RecipeComment>();
+
+        public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+
+        public ICollection<RecipeRating> Ratings { get; set; } = new List<RecipeRating>();
     }
 }

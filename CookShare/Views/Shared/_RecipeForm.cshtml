@@ -1,0 +1,139 @@
+@model CookShare.ViewModels.RecipeFormViewModel
+
+@{
+    var editing = ViewData["IsEditing"] is true;
+    var actionName = editing ? "Edit" : "Create";
+}
+
+<div class="recipe-page-wrapper">
+    <div class="container recipe-form-wrapper">
+
+        <nav class="recipe-breadcrumb">
+            <a asp-controller="Home" asp-action="Index">
+                Trang chủ
+            </a>
+            <span>/</span>
+            <a asp-controller="Recipe" asp-action="Index">
+                Công thức
+            </a>
+            <span>/</span>
+            <span>@(editing ? "Chỉnh sửa" : "Chia sẻ")</span>
+        </nav>
+
+        <header class="page-intro">
+            <h1>
+                @(editing ? "Chỉnh sửa công thức"
+                           : "Chia sẻ công thức")
+            </h1>
+        </header>
+
+        <form asp-controller="Recipe"
+              asp-action="@actionName"
+              asp-route-id="@(editing ? ViewBag.RecipeId : null)"
+              method="post"
+              class="auth-form">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="All"
+                 class="text-danger"
+                 role="alert"></div>
+
+            <div class="recipe-form-grid">
+                <div class="recipe-form-col">
+                    <section class="recipe-form-card">
+
+                        <div class="form-field-group">
+                            <label asp-for="Name"
+                                   class="form-label">
+                                Tên món ăn
+                            </label>
+                            <input asp-for="Name"
+                                   class="form-input" />
+                            <span asp-validation-for="Name"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field-group">
+                            <label asp-for="Category"
+                                   class="form-label">
+                                Danh mục
+                            </label>
+                            <select asp-for="Category"
+                                    class="form-select">
+                                <partial name="_CategoryOptions" />
+                            </select>
+                            <span asp-validation-for="Category"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field-group">
+                            <label asp-for="Description"
+                                   class="form-label">
+                                Mô tả
+                            </label>
+                            <textarea asp-for="Description"
+                                      class="form-textarea"
+                                      rows="5"></textarea>
+                            <span asp-validation-for="Description"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field-group">
+                            <label asp-for="Image"
+                                   class="form-label">
+                                Đường dẫn ảnh
+                            </label>
+                            <input asp-for="Image"
+                                   class="form-input"
+                                   placeholder="/img/recipe-placeholder.svg" />
+                            <span asp-validation-for="Image"
+                                  class="text-danger"></span>
+                        </div>
+
+                    </section>
+                </div>
+
+                <section class="recipe-form-card">
+
+                    <div class="form-field-group">
+                        <label asp-for="Ingredients"
+                               class="form-label">
+                            Nguyên liệu
+                        </label>
+                        <textarea asp-for="Ingredients"
+                                  class="form-textarea"
+                                  rows="8"></textarea>
+                        <span asp-validation-for="Ingredients"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="form-field-group">
+                        <label asp-for="Instructions"
+                               class="form-label">
+                            Hướng dẫn chế biến
+                        </label>
+                        <textarea asp-for="Instructions"
+                                  class="form-textarea"
+                                  rows="12"></textarea>
+                        <span asp-validation-for="Instructions"
+                              class="text-danger"></span>
+                    </div>
+
+                </section>
+            </div>
+
+            <div class="recipe-form-actions">
+                <a asp-controller="Recipe"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    Hủy
+                </a>
+
+                <button type="submit" class="btn">
+                    @(editing ? "Lưu thay đổi" : "Lưu công thức")
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
