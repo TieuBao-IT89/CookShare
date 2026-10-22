@@ -1,0 +1,121 @@
+
+@model CookShare.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<section class="auth-page container">
+    <div class="auth-shell">
+        <partial name="_AuthAside" />
+
+        <div class="auth-form-area">
+            <a class="back-link" asp-controller="Home"
+               asp-action="Index">← Về trang chủ</a>
+
+            <span class="eyebrow">THÊM MỘT NGƯỜI BẠN YÊU BẾP</span>
+            <h1>Bắt đầu <em>câu chuyện.</em></h1>
+            <p class="auth-subtitle">
+                Tạo tài khoản và tìm cảm hứng nấu ăn mỗi ngày.
+            </p>
+
+            <form asp-controller="Account"
+                  asp-action="Register"
+                  method="post"
+                  class="auth-form">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All"
+                     class="text-danger"
+                     role="alert"></div>
+
+                <div class="form-row">
+                    <div class="form-field-group">
+                        <label class="form-label"
+                               asp-for="LastName">Họ</label>
+                        <input class="form-input"
+                               asp-for="LastName"
+                               autocomplete="family-name"
+                               placeholder="Nguyễn" />
+                    </div>
+
+                    <div class="form-field-group">
+                        <label class="form-label"
+                               asp-for="FirstName">Tên</label>
+                        <input class="form-input"
+                               asp-for="FirstName"
+                               autocomplete="given-name"
+                               placeholder="Hải" />
+                    </div>
+                </div>
+
+                <div class="form-field-group">
+                    <label class="form-label"
+                           asp-for="UserName">Tên người dùng</label>
+                    <input class="form-input"
+                           asp-for="UserName"
+                           autocomplete="username"
+                           placeholder="Tên của bạn trong cộng đồng" />
+                </div>
+
+                <div class="form-field-group">
+                    <label class="form-label"
+                           asp-for="Email">Email</label>
+                    <input class="form-input"
+                           asp-for="Email"
+                           type="email"
+                           autocomplete="email"
+                           placeholder="ban@example.com" />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field-group">
+                        <label class="form-label"
+                               asp-for="Password">Mật khẩu</label>
+                        <div class="password-field">
+                            <input class="form-input"
+                                   asp-for="Password"
+                                   id="registerPassword"
+                                   autocomplete="new-password"
+                                   placeholder="Ít nhất 8 ký tự" />
+                            <button type="button"
+                                    class="password-toggle"
+                                    data-password-target="registerPassword"
+                                    aria-label="Hiện mật khẩu">
+                                Hiện
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-field-group">
+                        <label class="form-label"
+                               asp-for="ConfirmPassword">
+                            Nhập lại mật khẩu
+                        </label>
+                        <input class="form-input"
+                               asp-for="ConfirmPassword"
+                               autocomplete="new-password"
+                               placeholder="Xác nhận mật khẩu" />
+                    </div>
+                </div>
+
+                <p class="field-hint">
+                    Mật khẩu tối thiểu 8 ký tự, có chữ hoa,
+                    chữ thường và số.
+                </p>
+
+                <button class="btn btn-full" type="submit">
+                    Tạo tài khoản
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                Đã là thành viên?
+                <a asp-controller="Account" asp-action="Login">
+                    Đăng nhập ngay
+                </a>
+            </p>
+        </div>
+    </div>
+</section>

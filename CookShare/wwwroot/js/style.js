@@ -23,7 +23,7 @@
         if (!event.target.closest('.site-header')) closeMenu();
         if (event.target.closest('#primaryNav a')) closeMenu();
     });
-    matchMedia('(min-width: 720px)').addEventListener('change', closeMenu);
+    matchMedia('(min-width: 960px)').addEventListener('change', closeMenu);
 
     let toastTimer;
     function toast(message, type = 'success') {
@@ -77,25 +77,6 @@
     });
     document.querySelectorAll('[data-feature-notice]').forEach(button => {
         button.addEventListener('click', () => toast(button.dataset.featureNotice));
-    });
-    document.querySelectorAll('[data-auth-form]').forEach(form => {
-        const password = form.querySelector('#registerPassword');
-        const confirmation = form.querySelector('#confirmPassword');
-        if (confirmation) {
-            const validate = () => confirmation.setCustomValidity(
-                confirmation.value && confirmation.value !== password.value ? 'Mật khẩu xác nhận chưa khớp.' : ''
-            );
-            confirmation.addEventListener('input', validate);
-            password.addEventListener('input', validate);
-        }
-        form.addEventListener('submit', event => {
-            event.preventDefault();
-            const status = form.querySelector('.auth-status');
-            status.textContent = form.dataset.authForm === 'login'
-                ? 'Đăng nhập đang được hoàn thiện. Bạn vẫn có thể khám phá và lưu công thức trên thiết bị này.'
-                : 'Đăng ký đang được hoàn thiện. CookShare chưa tạo tài khoản hoặc lưu mật khẩu của bạn.';
-            status.hidden = false;
-        });
     });
     window.CookShareUI = { toast, flash, confirmDelete };
 })();

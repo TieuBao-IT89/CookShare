@@ -71,7 +71,10 @@ button:disabled { cursor: wait; opacity: .6; transform: none; }
 .nav-links > a:hover, .nav-links > a.active { color: var(--primary); }
 .nav-links > a.active { font-weight: 600; }
 .nav-links > a.active::after { content: ''; position: absolute; bottom: 19px; left: 0; right: 0; height: 2px; background: var(--primary); border-radius: 2px; }
-.nav-actions { display: flex; align-items: center; gap: 17px; margin-left: auto; }
+.nav-actions { display: flex; align-items: center; gap: 17px; margin-left: auto; min-width: 0; }
+.logout-form { display: flex; align-items: center; margin: 0; flex-shrink: 0; }
+.logout-form button, .nav-actions > .btn { white-space: nowrap; }
+.account-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
 .header-search { position: relative; width: 170px; }
 .header-search input { background: transparent; border: 0; border-bottom: 1px solid var(--line); width: 100%; padding: 10px 30px 10px 0; font-size: 11px; }
 .header-search button { position: absolute; top: 2px; right: 0; width: 32px; height: 36px; border: 0; background: transparent; }
@@ -302,7 +305,7 @@ button:disabled { cursor: wait; opacity: .6; transform: none; }
     .community-illustration { display: none; } .auth-form-area { padding: 30px; } .auth-aside-content { left: 30px; right: 30px; }
 }
 @media (max-width: 959px) {
-    .container, .recipe-container { width: calc(100% - 40px); } .nav { min-height: 74px; gap: 18px; } .nav-actions .login, .profile-link { display: none; }
+    .container, .recipe-container { width: calc(100% - 40px); } .nav { min-height: 74px; gap: 18px; }
     .hero-grid { gap: 28px; } .hero h1 { font-size: 37px; } .hero-photo-frame { height: 380px; } .hero-recipe-note { left: -15px; right: 10px; padding: 13px; } .hero-recipe-note strong { font-size: 17px; } .hero-recipe-note span > span { display: none; }
     .hero-search { flex-wrap: wrap; } .hero-search .btn { flex-basis: 100%; } .hero-search input { width: auto; } .hero-copy > p { font-size: 12px; }
     .recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
@@ -312,13 +315,19 @@ button:disabled { cursor: wait; opacity: .6; transform: none; }
     .auth-aside h2 { font-size: 38px; } .auth-form-area h1 { font-size: 30px; } .auth-form-area { padding-inline: 24px; } .auth-shell .form-row { gap: 12px; }
     .profile-header { gap: 20px; padding-inline: 24px; flex-wrap: wrap; } .profile-header > .btn { margin-top: 0; margin-left: 140px; }
 }
-@media (max-width: 719px) {
-    html { scroll-padding-top: 85px; } body { font-size: 13px; } .nav { min-height: 70px; } .logo { font-size: 22px; } .logo-mark { width: 30px; } .logo-mark .icon { width: 29px; }
+@media (max-width: 959px) {
+    .nav { min-height: 70px; }
     .menu-btn { display: inline-flex; order: 3; margin-left: auto; width: 40px; height: 40px; border: 0; border-radius: 8px; } .nav-actions { display: none; }
     .nav-links { display: none; position: absolute; top: 70px; left: 0; right: 0; background: var(--paper); padding: 16px 20px 24px; box-shadow: var(--shadow); border-bottom: 1px solid var(--line); }
     .nav-links.open { display: flex; flex-direction: column; align-items: stretch; gap: 0; max-height: calc(100dvh - 80px); overflow-y: auto; }
     .nav-links > a { padding: 12px; min-height: 44px; font-size: 13px; border-radius: 8px; } .nav-links > a.active { background: var(--light); } .nav-links > a.active::after { display: none; }
-    .mobile-nav-actions { display: grid; gap: 0; border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px; } .mobile-nav-actions a { padding: 12px; font-size: 12px; color: var(--primary); }
+    .mobile-nav-actions { display: grid; gap: 0; border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px; } .mobile-nav-actions a, .mobile-nav-actions .account-name, .mobile-nav-actions .logout-form button { padding: 12px; font-size: 12px; color: var(--primary); }
+    .mobile-nav-actions .account-name { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+    .mobile-nav-actions .logout-form button { width: 100%; min-height: 44px; text-align: left; border: 0; background: transparent; }
+    .mobile-nav-actions .logout-form button:hover { background: var(--light); }
+}
+@media (max-width: 719px) {
+    html { scroll-padding-top: 85px; } body { font-size: 13px; } .logo { font-size: 22px; } .logo-mark { width: 30px; } .logo-mark .icon { width: 29px; }
     .hero { padding: 32px 0 42px; } .hero-grid { grid-template-columns: 1fr; gap: 28px; } .hero-copy { padding: 0; } .hero h1 { font-size: clamp(34px, 8vw, 48px); margin: 18px 0; } .hero-copy > p { margin-bottom: 22px; max-width: 100%; }
     .hero-search { flex-wrap: nowrap; } .hero-search input { width: 0; } .hero-search .btn { flex-basis: auto; font-size: 0; padding-inline: 14px; } .hero-search .btn .icon { width: 18px; height: 18px; } .hero-community { margin-top: 23px; }
     .hero-visual { margin: 0 auto; width: min(100%, 480px); padding: 0 10px 15px; } .hero-photo-frame { height: 330px; border-radius: 130px 130px 16px 16px; transform: rotate(1deg); }

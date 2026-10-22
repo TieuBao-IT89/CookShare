@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using CookShare.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CookShare.Controllers
@@ -9,13 +12,31 @@ namespace CookShare.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult Create()
         {
             return View();
         }
 
-        public IActionResult Edit(int id)
+        [Authorize]
+        public async Task<IActionResult> Edit(
+            int id,
+            [FromServices] ApplicationDbContext db)
         {
+            var recipe = await db.Recipes.FindAsync(id);
+
+            if (recipe == null)
+            {
+                return NotFound();
+            }
+
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(currentUserId) || recipe.UserId != currentUserId)
+            {
+                return Forbid();
+            }
+
             ViewBag.RecipeId = id;
             return View();
         }
@@ -26,6 +47,7 @@ namespace CookShare.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult Saved()
         {
             return View();
