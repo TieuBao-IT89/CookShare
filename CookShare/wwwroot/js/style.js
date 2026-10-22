@@ -1,4 +1,4 @@
-/* Shared, dependency-free presentation behavior. Recipe data stays in recipe.js. */
+/* Shared, dependency-free presentation behavior for Razor and legacy pages. */
 (function () {
     "use strict";
     const menuButton = document.querySelector('.menu-btn');

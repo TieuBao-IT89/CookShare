@@ -3,9 +3,12 @@ using System.Security.Claims;
 using CookShare.Controllers;
 using CookShare.Data;
 using CookShare.Models;
+using CookShare.Models.Identity;
+using CookShare.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 
 namespace CookShare.Tests.Controllers
@@ -13,84 +16,183 @@ namespace CookShare.Tests.Controllers
     public class RecipeControllerTests
     {
         [Fact]
-        public void Index_ShouldReturnView()
+        public async Task Index_ShouldReturnNewestRecipesWithAuthors()
         {
-            // Arrange
-            var controller = new RecipeController();
+            var author = new ApplicationUser { Id = "owner-id", DisplayName = "Recipe author" };
+            var older = NewRecipe(1);
+            older.User = author;
+            older.CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var newer = NewRecipe(2);
+            newer.User = author;
+            newer.CreatedAt = older.CreatedAt.AddDays(1);
+            using var db = CreateDb(older, newer);
+            db.ChangeTracker.Clear();
+            var controller = CreateController(db);
 
-            // Act
-            var result = controller.Index();
+            var result = Assert.IsType<ViewResult>(await controller.Index());
+            var recipes = Assert.IsAssignableFrom<IEnumerable<Recipe>>(result.Model).ToList();
 
-            // Assert
-            Assert.IsType<ViewResult>(result);
+            Assert.Equal(new[] { 2, 1 }, recipes.Select(recipe => recipe.Id));
+            Assert.All(recipes, recipe => Assert.Equal(author.DisplayName, recipe.User?.DisplayName));
         }
 
         [Fact]
-        public void Create_ShouldReturnView()
+        public async Task Index_EmptyDatabase_ShouldReturnEmptyList()
         {
-            // Arrange
-            var controller = new RecipeController();
+            using var db = CreateDb();
+            var controller = CreateController(db);
 
-            // Act
-            var result = controller.Create();
+            var result = Assert.IsType<ViewResult>(await controller.Index());
 
-            // Assert
-            Assert.IsType<ViewResult>(result);
+            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<Recipe>>(result.Model));
+        }
+
+        [Fact]
+        public void Create_ShouldReturnEmptyFormModel()
+        {
+            using var db = CreateDb();
+            var controller = CreateController(db);
+
+            var result = Assert.IsType<ViewResult>(controller.Create());
+            var model = Assert.IsType<RecipeFormViewModel>(result.Model);
+
+            Assert.Equal(string.Empty, model.Name);
+        }
+
+        [Fact]
+        public async Task Create_ValidForm_ShouldPersistRecipeForCurrentUser()
+        {
+            using var db = CreateDb();
+            var controller = CreateController(db);
+            var model = NewForm();
+
+            var result = Assert.IsType<RedirectToActionResult>(await controller.Create(model));
+            db.ChangeTracker.Clear();
+            var recipe = Assert.Single(await db.Recipes.ToListAsync());
+
+            AssertRecipeMatches(model, recipe);
+            Assert.Equal("owner-id", recipe.UserId);
+            Assert.Equal(DateTimeKind.Utc, recipe.CreatedAt.Kind);
+            Assert.Equal(nameof(RecipeController.Details), result.ActionName);
+            Assert.Equal(recipe.Id, result.RouteValues!["id"]);
+            Assert.NotNull(controller.TempData["Success"]);
+        }
+
+        [Fact]
+        public async Task Create_InvalidForm_ShouldRedisplayModelWithoutSaving()
+        {
+            using var db = CreateDb();
+            var controller = CreateController(db);
+            var model = NewForm();
+            // MVC validation runs before the action; direct calls must set ModelState.
+            controller.ModelState.AddModelError(nameof(model.Name), "Required");
+
+            var result = Assert.IsType<ViewResult>(await controller.Create(model));
+
+            Assert.Same(model, result.Model);
+            Assert.Empty(await db.Recipes.ToListAsync());
+        }
+
+        [Fact]
+        public async Task Create_UserWithoutId_ShouldChallengeWithoutSaving()
+        {
+            using var db = CreateDb();
+            var controller = CreateController(db, null);
+
+            Assert.IsType<ChallengeResult>(await controller.Create(NewForm()));
+            Assert.Empty(await db.Recipes.ToListAsync());
         }
 
         [Theory]
         [InlineData(1)]
         [InlineData(5)]
         [InlineData(10)]
-        public async Task Edit_Owner_ShouldSetCorrectRecipeId(int id)
+        public async Task Edit_Owner_ShouldReturnRecipeFormAndId(int id)
         {
-            // Arrange
-            var controller = CreateAuthenticatedController("owner-id");
-            using var db = new RecipeTestDbContext(new Recipe { Id = id, UserId = "owner-id" });
+            var recipe = NewRecipe(id);
+            using var db = CreateDb(recipe);
+            var controller = CreateController(db);
 
-            // Act
-            var result = await controller.Edit(id, db);
+            var result = Assert.IsType<ViewResult>(await controller.Edit(id));
+            var model = Assert.IsType<RecipeFormViewModel>(result.Model);
 
-            // Assert
-            Assert.IsType<ViewResult>(result);
             Assert.Equal(id, controller.ViewData["RecipeId"]);
+            AssertRecipeMatches(model, recipe);
         }
 
         [Fact]
-        public async Task Edit_MissingRecipe_ShouldReturnNotFound()
+        public async Task Edit_ValidForm_ShouldPersistChangesAndPreserveOwnerAndCreationDate()
         {
-            var controller = CreateAuthenticatedController("owner-id");
-            using var db = new RecipeTestDbContext(null);
+            var recipe = NewRecipe(1);
+            var createdAt = recipe.CreatedAt;
+            using var db = CreateDb(recipe);
+            var controller = CreateController(db);
+            var model = NewForm();
 
-            var result = await controller.Edit(1, db);
+            var result = Assert.IsType<RedirectToActionResult>(await controller.Edit(recipe.Id, model));
+            db.ChangeTracker.Clear();
+            var updated = await db.Recipes.SingleAsync();
 
-            Assert.IsType<NotFoundResult>(result);
+            AssertRecipeMatches(model, updated);
+            Assert.Equal("owner-id", updated.UserId);
+            Assert.Equal(createdAt, updated.CreatedAt);
+            Assert.Equal(nameof(RecipeController.Details), result.ActionName);
+            Assert.Equal(recipe.Id, result.RouteValues!["id"]);
+            Assert.NotNull(controller.TempData["Success"]);
+        }
+
+        [Fact]
+        public async Task Edit_InvalidForm_ShouldRedisplayModelWithoutChangingRecipe()
+        {
+            var recipe = NewRecipe(1);
+            var originalName = recipe.Name;
+            using var db = CreateDb(recipe);
+            var controller = CreateController(db);
+            var model = NewForm();
+            controller.ModelState.AddModelError(nameof(model.Name), "Required");
+
+            var result = Assert.IsType<ViewResult>(await controller.Edit(recipe.Id, model));
+
+            Assert.Same(model, result.Model);
+            Assert.Equal(recipe.Id, controller.ViewData["RecipeId"]);
+            Assert.Equal(originalName, recipe.Name);
+            db.ChangeTracker.Clear();
+            Assert.Equal(originalName, (await db.Recipes.SingleAsync()).Name);
         }
 
         [Theory]
-        [InlineData("another-user-id")]
-        [InlineData(null)]
-        public async Task Edit_OtherOwnerOrLegacyRecipe_ShouldForbid(string? recipeUserId)
+        [InlineData("another-user-id", "owner-id")]
+        [InlineData(null, "owner-id")]
+        [InlineData("owner-id", null)]
+        [InlineData(null, null)]
+        public async Task EditAndDelete_WithoutOwnership_ShouldForbidAndLeaveRecipeUnchanged(
+            string? currentUserId, string? recipeUserId)
         {
-            var controller = CreateAuthenticatedController("owner-id");
-            using var db = new RecipeTestDbContext(new Recipe { Id = 1, UserId = recipeUserId });
+            var recipe = NewRecipe(1);
+            recipe.UserId = recipeUserId;
+            var originalName = recipe.Name;
+            using var db = CreateDb(recipe);
+            var controller = CreateController(db, currentUserId);
 
-            var result = await controller.Edit(1, db);
+            Assert.IsType<ForbidResult>(await controller.Edit(recipe.Id));
+            Assert.IsType<ForbidResult>(await controller.Edit(recipe.Id, NewForm()));
+            Assert.IsType<ForbidResult>(await controller.Delete(recipe.Id));
 
-            Assert.IsType<ForbidResult>(result);
+            Assert.Equal(originalName, recipe.Name);
+            db.ChangeTracker.Clear();
+            Assert.Equal(originalName, (await db.Recipes.SingleAsync()).Name);
         }
 
-        [Theory]
-        [InlineData("owner-id")]
-        [InlineData(null)]
-        public async Task Edit_AuthenticatedUserWithoutId_ShouldForbid(string? recipeUserId)
+        [Fact]
+        public async Task MissingRecipe_ShouldReturnNotFound()
         {
-            var controller = CreateAuthenticatedController(null);
-            using var db = new RecipeTestDbContext(new Recipe { Id = 1, UserId = recipeUserId });
+            using var db = CreateDb();
+            var controller = CreateController(db);
 
-            var result = await controller.Edit(1, db);
-
-            Assert.IsType<ForbidResult>(result);
+            Assert.IsType<NotFoundResult>(await controller.Details(1));
+            Assert.IsType<NotFoundResult>(await controller.Edit(1));
+            Assert.IsType<NotFoundResult>(await controller.Edit(1, NewForm()));
+            Assert.IsType<NotFoundResult>(await controller.Delete(1));
         }
 
         // Direct controller calls do not execute MVC authorization filters.
@@ -98,12 +200,51 @@ namespace CookShare.Tests.Controllers
         [InlineData(nameof(RecipeController.Create))]
         [InlineData(nameof(RecipeController.Saved))]
         [InlineData(nameof(RecipeController.Edit))]
-        public void PrivateAction_ShouldRequireAuthorization(string actionName)
+        [InlineData(nameof(RecipeController.Delete))]
+        public void PrivateActions_AllOverloads_ShouldRequireAuthorization(string actionName)
         {
-            var action = typeof(RecipeController).GetMethod(actionName)!;
+            var actions = typeof(RecipeController).GetMethods().Where(method => method.Name == actionName).ToList();
 
-            Assert.NotNull(action.GetCustomAttribute<AuthorizeAttribute>());
-            Assert.Null(action.GetCustomAttribute<AllowAnonymousAttribute>());
+            Assert.NotEmpty(actions);
+            Assert.All(actions, action =>
+            {
+                Assert.NotNull(action.GetCustomAttribute<AuthorizeAttribute>());
+                Assert.Null(action.GetCustomAttribute<AllowAnonymousAttribute>());
+            });
+        }
+
+        [Fact]
+        public void MutatingActions_ShouldRequirePostAndAntiForgeryToken()
+        {
+            var controllerType = typeof(RecipeController);
+            var actions = new[]
+            {
+                controllerType.GetMethod(nameof(RecipeController.Create), new[] { typeof(RecipeFormViewModel) })!,
+                controllerType.GetMethod(nameof(RecipeController.Edit), new[] { typeof(int), typeof(RecipeFormViewModel) })!,
+                controllerType.GetMethod(nameof(RecipeController.Delete), new[] { typeof(int) })!
+            };
+
+            Assert.All(actions, action =>
+            {
+                Assert.NotNull(action.GetCustomAttribute<HttpPostAttribute>());
+                Assert.Null(action.GetCustomAttribute<HttpGetAttribute>());
+                Assert.NotNull(action.GetCustomAttribute<ValidateAntiForgeryTokenAttribute>());
+            });
+        }
+
+        [Theory]
+        [InlineData(nameof(RecipeController.Index), 0)]
+        [InlineData(nameof(RecipeController.Details), 1)]
+        [InlineData(nameof(RecipeController.Create), 0)]
+        [InlineData(nameof(RecipeController.Edit), 1)]
+        [InlineData(nameof(RecipeController.Saved), 0)]
+        public void ReadActions_ShouldRequireGet(string actionName, int parameterCount)
+        {
+            var action = typeof(RecipeController).GetMethods().Single(method =>
+                method.Name == actionName && method.GetParameters().Length == parameterCount);
+
+            Assert.NotNull(action.GetCustomAttribute<HttpGetAttribute>());
+            Assert.Null(action.GetCustomAttribute<HttpPostAttribute>());
         }
 
         [Theory]
@@ -121,33 +262,58 @@ namespace CookShare.Tests.Controllers
         [InlineData(1)]
         [InlineData(5)]
         [InlineData(10)]
-        public void Details_ShouldSetCorrectRecipeId(int id)
+        public async Task Details_ShouldReturnRecipeWithAuthor(int id)
         {
-            // Arrange
-            var controller = new RecipeController();
+            var recipe = NewRecipe(id);
+            recipe.User = new ApplicationUser { Id = "owner-id", DisplayName = "Recipe author" };
+            using var db = CreateDb(recipe);
+            db.ChangeTracker.Clear();
+            var controller = CreateController(db);
 
-            // Act
-            var result = controller.Details(id);
+            var result = Assert.IsType<ViewResult>(await controller.Details(id));
+            var model = Assert.IsType<Recipe>(result.Model);
 
-            // Assert
-            Assert.IsType<ViewResult>(result);
-            Assert.Equal(id, controller.ViewData["RecipeId"]);
+            Assert.Equal(id, model.Id);
+            Assert.Equal(recipe.Name, model.Name);
+            Assert.Equal(recipe.User.DisplayName, model.User?.DisplayName);
+        }
+
+        [Fact]
+        public async Task Delete_Owner_ShouldRemoveOnlyRequestedRecipe()
+        {
+            using var db = CreateDb(NewRecipe(1), NewRecipe(2));
+            var controller = CreateController(db);
+
+            var result = Assert.IsType<RedirectToActionResult>(await controller.Delete(1));
+            db.ChangeTracker.Clear();
+            var remaining = Assert.Single(await db.Recipes.ToListAsync());
+
+            Assert.Equal(2, remaining.Id);
+            Assert.Equal(nameof(RecipeController.Index), result.ActionName);
+            Assert.NotNull(controller.TempData["Success"]);
         }
 
         [Fact]
         public void Saved_ShouldReturnView()
         {
-            // Arrange
-            var controller = new RecipeController();
+            using var db = CreateDb();
+            var controller = CreateController(db);
 
-            // Act
-            var result = controller.Saved();
-
-            // Assert
-            Assert.IsType<ViewResult>(result);
+            Assert.IsType<ViewResult>(controller.Saved());
         }
 
-        private static RecipeController CreateAuthenticatedController(string? userId)
+        private static ApplicationDbContext CreateDb(params Recipe[] recipes)
+        {
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var db = new ApplicationDbContext(options);
+            db.Recipes.AddRange(recipes);
+            db.SaveChanges();
+            return db;
+        }
+
+        private static RecipeController CreateController(ApplicationDbContext db, string? userId = "owner-id")
         {
             var identity = new ClaimsIdentity("Test");
             if (userId != null)
@@ -155,51 +321,51 @@ namespace CookShare.Tests.Controllers
                 identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userId));
             }
 
-            return new RecipeController
+            var httpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+            return new RecipeController(db)
             {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) }
-                }
+                ControllerContext = new ControllerContext { HttpContext = httpContext },
+                TempData = new TempDataDictionary(httpContext, new TestTempDataProvider())
             };
         }
 
-        // Stub lookup results without connecting to the application's database.
-        private sealed class RecipeTestDbContext : ApplicationDbContext
+        private static Recipe NewRecipe(int id) => new Recipe
         {
-            private readonly DbSet<Recipe> _recipes;
+            Id = id,
+            UserId = "owner-id",
+            Name = "Original recipe",
+            Category = "Món Việt",
+            Description = "Original description",
+            Ingredients = "Original ingredients",
+            Instructions = "Original instructions",
+            Image = "/img/recipe-placeholder.svg"
+        };
 
-            public RecipeTestDbContext(Recipe? recipe)
-                : base(new DbContextOptionsBuilder<ApplicationDbContext>().Options)
-            {
-                _recipes = new RecipeTestDbSet(recipe);
-            }
+        private static RecipeFormViewModel NewForm() => new RecipeFormViewModel
+        {
+            Name = "  Updated recipe  ",
+            Category = "  Món chay  ",
+            Description = "  Updated description  ",
+            Ingredients = "  Updated ingredients  ",
+            Instructions = "  Updated instructions  ",
+            Image = "/img/recipes/salad.webp"
+        };
 
-            public override DbSet<TEntity> Set<TEntity>()
-            {
-                return typeof(TEntity) == typeof(Recipe)
-                    ? (DbSet<TEntity>)(object)_recipes
-                    : base.Set<TEntity>();
-            }
+        private static void AssertRecipeMatches(RecipeFormViewModel model, Recipe recipe)
+        {
+            Assert.Equal(model.Name.Trim(), recipe.Name);
+            Assert.Equal(model.Category.Trim(), recipe.Category);
+            Assert.Equal(model.Description.Trim(), recipe.Description);
+            Assert.Equal(model.Ingredients.Trim(), recipe.Ingredients);
+            Assert.Equal(model.Instructions.Trim(), recipe.Instructions);
+            Assert.Equal(model.Image, recipe.Image);
         }
 
-        private sealed class RecipeTestDbSet : DbSet<Recipe>
+        private sealed class TestTempDataProvider : ITempDataProvider
         {
-            private readonly Recipe? _recipe;
+            public IDictionary<string, object> LoadTempData(HttpContext context) => new Dictionary<string, object>();
 
-            public override Microsoft.EntityFrameworkCore.Metadata.IEntityType EntityType
-                => throw new NotSupportedException("This test double only supports FindAsync.");
-
-            public RecipeTestDbSet(Recipe? recipe)
-            {
-                _recipe = recipe;
-            }
-
-            public override ValueTask<Recipe?> FindAsync(params object?[]? keyValues)
-            {
-                var recipe = keyValues is [int id] && _recipe?.Id == id ? _recipe : null;
-                return ValueTask.FromResult(recipe);
-            }
+            public void SaveTempData(HttpContext context, IDictionary<string, object> values) { }
         }
     }
 }

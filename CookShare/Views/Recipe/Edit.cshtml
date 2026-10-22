@@ -1,4 +1,14 @@
-@{ ViewData["Title"] = "Chỉnh sửa công thức"; ViewData["IsEditing"] = true; }
-@section Styles { <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" /> }
-<partial name="_RecipeForm" />
-@section Scripts { <script src="~/js/recipe.js" asp-append-version="true"></script> }
+@model CookShare.ViewModels.RecipeFormViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa công thức";
+    ViewData["IsEditing"] = true;
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/recipe.css"
+          asp-append-version="true" />
+}
+
+<partial name="_RecipeForm" model="Model" />
