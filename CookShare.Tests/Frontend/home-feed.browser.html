@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CookShare feed browser checks</title>
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/style.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe-likes.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe-saved.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe-comments.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe-interactions.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/home-feed.css">
+</head>
+<body>
+  <div class="home-feed" data-home-feed data-mode="latest" data-viewer-id="account-a" data-login-url="/Account/Login" data-more-path="/Feed/More" data-home-path="/">
+    <div class="feed-shell"><aside class="feed-left">Lối tắt</aside><div class="feed-main">
+      <h1>Bếp có gì hôm nay?</h1>
+      <label data-feed-auto-control hidden><input type="checkbox" data-feed-auto checked> Tự tải thêm</label>
+      <div data-feed-items aria-busy="false"></div>
+      <div data-feed-loading hidden>Loading</div><p data-feed-status role="status" aria-live="polite"></p>
+      <div data-feed-pagination><a class="btn" data-feed-more href="/?feed=latest&cursor=one" data-endpoint="/Feed/More?feed=latest&cursor=one">Xem thêm</a><p data-feed-end hidden>Đã xem hết</p></div>
+      <div data-feed-sentinel></div>
+    </div><aside class="feed-right">Cộng đồng</aside></div>
+    <button data-feed-top hidden>Về đầu</button>
+    <dialog data-feed-share-dialog><form method="dialog"><label for="feedShareUrl">Liên kết</label><input id="feedShareUrl"><button>Đóng</button></form></dialog>
+  </div>
+  <pre id="results">RUNNING</pre>
+  <script>
+    window.requests = []; window.replies = []; window.errors = []; window.toasts = []; window.storageTouches = 0;
+    Object.defineProperty(window, "localStorage", { get() { storageTouches++; throw Error("Feed must not read localStorage"); } });
+    window.CookShareUI = { toast(message) { toasts.push(message); } };
+    window.addEventListener("error", event => errors.push(event.message));
+    window.addEventListener("unhandledrejection", event => errors.push(String(event.reason)));
+    window.fetch = (url, options) => {
+      requests.push({ url, options });
+      const reply = replies.shift();
+      return typeof reply === "function" ? reply() : reply ? Promise.resolve(reply) : Promise.reject(Error("Missing test reply"));
+    };
+    window.IntersectionObserver = class { constructor(callback) { window.triggerFeedIntersection = () => callback([{ isIntersecting: true }]); } observe() {} };
+    Object.defineProperty(navigator, "share", { value: undefined, configurable: true });
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: async value => { window.copiedUrl = value; } }, configurable: true });
+    function post(id) {
+      return `<article class="feed-post" data-feed-post data-recipe-id="${id}" tabindex="-1"><header class="feed-post-header"><span class="feed-avatar">C</span><div class="feed-post-author"><a href="/Profile?userId=chef">Căn bếp cộng đồng</a><span><time data-feed-time datetime="2026-10-20T12:00:00Z">20/10/2026</time></span></div></header><div class="feed-post-copy"><h2>Món ngon ${id}</h2><p>Câu chuyện từ căn bếp.</p></div><a class="feed-post-image" href="/Recipe/Details/${id}"><img src="../../CookShare/wwwroot/img/recipes/pho.webp" width="640" height="480" alt="Phở"></a><div class="feed-post-actions"><div data-db-recipe-like data-recipe-id="${id}" data-is-liked="false" data-like-url="/Recipe/${id}/Likes" data-unlike-url="/Recipe/${id}/Likes/Unlike" data-login-url="/Account/Login"><form data-db-like-form action="/Recipe/${id}/Likes" method="post"><input name="__RequestVerificationToken" value="test-token" type="hidden"><button class="recipe-like-btn" type="submit"><span class="like-icon" aria-hidden="true"><i class="fa-regular fa-heart"></i></span><span class="like-text">Thích</span><span data-db-like-count>0</span></button></form><p data-like-status hidden></p></div><a class="feed-action" data-feed-comment-toggle href="/Recipe/Details/${id}#recipeCommentsHeading" data-comments-url="/Feed/Comments/${id}" aria-expanded="false"><span>Bình luận</span><span data-feed-comment-count data-recipe-id="${id}">0</span></a><div data-db-save-control><form data-db-save-form method="post" action="/Recipe/${id}/Favorites"><input name="__RequestVerificationToken" value="test-token" type="hidden"><button class="recipe-save-btn feed-save" type="submit" data-db-recipe-save data-recipe-id="${id}" data-is-saved="false" data-saved-user-id="account-a" data-save-url="/Recipe/${id}/Favorites" data-unsave-url="/Recipe/${id}/Favorites/Unsave" data-state-url="/Recipe/Favorites/State" data-login-url="/Account/Login"><span class="save-icon"><i class="icon fa-regular fa-bookmark" aria-hidden="true"></i></span><span class="save-text">Lưu</span></button></form><p data-save-status hidden></p></div><button class="feed-action" data-feed-share data-share-url="/Recipe/Details/${id}" data-share-title="Món ngon" hidden>Chia sẻ</button></div><div data-feed-comments-slot hidden></div></article>`;
+    }
+    function batch(ids, next = "two", viewer = "account-a", mode = "latest") {
+      return `<div class="feed-batch" data-feed-batch data-mode="${mode}" data-viewer-id="${viewer}" ${next ? `data-next-url="/Feed/More?feed=${mode}&cursor=${next}" data-next-page="/?feed=${mode}&cursor=${next}"` : ""}>${ids.map(post).join("")}</div>`;
+    }
+    function comments(id) {
+      return `<section data-db-recipe-comments data-recipe-id="${id}" data-viewer-id="account-a" data-comments-url="/Recipe/${id}/Comments" data-profile-url="/Profile" data-login-url="/Account/Login"><span data-db-comment-count>0</span><form data-comment-create method="post" action="/Recipe/${id}/Comments"><input name="__RequestVerificationToken" value="test-token" type="hidden"><textarea data-comment-input name="Content"></textarea><span data-comment-counter></span><p data-comment-validation></p><button type="submit">Đăng bình luận</button></form><p data-comment-status hidden></p><div data-comment-list></div><div data-comment-empty>Chưa có bình luận</div></section>`;
+    }
+    document.querySelector("[data-feed-items]").innerHTML = batch([1], "one");
+  </script>
+  <script src="../../CookShare/wwwroot/js/recipe-saved.js"></script>
+  <script src="../../CookShare/wwwroot/js/recipe-interactions.js"></script>
+  <script src="../../CookShare/wwwroot/js/home-feed.js"></script>
+  <script>
+    (async () => {
+      const results = [];
+      const assert = (condition, name) => { if (!condition) throw Error(name); results.push("PASS " + name); };
+      const tick = () => new Promise(resolve => setTimeout(resolve, 0));
+      const html = (value, status = 200) => new Response(value, { status, headers: { "Content-Type": "text/html" } });
+      const json = value => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+      const root = document.querySelector("[data-home-feed]");
+      const more = root.querySelector("[data-feed-more]");
+      const items = root.querySelector("[data-feed-items]");
+      const cards = () => [...items.querySelectorAll("[data-feed-post]")];
+      const form = selector => root.querySelector(selector).dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      try {
+        if (document.readyState === "loading") await new Promise(resolve => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
+        assert(!root.querySelector("[data-feed-share]").hidden, "share action is progressively enhanced");
+        assert(!root.querySelector("[data-feed-auto-control]").hidden, "automatic loading is offered when observer is available");
+        let release;
+        replies.push(() => new Promise(resolve => { release = resolve; }));
+        more.click(); more.click(); await tick();
+        assert(requests.length === 1 && items.getAttribute("aria-busy") === "true", "overlapping page requests are prevented and busy state is accessible");
+        release(html(batch([1, 2], "two"))); await tick(); await tick();
+        assert(cards().length === 2 && new Set(cards().map(card => card.dataset.recipeId)).size === 2, "appended pages deduplicate recipe IDs");
+        assert(document.activeElement.dataset.recipeId === "2" && items.getAttribute("aria-busy") === "false", "manual load moves focus to first new post and releases busy state");
+        assert(requests[0].options.cache === "no-store" && requests[0].options.credentials === "same-origin", "private interaction state uses authenticated uncached requests");
+        assert(new URL(more.href).searchParams.get("cursor") === "two", "native pagination URL advances together with AJAX cursor");
+
+        replies.push(json({ recipeId: 2, isSaved: true, savedCount: 1 }));
+        form('[data-feed-post][data-recipe-id="2"] [data-db-save-form]'); await tick(); await tick();
+        assert(root.querySelector('[data-db-recipe-save][data-recipe-id="2"]').dataset.isSaved === "true" && root.querySelector('[data-feed-post][data-recipe-id="2"] .fa-bookmark').classList.contains("fa-solid"), "Favorites handles appended posts and fills the Font Awesome bookmark");
+        assert(requests.at(-1).options.body.includes("__RequestVerificationToken=test-token"), "appended Save preserves CSRF protection");
+        replies.push(json({ recipeId: 2, isLiked: true, likeCount: 1 }));
+        form('[data-feed-post][data-recipe-id="2"] [data-db-like-form]'); await tick(); await tick();
+        assert(root.querySelector('[data-feed-post][data-recipe-id="2"] [data-is-liked]').dataset.isLiked === "true" && root.querySelector('[data-feed-post][data-recipe-id="2"] .fa-heart').classList.contains("fa-solid"), "Like handles appended posts and fills the Font Awesome heart");
+
+        replies.push(json({ recipeId: 2, isSaved: false, savedCount: 0 }));
+        form('[data-feed-post][data-recipe-id="2"] [data-db-save-form]'); await tick(); await tick();
+        const bookmark = root.querySelector('[data-feed-post][data-recipe-id="2"] .fa-bookmark');
+        assert(bookmark.classList.contains("fa-regular") && !bookmark.classList.contains("fa-solid"), "Unsave restores the outline bookmark");
+        replies.push(json({ recipeId: 2, isLiked: false, likeCount: 0 }));
+        form('[data-feed-post][data-recipe-id="2"] [data-db-like-form]'); await tick(); await tick();
+        const heart = root.querySelector('[data-feed-post][data-recipe-id="2"] .fa-heart');
+        assert(heart.classList.contains("fa-regular") && !heart.classList.contains("fa-solid") && heart.textContent === "", "Unlike restores the outline heart without inserting duplicate text");
+
+        const commentLink = root.querySelector('[data-feed-post][data-recipe-id="2"] [data-feed-comment-toggle]');
+        replies.push(html(comments(2))); commentLink.click(); await tick(); await tick();
+        assert(commentLink.getAttribute("aria-expanded") === "true" && root.querySelector('[data-db-recipe-comments][data-recipe-id="2"]'), "comments are fetched lazily on the feed");
+        const content = '<img src=x onerror="window.xss=true">';
+        root.querySelector("[data-comment-input]").value = content;
+        replies.push(json({ count: 1, comment: { id: 99, recipeId: 2, userId: "account-a", authorName: "Test Cook", avatarUrl: null, content, createdAt: "2026-10-20T12:00:00Z", canManage: true } }));
+        form("[data-comment-create]"); await tick(); await tick();
+        assert(root.querySelector('[data-feed-comment-count][data-recipe-id="2"]').textContent === "1", "confirmed comment updates post counter");
+        assert(root.querySelector(".comment-content-text").textContent === content && !window.xss, "comment content remains text instead of executable HTML");
+        const beforeComments = requests.length; commentLink.click(); commentLink.click(); await tick();
+        assert(requests.length === beforeComments, "opening loaded comments again makes no duplicate request");
+
+        root.querySelector('[data-feed-post][data-recipe-id="2"] [data-feed-share]').click(); await tick();
+        assert(copiedUrl === location.origin + "/Recipe/Details/2", "share copies the canonical recipe URL");
+        replies.push(() => Promise.reject(Error("Offline"))); more.click(); await tick(); await tick();
+        assert(root.querySelector("[data-feed-status]").classList.contains("is-error") && !more.hasAttribute("aria-disabled") && cards().length === 2, "network failure retains posts and provides a retry");
+        replies.push(html(batch([3], "two").replace('/Feed/More?feed=latest&cursor=two', 'https://evil.example/Feed/More'))); more.click(); await tick(); await tick();
+        assert(cards().length === 2, "cross-origin next cursor is rejected before appending posts");
+        replies.push(json({ unexpected: true })); more.click(); await tick(); await tick();
+        assert(cards().length === 2, "invalid content type cannot replace or append the feed");
+        replies.push(html(batch([3], "three"))); more.click(); await tick(); await tick();
+        assert(cards().length === 3, "manual retry resumes at the previous valid cursor");
+
+        for (const id of [4, 5, 6]) {
+          replies.push(html(batch([id], "cursor" + id))); triggerFeedIntersection(); await tick(); await tick();
+        }
+        const capped = requests.length; triggerFeedIntersection(); await tick();
+        assert(cards().length === 6 && requests.length === capped, "automatic loading pauses after three batches so footer remains reachable");
+        replies.push(html(batch([7], null))); more.click(); await tick(); await tick();
+        assert(more.hidden && !root.querySelector("[data-feed-end]").hidden, "last page exposes end state and disables further loading");
+        triggerFeedIntersection(); await tick();
+        assert(requests.length === capped + 1, "end-of-feed observer causes no additional request");
+
+        const duplicate = document.createElement("script"); duplicate.src = "../../CookShare/wwwroot/js/home-feed.js";
+        await new Promise(resolve => { duplicate.onload = resolve; document.body.append(duplicate); });
+        more.hidden = false; more.dataset.endpoint = "/Feed/More?feed=following&cursor=expired"; root.dataset.mode = "following";
+        replies.push(html("", 401)); more.click(); await tick(); await tick();
+        assert(items.hidden && root.querySelector('[data-feed-status] a').getAttribute("href") === "/Account/Login", "expired Following session hides posts and offers login");
+        items.hidden = false; root.dataset.mode = "latest"; more.dataset.endpoint = "/Feed/More?feed=latest&cursor=changed";
+        replies.push(html(batch([99], null, "account-b"))); more.click(); await tick(); await tick();
+        assert(items.hidden && !items.querySelector('[data-recipe-id="99"]'), "account changes never append another viewer's content");
+        items.hidden = false;
+        assert(document.documentElement.scrollWidth <= window.innerWidth + 1, "feed has no horizontal overflow at this viewport");
+        assert(storageTouches === 0 && errors.length === 0, "feed never uses localStorage as data source or raises browser errors");
+        document.body.dataset.testStatus = "passed";
+      } catch (error) {
+        results.push("FAIL " + error.stack);
+        document.body.dataset.testStatus = "failed";
+      }
+      document.getElementById("results").textContent = results.join("\n") + `\nCOMPLETE ${results.filter(line => line.startsWith("PASS")).length} passed`;
+      if (window.parent !== window) window.parent.postMessage({ type: "feed-test-result", status: document.body.dataset.testStatus, output: document.getElementById("results").textContent }, location.origin);
+    })();
+  </script>
+</body>
+</html>

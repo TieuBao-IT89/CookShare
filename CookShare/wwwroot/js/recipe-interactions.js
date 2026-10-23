@@ -112,7 +112,13 @@
                 button.classList.toggle("liked", summary.isLiked);
                 button.setAttribute("aria-pressed", String(summary.isLiked));
                 button.setAttribute("aria-label", summary.isLiked ? "Bỏ thích công thức" : "Thích công thức");
-                button.querySelector(".like-icon").textContent = summary.isLiked ? "♥" : "♡";
+                const icon = button.querySelector(".like-icon .fa-heart");
+                if (icon) {
+                    icon.classList.toggle("fa-solid", summary.isLiked);
+                    icon.classList.toggle("fa-regular", !summary.isLiked);
+                } else {
+                    button.querySelector(".like-icon").textContent = summary.isLiked ? "♥" : "♡";
+                }
                 scope.querySelector("form").action = summary.isLiked ? scope.dataset.unlikeUrl : scope.dataset.likeUrl;
             }
             scope.querySelectorAll("[data-db-like-count]").forEach(count => {
@@ -250,6 +256,7 @@
             }
         });
         section.querySelector("[data-comment-empty]").hidden = count > 0;
+        document.dispatchEvent(new CustomEvent("cookshare:comments-updated", { detail: { recipeId: Number(section.dataset.recipeId), count } }));
     }
 
     function lockComments(section) {

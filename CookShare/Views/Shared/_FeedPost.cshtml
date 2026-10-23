@@ -1,0 +1,65 @@
+@model CookShare.ViewModels.FeedRecipeViewModel
+@using CookShare.Helpers
+@using CookShare.Models
+@using CookShare.ViewModels
+@{
+    var detailsUrl = Url.Action("Details", "Recipe", new { id = Model.Id });
+    var headingId = $"feedPostTitle_{Model.Id}";
+    var image = RecipeImageReference.GetSource(Model.Image);
+    var initials = string.IsNullOrWhiteSpace(Model.AuthorName) ? "CS" : System.Globalization.StringInfo.GetNextTextElement(Model.AuthorName).ToUpperInvariant();
+    var saveData = new ViewDataDictionary(ViewData)
+    {
+        ["SavedRecipeIds"] = Model.IsSaved ? new HashSet<int> { Model.Id } : new HashSet<int>(),
+        ["SaveButtonClass"] = "feed-save"
+    };
+}
+<article class="feed-post" data-feed-post data-recipe-id="@Model.Id" aria-labelledby="@headingId" tabindex="-1">
+    <header class="feed-post-header">
+        <a class="feed-avatar" asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.AuthorId" aria-label="Ghé thăm căn bếp @Model.AuthorName">
+            @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl) && RecipeImageReference.IsValid(Model.AvatarUrl))
+            {
+                <img src="@RecipeImageReference.GetSource(Model.AvatarUrl)" alt="" width="44" height="44" loading="lazy" />
+            }
+            else
+            {
+                <span>@initials</span>
+            }
+        </a>
+        <div class="feed-post-author">
+            <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.AuthorId">@Model.AuthorName</a>
+            <span>đã chia sẻ một công thức <span aria-hidden="true">·</span>
+                <time data-feed-time datetime="@Model.CreatedAt.ToString("O")" title="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm") UTC">@Model.CreatedAt.ToString("dd/MM/yyyy")</time>
+            </span>
+        </div>
+        <a class="feed-post-category" asp-controller="Recipe" asp-action="Index" asp-route-category="@Model.Category">@Model.Category</a>
+    </header>
+    <div class="feed-post-copy">
+        <h2 id="@headingId"><a href="@detailsUrl">@Model.Name</a></h2>
+        @if (Model.Description.Length > 220)
+        {
+            <p>@Model.Description[..220].TrimEnd()…</p>
+            <details class="feed-story"><summary>Đọc thêm câu chuyện</summary><p>@Model.Description[220..]</p></details>
+        }
+        else
+        {
+            <p>@Model.Description</p>
+        }
+    </div>
+    <a class="feed-post-image @(image == RecipeImageReference.Placeholder ? "feed-post-placeholder" : "")" href="@detailsUrl" aria-label="Xem công thức @Model.Name">
+        <img src="@image" alt="@Model.Name" width="640" height="480" loading="lazy" decoding="async" />
+        <span class="feed-image-link">Vào bếp cùng món này <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+    </a>
+    <div class="feed-post-actions">
+        <partial name="_RecipeLikeButton" model="new RecipeLikeViewModel { RecipeId = Model.Id, LikeCount = Model.LikeCount, IsLiked = Model.IsLiked }" />
+        <a class="feed-action feed-comment-toggle" href="@detailsUrl#recipeCommentsHeading" data-feed-comment-toggle
+           data-comments-url="@Url.Action("Comments", "Home", new { recipeId = Model.Id })" aria-controls="feedComments_@Model.Id" aria-expanded="false">
+            <i class="icon fa-regular fa-comment" aria-hidden="true"></i><span>Bình luận</span>
+            <span data-feed-comment-count data-recipe-id="@Model.Id">@Model.CommentCount</span>
+        </a>
+        <partial name="_RecipeSaveButton" model="new Recipe { Id = Model.Id, Name = Model.Name }" view-data="saveData" />
+        <button class="feed-action feed-share" type="button" data-feed-share data-share-url="@detailsUrl" data-share-title="@Model.Name" hidden>
+            <i class="icon fa-solid fa-share-nodes" aria-hidden="true"></i><span>Chia sẻ</span>
+        </button>
+    </div>
+    <div class="feed-comments-slot" id="feedComments_@Model.Id" data-feed-comments-slot hidden></div>
+</article>

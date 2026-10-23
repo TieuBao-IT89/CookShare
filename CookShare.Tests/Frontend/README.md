@@ -1,5 +1,18 @@
 # Saved Recipes browser checks
 
+## Home / Following Feed
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-HomeFeedBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-HomeFeedBrowserTests.ps1 -Viewport Mobile
+```
+
+The feed harness needs Python and Chrome/Edge. It starts an isolated loopback static server, uses a fresh browser profile, and stops its server afterward. Artifacts are written under ignored `artifacts/issue98/`. Mobile uses a real 390px iframe viewport.
+
+It executes the production feed, Favorites, and Like/Comment scripts with controlled responses. Checks cover pagination, deduplication, simultaneous requests, native fallback URLs, CSRF on appended posts, Font Awesome outline/solid state changes for Like and Save, comments, sharing, automatic-load limits, network and malformed-response errors, expired sessions/account changes, and horizontal overflow. It never contacts the application database. Icon class changes are tested without fetching CDN assets; check actual font loading on the running website.
+
+## Saved Recipes
+
 From the repository root on Windows with Chrome or Edge installed:
 
 ```powershell
