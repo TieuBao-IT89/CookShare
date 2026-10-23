@@ -1,5 +1,6 @@
 
 @model CookShare.ViewModels.RecipeFormViewModel
+@using CookShare.Helpers
 
 @{
     var editing = ViewData["IsEditing"] is true;
@@ -45,7 +46,8 @@
               asp-action="@actionName"
               asp-route-id="@(editing ? ViewBag.RecipeId : null)"
               method="post"
-              class="cs108-recipe-form">
+              data-prevent-duplicate-submit
+              class="auth-form">
 
             @Html.AntiForgeryToken()
 
@@ -119,9 +121,7 @@
 
                         <div class="cs108-image-preview">
                             <img id="cs108PreviewImage"
-                                 src="@(string.IsNullOrWhiteSpace(Model.Image)
-                                     ? Url.Content("~/img/recipe-placeholder.svg")
-                                     : Model.Image)"
+                                 src="@RecipeImageReference.GetSource(Model.Image)"
                                  data-fallback="@Url.Content("~/img/recipe-placeholder.svg")"
                                  alt="Ảnh xem trước món ăn" />
                         </div>
@@ -134,8 +134,7 @@
                             <input asp-for="Image"
                                    id="cs108ImageInput"
                                    class="form-input"
-                                   placeholder="https://example.com/mon-an.jpg" />
-
+                                   placeholder="/img/recipe-placeholder.svg" />
                             <span asp-validation-for="Image"
                                   class="text-danger"></span>
 

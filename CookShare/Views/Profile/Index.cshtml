@@ -9,6 +9,9 @@
 }
 
 @section Styles {
+    <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-interactions.css" asp-append-version="true" />
     <link rel="stylesheet"
           href="~/css/recipe.css"
           asp-append-version="true" />
@@ -182,37 +185,7 @@
 
                     @foreach (var recipe in Model.Recipes)
                     {
-                        var image = string.IsNullOrWhiteSpace(recipe.Image)
-                            ? Url.Content("~/img/recipe-placeholder.svg")
-                            : recipe.Image;
-
-                        <article class="recipe-card">
-
-                            <a asp-controller="Recipe"
-                               asp-action="Details"
-                               asp-route-id="@recipe.Id">
-
-                                <img src="@image"
-                                     alt="@recipe.Name"
-                                     loading="lazy" />
-
-                                <h3>@recipe.Name</h3>
-                            </a>
-
-                            <p>@recipe.Description</p>
-
-                            <p>@recipe.Category</p>
-
-                            @if (Model.IsOwner)
-                            {
-                                <a asp-controller="Recipe"
-                                   asp-action="Edit"
-                                   asp-route-id="@recipe.Id"
-                                   class="btn btn-secondary">
-                                    Chỉnh sửa
-                                </a>
-                            }
-                        </article>
+                        <partial name="_RecipeCard" model="recipe" />
                     }
 
                 </div>
@@ -284,32 +257,24 @@
         @if (Model.IsOwner)
         {
             <section id="favorites">
-                <h2>Công thức đã lưu (@Model.Favorites.Count)</h2>
-
-                @if (Model.Favorites.Count == 0)
-                {
-                    <p>Bạn chưa lưu công thức nào.</p>
-                }
-                else
-                {
-                    <div class="recipe-grid">
-
-                        @foreach (var recipe in Model.Favorites)
-                        {
-                            <article class="recipe-card">
-                                <a asp-controller="Recipe"
-                                   asp-action="Details"
-                                   asp-route-id="@recipe.Id">
-                                    <h3>@recipe.Name</h3>
-                                </a>
-
-                                <p>@recipe.Description</p>
-                            </article>
-                        }
-                    </div>
-                }
+                <h2>Công thức đã lưu (<span data-saved-count>@Model.Favorites.Count</span>)</h2>
+                <p id="profileFavoriteEmptyState" style="@(Model.Favorites.Count == 0 ? null : "display:none")">Bạn chưa lưu công thức nào.</p>
+                <div class="recipe-grid" id="profileFavoriteGrid" style="@(Model.Favorites.Count == 0 ? "display:none" : null)"
+                     data-state-url="@Url.Action("State", "RecipeFavorites")" data-saved-user-id="@Model.UserId"
+                     data-login-url="@Url.Action("Login", "Account", new { returnUrl = Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString })">
+                    @foreach (var recipe in Model.Favorites)
+                    {
+                        <partial name="_RecipeCard" model="recipe" view-data='new ViewDataDictionary(ViewData) { ["SavedCollection"] = true }' />
+                    }
+                </div>
             </section>
         }
 
     </div>
 </section>
+
+@section Scripts {
+    <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
+}

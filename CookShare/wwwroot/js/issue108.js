@@ -49,32 +49,46 @@ document.addEventListener("DOMContentLoaded", () => {
     if (imageInput && imagePreview) {
         const fallback = imagePreview.dataset.fallback;
 
-        function validImageUrl(value) {
-            if (
-                value.startsWith("/") &&
-                !value.startsWith("//") &&
-                !value.includes("\\")
-            ) {
-                return true;
+        // Match RecipeImageReference for previews without changing the submitted value.
+        function resolveImageSource(value) {
+            let reference = value.trim();
+            if (!reference || reference.length > 2000 || /[\u0000-\u001f\u007f-\u009f\\]/.test(reference)) {
+                return null;
+            }
+            if (reference.startsWith("~/")) reference = reference.slice(1);
+
+            if (reference.startsWith("/")) {
+                if (reference.startsWith("//")) return null;
+                try {
+                    const path = decodeURIComponent(reference.split(/[?#]/, 1)[0]);
+                    if (/[\u0000-\u001f\u007f-\u009f\\]/.test(path) || path.startsWith("//")
+                        || path.split("/").some(segment => segment === "." || segment === "..")) {
+                        return null;
+                    }
+                    return reference;
+                } catch {
+                    return null;
+                }
             }
 
             try {
-                const url = new URL(value);
-                return url.protocol === "https:";
+                const url = new URL(reference);
+                return ["http:", "https:"].includes(url.protocol) && url.hostname && !url.username && !url.password
+                    ? reference : null;
             } catch {
-                return false;
+                return null;
             }
         }
 
         function updateImagePreview() {
-            const value = imageInput.value.trim();
+            const source = resolveImageSource(imageInput.value);
 
             imagePreview.onerror = () => {
                 imagePreview.onerror = null;
                 imagePreview.src = fallback;
             };
 
-            imagePreview.src = value && validImageUrl(value) ? value : fallback;
+            imagePreview.src = source || fallback;
         }
 
         imageInput.addEventListener("input", updateImagePreview);

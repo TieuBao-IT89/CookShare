@@ -1,21 +1,69 @@
 using System.Diagnostics;
+using System.Security.Claims;
+using CookShare.Data;
 using CookShare.Models;
+using CookShare.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CookShare.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _db;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationDbContext db)
         {
-            _logger = logger;
+            _db = db;
         }
 
-        public IActionResult Index()
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var latest = await _db.Recipes
+                .AsNoTracking()
+                .Include(r => r.User)
+                .OrderByDescending(r => r.CreatedAt)
+                .ThenByDescending(r => r.Id)
+                .Take(3)
+                .ToListAsync();
+
+            // A stable selection until a recommendation feature is available.
+            var featured = await _db.Recipes
+                .AsNoTracking()
+                .Include(r => r.User)
+                .OrderBy(r => r.Id)
+                .Take(3)
+                .ToListAsync();
+
+            var communityUsers = await _db.Users
+                .AsNoTracking()
+                .Where(u => u.Recipes.Any())
+                .OrderBy(u => u.CreatedAt)
+                .ThenBy(u => u.Id)
+                .Take(3)
+                .Select(u => new ProfileUserItemViewModel
+                {
+                    UserId = u.Id,
+                    UserName = u.UserName ?? "",
+                    DisplayName = u.DisplayName ?? u.UserName ?? "CookShare User",
+                    AvatarUrl = u.AvatarUrl
+                })
+                .ToListAsync();
+
+            ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
+                _db, latest.Concat(featured).Select(recipe => recipe.Id),
+                User.FindFirstValue(ClaimTypes.NameIdentifier));
+            ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(
+                _db, latest.Concat(featured).Select(recipe => recipe.Id),
+                User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            return View(new HomeIndexViewModel
+            {
+                LatestRecipes = latest,
+                FeaturedRecipes = featured,
+                CommunityUsers = communityUsers
+            });
         }
 
         public IActionResult Username()

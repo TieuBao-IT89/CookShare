@@ -1,6 +1,8 @@
 
 @model CookShare.Models.Recipe
 @using System.Security.Claims
+@using CookShare.Helpers
+@using CookShare.ViewModels
 
 @{
     ViewData["Title"] = Model.Name;
@@ -10,8 +12,9 @@
     var isOwner = !string.IsNullOrEmpty(userId)
         && Model.UserId == userId;
 
-    var isLiked = !string.IsNullOrEmpty(userId)
-        && Model.Likes.Any(x => x.UserId == userId);
+    var likeSummaries = ViewData["RecipeLikeSummaries"] as IReadOnlyDictionary<int, RecipeLikeViewModel>;
+    var recipeLike = likeSummaries != null && likeSummaries.TryGetValue(Model.Id, out var summary) ? summary : null;
+    var recipeComments = ViewData["RecipeComments"] as RecipeCommentsViewModel;
 
     var ingredients = Model.Ingredients.Split(
         '\n',
@@ -23,23 +26,26 @@
         StringSplitOptions.RemoveEmptyEntries
         | StringSplitOptions.TrimEntries);
 
-    var image = string.IsNullOrWhiteSpace(Model.Image)
-        ? Url.Content("~/img/recipe-placeholder.svg")
-        : Model.Image;
+    var image = RecipeImageReference.GetSource(Model.Image);
 
     var author = Model.User?.DisplayName
         ?? Model.User?.UserName
         ?? "Thành viên CookShare";
 
     var authorAvatar = string.IsNullOrWhiteSpace(Model.User?.AvatarUrl)
+        || !RecipeImageReference.IsValid(Model.User?.AvatarUrl)
         ? Url.Content("~/img/recipes/profile-avatar.webp")
-        : Model.User!.AvatarUrl;
+        : RecipeImageReference.GetSource(Model.User!.AvatarUrl);
 }
 
 @section Styles {
     <link rel="stylesheet"
           href="~/css/recipe.css"
           asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-comments.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-interactions.css" asp-append-version="true" />
     <link rel="stylesheet"
           href="~/css/issue108.css"
           asp-append-version="true" />
@@ -61,7 +67,7 @@
             <p class="notice" role="status">@TempData["Success"]</p>
         }
 
-        <article class="details-hero-card cs108-recipe-hero">
+        <article class="details-hero-card cs108-recipe-hero" data-recipe-id="@Model.Id">
 
             <div class="cs108-hero-content">
                 <span class="details-category-tag">
@@ -121,26 +127,13 @@
                 </div>
 
                 <div class="details-actions cs108-social-actions">
-                    <form asp-controller="Recipe"
-                          asp-action="Like"
-                          asp-route-id="@Model.Id"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit"
-                                class="btn @(isLiked ? "" : "btn-secondary") cs108-like-button">
-                            <svg class="icon" aria-hidden="true">
-                                <use href="#i-heart" />
-                            </svg>
-                            @(isLiked ? "Đã thích" : "Yêu thích")
-                            <span>(@Model.Likes.Count)</span>
-                        </button>
-                    </form>
-
-                    <a href="#comments"
-                       class="btn btn-secondary">
-                        Bình luận (@Model.Comments.Count)
+                    <partial name="_RecipeSaveButton" model="Model" view-data='new ViewDataDictionary(ViewData) { ["SaveButtonClass"] = "btn btn-secondary btn-details-save" }' />
+                    @if (recipeLike != null)
+                    {
+                        <partial name="_RecipeLikeButton" model="recipeLike" />
+                    }
+                    <a href="#comments" class="btn btn-secondary">
+                        Bình luận (<span data-db-comment-count>@(recipeComments?.Comments.Count ?? Model.Comments.Count)</span>)
                     </a>
                 </div>
             </div>
@@ -227,113 +220,15 @@
 
         @if (TempData["Error"] != null)
         {
-            <p class="notice" role="alert">@TempData["Error"]</p>
+            <p class="notice error" role="alert">@TempData["Error"]</p>
         }
 
-        <section class="comment-section cs108-comments"
-                 id="comments"
-                 aria-labelledby="commentsHeading">
-
-            <header class="comment-section-header">
-                <span class="eyebrow">CHIA SẺ CẢM NHẬN</span>
-
-                <h2 class="comment-section-title"
-                    id="commentsHeading">
-                    Góc trò chuyện
-                    <span class="comment-count-badge">
-                        @Model.Comments.Count
-                    </span>
-                </h2>
-            </header>
-
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <form asp-controller="Recipe"
-                      asp-action="AddComment"
-                      asp-route-id="@Model.Id"
-                      method="post"
-                      class="cs108-comment-form">
-
-                    @Html.AntiForgeryToken()
-
-                    <label for="commentContent">
-                        Bạn nghĩ gì về món ăn này?
-                    </label>
-
-                    <textarea id="commentContent"
-                              name="content"
-                              class="comment-textarea"
-                              rows="4"
-                              maxlength="1000"
-                              placeholder="Chia sẻ cảm nhận của bạn với cộng đồng..."
-                              required></textarea>
-
-                    <button type="submit" class="btn">
-                        Gửi bình luận
-                        <svg class="icon" aria-hidden="true">
-                            <use href="#i-arrow" />
-                        </svg>
-                    </button>
-                </form>
-            }
-            else
-            {
-                <p>
-                    <a asp-controller="Account" asp-action="Login">
-                        Đăng nhập
-                    </a>
-                    để tham gia bình luận.
-                </p>
-            }
-
-            @if (Model.Comments.Count == 0)
-            {
-                <div class="cs108-empty cs108-comment-empty">
-                    <h3>Chưa có bình luận</h3>
-                    <p>Hãy trở thành người đầu tiên chia sẻ cảm nhận.</p>
-                </div>
-            }
-            else
-            {
-                <ul class="cs108-comment-list">
-                    @foreach (var comment in Model.Comments
-                        .OrderByDescending(x => x.CreatedAt))
-                    {
-                        var commenter = comment.User?.DisplayName
-                            ?? comment.User?.UserName
-                            ?? "Thành viên CookShare";
-
-                        var commenterAvatar =
-                            string.IsNullOrWhiteSpace(comment.User?.AvatarUrl)
-                                ? Url.Content("~/img/recipes/profile-avatar.webp")
-                                : comment.User!.AvatarUrl;
-
-                        <li class="cs108-comment-item"
-                            id="comment-@comment.Id">
-
-                            <img src="@commenterAvatar"
-                                 alt=""
-                                 width="44"
-                                 height="44"
-                                 class="cs108-comment-avatar" />
-
-                            <div class="cs108-comment-content">
-                                <div class="cs108-comment-heading">
-                                    <strong>@commenter</strong>
-
-                                    <time datetime="@comment.CreatedAt.ToString("O")">
-                                        @comment.CreatedAt.ToLocalTime()
-                                            .ToString("dd/MM/yyyy HH:mm")
-                                    </time>
-                                </div>
-
-                                <p>@comment.Content</p>
-                            </div>
-                        </li>
-                    }
-                </ul>
-            }
-        </section>
+        @if (recipeComments != null)
+        {
+            <div class="cs108-comments" id="comments">
+                <partial name="_RecipeComments" model="recipeComments" />
+            </div>
+        }
 
         <div class="details-footer-nav">
             <a asp-controller="Recipe"
@@ -373,6 +268,8 @@
 @section Scripts {
     <script src="~/js/recipe-actions.js"
             asp-append-version="true"></script>
+    <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
     <script src="~/js/issue108.js"
             asp-append-version="true"></script>
 }
