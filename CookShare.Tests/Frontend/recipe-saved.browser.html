@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>CookShare Saved Recipes browser tests</title>
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/style.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe-likes.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe-saved.css">
+</head>
+<body>
+  <svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"></path></symbol></defs></svg>
+  <main id="fixture"></main>
+  <pre id="results">RUNNING</pre>
+  <script>
+    window.storageTouches = 0;
+    Object.defineProperty(window, "localStorage", { get() { storageTouches++; throw Error("Unexpected legacy storage access"); } });
+    window.requests = [];
+    window.replies = [];
+    window.toasts = [];
+    window.browserErrors = [];
+    window.addEventListener("error", event => browserErrors.push(event.message));
+    window.addEventListener("unhandledrejection", event => browserErrors.push(String(event.reason)));
+    window.CookShareUI = { toast(message, type) { toasts.push({ message, type }); } };
+    window.fetch = (url, options) => {
+      requests.push({ url, options });
+      const next = replies.shift();
+      if (!next) return Promise.reject(Error("Missing controlled response"));
+      return typeof next === "function" ? next() : Promise.resolve(next);
+    };
+    function control(id, saved = false, kind = "btn btn-secondary btn-details-save") {
+      return `<div data-db-save-control class="db-recipe-save"><form data-db-save-form action="/Recipe/${id}/Favorites${saved ? "/Unsave" : ""}" method="post"><input type="hidden" name="__RequestVerificationToken" value="safe-csrf-token"><button type="submit" class="recipe-save-btn ${kind} ${saved ? "saved" : ""}" data-db-recipe-save data-recipe-id="${id}" data-recipe-name="Món ngon" data-is-saved="${saved}" data-saved-user-id="account-a" data-state-url="/Recipe/Favorites/State" data-save-url="/Recipe/${id}/Favorites" data-unsave-url="/Recipe/${id}/Favorites/Unsave" data-login-url="/Account/Login?returnUrl=%2FRecipe%2FSaved" aria-pressed="${saved}"><span class="save-icon"><svg class="icon"><use href="#i-bookmark"></use></svg></span><span class="save-text">${saved ? "Đã lưu" : "Lưu"}</span></button></form><p data-save-status role="status" aria-live="polite" hidden></p></div>`;
+    }
+    function card(id) { return `<article class="recipe-card" data-saved-recipe-id="${id}"><div class="recipe-image"><img src="../../CookShare/wwwroot/img/recipe-placeholder.svg" alt="Ảnh công thức" width="640" height="480"><span class="recipe-category-badge">Món Việt</span></div><div class="recipe-card-body"><div class="recipe-card-meta"><span class="card-category">Món Việt</span><span>3 nguyên liệu</span></div><h3 class="recipe-card-title">Công thức database ${id}</h3><p class="recipe-card-desc">Món ngon đã lưu từ bộ sưu tập của tài khoản.</p>${control(id, true, "saved-card-unsave-btn")}</div></article>`; }
+    document.getElementById("fixture").innerHTML = `<div class="container"><div class="details-actions">${control(7)}<button id="independentLike" class="recipe-like-btn btn-details-like"><span class="like-icon">♡</span><span>Thích</span><span>0</span></button></div></div>${control(7)}${control(8)}<span id="savedRecipeCount" data-saved-count>2</span><span id="savedRecipeCountInline">2</span><span id="profileCount" data-saved-count>2</span><section><div id="savedRecipeGrid" class="recipe-grid" data-state-url="/Recipe/Favorites/State" data-saved-user-id="account-a" data-login-url="/Account/Login">${card(9)}${card(10)}</div><div id="savedEmptyState" class="saved-empty-state" hidden><a href="/Recipe">Khám phá</a></div></section><section><div id="profileFavoriteGrid" class="recipe-grid" data-state-url="/Recipe/Favorites/State" data-saved-user-id="account-a" data-login-url="/Account/Login">${card(9)}${card(10)}</div><div id="profileFavoriteEmptyState" hidden><a href="/Recipe">Khám phá</a></div></section><button id="legacy" class="recipe-save-btn" data-recipe-id="7">Legacy</button><div data-db-save-control><a id="anonymous" class="recipe-save-btn card-save" data-db-recipe-save data-recipe-id="11" data-is-saved="false" data-login-url="/Account/Login" href="#login">Lưu</a></div>`;
+  </script>
+  <script src="../../CookShare/wwwroot/js/recipe-saved.js"></script>
+  <script>
+    (async function () {
+      const results = [];
+      const assert = (condition, name) => { if (!condition) throw Error(name); results.push("PASS " + name); };
+      const tick = () => new Promise(resolve => setTimeout(resolve, 0));
+      const response = (data, status = 200, redirected = false) => ({ ok: status >= 200 && status < 300, status, redirected, headers: new Headers({ "Content-Type": "application/json" }), json: async () => data });
+      const button = id => document.querySelector(`[data-db-recipe-save][data-recipe-id="${id}"]`);
+      const controls = id => [...document.querySelectorAll(`[data-db-recipe-save][data-recipe-id="${id}"]`)];
+      const submit = id => button(id).closest("form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      const postReply = (id, saved, count) => response({ recipeId: id, isSaved: saved, savedCount: count });
+      const stateReply = (ids, count, userId = "account-a") => response({ savedRecipeIds: ids, savedCount: count, userId });
+      const counts = () => [...document.querySelectorAll("[data-saved-count], #savedRecipeCountInline")].map(node => node.textContent);
+      const finish = () => {
+        document.getElementById("results").textContent = results.join("\n") + `\nCOMPLETE ${results.length} passed, 0 failed`;
+        document.body.dataset.testStatus = "passed";
+      };
+      try {
+        if (document.readyState === "loading") await new Promise(resolve => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
+        await tick();
+        const parameters = new URLSearchParams(window.location.search);
+        if (parameters.get("viewport") === "390") {
+          // Chrome's desktop window has a minimum width. An iframe supplies an actual 390px CSS viewport.
+          document.getElementById("fixture").hidden = true;
+          const mobile = document.createElement("iframe");
+          mobile.style.width = "390px";
+          mobile.style.height = "844px";
+          mobile.style.border = "0";
+          mobile.src = parameters.get("preview") === "1" ? "?insideViewport=390&preview=1" : "?insideViewport=390";
+          document.body.append(mobile);
+          for (let tries = 0; tries < 1000 && !mobile.contentDocument?.body?.dataset.testStatus; tries++) await tick();
+          document.getElementById("results").textContent = mobile.contentDocument?.getElementById("results")?.textContent || "FAIL mobile viewport did not complete";
+          document.body.dataset.testStatus = mobile.contentDocument?.body?.dataset.testStatus || "failed";
+          return;
+        }
+        if (parameters.get("preview") === "1") {
+          const fixture = document.getElementById("fixture");
+          fixture.classList.add("container");
+          fixture.querySelectorAll(":scope > [data-db-save-control], #savedRecipeCountInline, #profileCount, #legacy").forEach(node => { node.style.display = "none"; });
+          document.getElementById("profileFavoriteGrid").closest("section").style.display = "none";
+          const heading = document.createElement("h1");
+          heading.textContent = "Công thức đã lưu";
+          fixture.prepend(heading);
+          const count = document.getElementById("savedRecipeCount");
+          count.before(document.createTextNode("Bộ sưu tập của bạn: "));
+          count.after(document.createTextNode(" công thức"));
+          document.getElementById("results").textContent = `CSS fixture preview at ${window.innerWidth}px`;
+          document.body.dataset.testStatus = "preview";
+          return;
+        }
+        const scenario = parameters.get("scenario");
+        if (scenario === "authpost" || scenario === "authstate") {
+          replies.push(response({}, scenario === "authpost" ? 200 : 401, scenario === "authpost"));
+          if (scenario === "authpost") { submit(7); await tick(); }
+          else await CookShareSaved.refreshSavedState();
+          assert(document.getElementById("savedRecipeGrid").hidden && document.getElementById("profileFavoriteGrid").hidden && button(7).disabled && counts().every(value => value === "0"), scenario === "authpost" ? "redirected login after Save hides private collection without false success" : "401 during state refresh hides private collection and locks stale forms");
+          assert(document.querySelector('[data-save-collection-status="savedRecipeGrid"] a').textContent === "Đăng nhập" && !CookShareSaved.isRecipeSaved(7), `${scenario} offers Login and leaves recipe Unsaved`);
+          finish();
+          return;
+        }
+        assert(CookShareSaved.isRecipeSaved(9) && !CookShareSaved.isRecipeSaved(7), "server-rendered attributes initialize authenticated saved state");
+        assert(controls(9).every(node => node.querySelector(".save-text").textContent === "Bỏ lưu công thức"), "Saved and Profile keep original Unsave text");
+        const detailsActions = document.querySelector(".details-actions");
+        assert(getComputedStyle(detailsActions).display === "flex" && button(7).getBoundingClientRect().height >= 36 && document.getElementById("independentLike").getBoundingClientRect().right <= window.innerWidth, `existing Save/Like layout remains usable at ${window.innerWidth}px viewport`);
+        const icon = button(7).querySelector(".save-icon svg");
+        let resolveSave;
+        replies.push(() => new Promise(resolve => { resolveSave = resolve; }));
+        submit(7); submit(7); await tick();
+        assert(requests.length === 1 && controls(7).every(node => node.disabled && node.getAttribute("aria-busy") === "true"), "pending Save locks all matching buttons and suppresses duplicate requests");
+        assert(!CookShareSaved.isRecipeSaved(7) && counts().every(value => value === "2"), "pending Save leaves previous saved state and counts intact");
+        assert(requests[0].options.method === "POST" && requests[0].options.credentials === "same-origin" && new URLSearchParams(requests[0].options.body).get("__RequestVerificationToken") === "safe-csrf-token", "Save sends Identity cookie and antiforgery form token");
+        resolveSave(postReply(7, true, 3)); await tick();
+        assert(controls(7).every(node => !node.disabled && node.classList.contains("saved") && node.getAttribute("aria-pressed") === "true" && node.querySelector(".save-text").textContent === "Đã lưu" && node.closest("[data-db-save-control]").querySelector("[data-save-status]").hidden) && counts().every(value => value === "3") && toasts.length === 1 && toasts[0].type === "success", "confirmed Save synchronizes states and counts with one toast and no notice at buttons");
+        assert(button(7).querySelector(".save-icon svg") === icon, "Save preserves original bookmark SVG");
+        assert(!document.getElementById("independentLike").classList.contains("liked") && document.getElementById("independentLike").textContent.includes("0"), "saving a recipe leaves Like state and count independent");
+        assert(!document.querySelector('[data-save-collection-status="profileFavoriteGrid"]').hidden, "saving a recipe outside Profile collection offers refresh for new cards");
+        replies.push(postReply(7, false, 2)); submit(7); await tick();
+        assert(requests.at(-1).url.endsWith("/Favorites/Unsave") && controls(7).every(node => node.dataset.isSaved === "false" && node.closest("[data-db-save-control]").querySelector("[data-save-status]").hidden) && counts().every(value => value === "2") && toasts.length === 2, "Unsave uses independent endpoint and server count with one toast and no notice at buttons");
+        assert(document.querySelector('[data-save-collection-status="profileFavoriteGrid"]').hidden, "collection refresh notice clears when visible cards match server count");
+        replies.push(response({ message: "Không thể lưu lúc này." }, 503)); submit(7); await tick();
+        assert(!CookShareSaved.isRecipeSaved(7) && !button(7).disabled && controls(7).every(node => node.closest("[data-db-save-control]").querySelector("[data-save-status]").hidden) && counts().every(value => value === "2") && toasts.at(-1).message === "Không thể lưu lúc này." && toasts.at(-1).type === "error", "database failure preserves state, count and controls while reporting the error only by toast");
+        replies.push(() => Promise.reject(Error("offline"))); submit(7); await tick();
+        assert(!button(7).disabled && !CookShareSaved.isRecipeSaved(7) && toasts.at(-1).message.includes("kết nối"), "network failure restores controls and reports helpful toast");
+        replies.push(response({ recipeId: 8, isSaved: true, savedCount: 999 })); submit(7); await tick();
+        assert(!CookShareSaved.isRecipeSaved(7) && counts().every(value => value === "2"), "mismatched response RecipeId cannot mark recipe Saved");
+        replies.push(response({ message: '<img src=x onerror="window.xss=true">' }, 400)); submit(7); await tick();
+        const errorStatus = button(7).closest("[data-db-save-control]").querySelector("[data-save-status]");
+        assert(errorStatus.hidden && !errorStatus.textContent && !errorStatus.querySelector("img") && toasts.at(-1).message.includes("<img"), "server error text is forwarded to toast without injecting HTML at buttons");
+        const token = button(8).closest("form").querySelector("input");
+        token.remove(); const beforeMissingToken = requests.length; submit(8); await tick();
+        assert(requests.length === beforeMissingToken && !button(8).disabled, "missing CSRF token prevents network submission");
+        button(8).closest("form").prepend(token);
+        const beforeLegacy = requests.length; document.getElementById("legacy").click(); await tick();
+        assert(requests.length === beforeLegacy && !document.getElementById("legacy").classList.contains("saved"), "legacy selectors cannot submit browser-only recipe IDs");
+        const anonymousClick = new MouseEvent("click", { bubbles: true, cancelable: true });
+        document.getElementById("anonymous").dispatchEvent(anonymousClick); await tick();
+        assert(!anonymousClick.defaultPrevented && requests.length === beforeLegacy, "anonymous Save retains native Login link without fake persistence");
+        button(9).focus();
+        replies.push(postReply(9, false, 1)); submit(9); await tick();
+        assert(!document.querySelector('[data-saved-recipe-id="9"]') && document.querySelectorAll('[data-saved-recipe-id="10"]').length === 2 && counts().every(value => value === "1"), "confirmed Unsave removes same recipe from Saved and private Profile only");
+        assert(document.activeElement === button(10), "removing focused Saved card moves focus to next usable recipe");
+        button(10).focus(); replies.push(postReply(10, false, 0)); submit(10); await tick();
+        assert(document.getElementById("savedRecipeGrid").hidden && document.getElementById("profileFavoriteGrid").hidden && !document.getElementById("savedEmptyState").hidden && !document.getElementById("profileFavoriteEmptyState").hidden && counts().every(value => value === "0"), "last Unsave displays original empty states and zero counts");
+        assert(document.activeElement === document.querySelector("#savedEmptyState a"), "empty Saved collection returns keyboard focus to Explore");
+        replies.push(stateReply([7], 1)); await CookShareSaved.refreshSavedState();
+        assert(CookShareSaved.isRecipeSaved(7) && !CookShareSaved.isRecipeSaved(8) && counts().every(value => value === "1") && requests.at(-1).options.cache === "no-store", "read-only revalidation restores server state and avoids browser cache");
+        assert(new URL(requests.at(-1).url).searchParams.getAll("recipeIds").filter(id => id === "7").length === 1, "state query deduplicates repeated visible recipe IDs");
+        const beforeVisibility = requests.length;
+        replies.push(stateReply([7], 1)); document.dispatchEvent(new Event("visibilitychange")); await tick();
+        assert(requests.length === beforeVisibility + 1 && requests.at(-1).options.method !== "POST", "returning to a visible tab reconciles saved state with authenticated backend");
+        let resolve7, resolve8;
+        replies.push(() => new Promise(resolve => { resolve7 = resolve; }), () => new Promise(resolve => { resolve8 = resolve; }));
+        const work7 = CookShareSaved.unsaveRecipe(7), work8 = CookShareSaved.saveRecipe(8); await tick();
+        assert(controls(7).every(node => node.disabled) && button(8).disabled, "different recipes can persist independently while each remains locked");
+        resolve8(postReply(8, true, 2)); await tick(); replies.push(stateReply([8], 1)); resolve7(postReply(7, false, 1)); await Promise.all([work7, work8]); await tick();
+        assert(CookShareSaved.isRecipeSaved(8) && !CookShareSaved.isRecipeSaved(7) && counts().every(value => value === "1") && requests.at(-1).options.method !== "POST", "overlapping writes finish with authoritative read reconciliation");
+        const duplicate = document.createElement("script"); duplicate.src = "../../CookShare/wwwroot/js/recipe-saved.js";
+        await new Promise((resolve, reject) => { duplicate.onload = resolve; duplicate.onerror = reject; document.body.append(duplicate); });
+        const beforeDuplicate = requests.length; replies.push(postReply(7, true, 2)); submit(7); await tick();
+        assert(requests.length === beforeDuplicate + 1, "loading module twice registers no duplicate submit handlers");
+        let resolveBack;
+        replies.push(() => new Promise(resolve => { resolveBack = resolve; }));
+        window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })); await tick();
+        assert(document.getElementById("savedRecipeGrid").hidden && button(7).disabled, "bfcache return hides private collection until session revalidation");
+        resolveBack(stateReply([7, 8], 2)); await tick();
+        assert(!button(7).disabled && CookShareSaved.isRecipeSaved(7), "confirmed same account restores usable saved state after bfcache");
+        for (const name of ["authpost", "authstate"]) {
+          const frame = document.createElement("iframe");
+          frame.hidden = true;
+          frame.src = `?scenario=${name}`;
+          document.body.append(frame);
+          for (let tries = 0; tries < 500 && !frame.contentDocument?.body?.dataset.testStatus; tries++) await tick();
+          assert(frame.contentDocument?.body?.dataset.testStatus === "passed", `${name} separate session behavior executes successfully`);
+          results.push(...frame.contentDocument.getElementById("results").textContent.split("\n").filter(line => line.startsWith("PASS ")));
+          frame.remove();
+        }
+        replies.push(stateReply([], 0, "account-b")); await CookShareSaved.refreshSavedState();
+        assert(document.getElementById("savedRecipeGrid").hidden && document.getElementById("profileFavoriteGrid").hidden && button(7).disabled && !CookShareSaved.isRecipeSaved(7) && counts().every(value => value === "0"), "account switch hides private collections and disables stale account forms");
+        assert(document.querySelector('[data-save-collection-status="savedRecipeGrid"] a').textContent === "Tải lại trang", "account switch provides accessible reload action");
+        assert(storageTouches === 0 && browserErrors.length === 0, "Favorites never touch legacy storage or introduce browser script errors");
+        finish();
+      } catch (error) {
+        document.getElementById("results").textContent = results.join("\n") + "\nFAIL " + error.stack;
+        document.body.dataset.testStatus = "failed";
+      }
+    })();
+  </script>
+</body>
+</html>

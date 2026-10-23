@@ -22,10 +22,12 @@ namespace CookShare.Tests.Integration
             _factory = factory;
         }
 
-        [Theory]
+        [PostgresTheory]
         [InlineData("Follow")]
         [InlineData("Like")]
         [InlineData("Comment")]
+        [InlineData("AjaxLike")]
+        [InlineData("AjaxComment")]
         public async Task NotificationFailure_RollsBackInteractionAndAllowsRetry(
             string interaction)
         {
@@ -56,8 +58,17 @@ namespace CookShare.Tests.Integration
             var interceptor = new RejectNotificationSaveInterceptor();
             await using (var db = CreateDb(interceptor))
             {
-                await Assert.ThrowsAsync<DbUpdateException>(() =>
-                    InteractAsync(db, interaction, actorId, ownerId, recipeId));
+                if (interaction.StartsWith("Ajax", StringComparison.Ordinal))
+                {
+                    var failure = Assert.IsType<ObjectResult>(await InteractAsync(
+                        db, interaction, actorId, ownerId, recipeId));
+                    Assert.Equal(StatusCodes.Status503ServiceUnavailable, failure.StatusCode);
+                }
+                else
+                {
+                    await Assert.ThrowsAsync<DbUpdateException>(() =>
+                        InteractAsync(db, interaction, actorId, ownerId, recipeId));
+                }
                 Assert.True(interceptor.RejectedNotification);
             }
 
@@ -72,8 +83,15 @@ namespace CookShare.Tests.Integration
 
             await using (var db = CreateDb())
             {
-                Assert.IsType<RedirectToActionResult>(await InteractAsync(
-                    db, interaction, actorId, ownerId, recipeId));
+                IActionResult result = await InteractAsync(db, interaction, actorId, ownerId, recipeId);
+                if (interaction.StartsWith("Ajax", StringComparison.Ordinal))
+                {
+                    Assert.IsType<JsonResult>(result);
+                }
+                else
+                {
+                    Assert.IsType<RedirectToActionResult>(result);
+                }
             }
 
             await using (var db = CreateDb())
@@ -83,7 +101,7 @@ namespace CookShare.Tests.Integration
                 var notification = await db.Notifications.SingleAsync(
                     item => item.ActorId == actorId);
                 Assert.Equal(ownerId, notification.RecipientId);
-                Assert.Equal(interaction, notification.Type);
+                Assert.Equal(interaction.Replace("Ajax", string.Empty, StringComparison.Ordinal), notification.Type);
             }
         }
 
@@ -129,6 +147,17 @@ namespace CookShare.Tests.Integration
                 }.Follow(ownerId);
             }
 
+            if (interaction == "AjaxLike")
+            {
+                return new RecipeLikesController(db) { ControllerContext = context }.Like(recipeId);
+            }
+
+            if (interaction == "AjaxComment")
+            {
+                return new RecipeCommentsController(db) { ControllerContext = context }
+                    .Create(recipeId, new CookShare.ViewModels.CommentFormViewModel { Content = "Looks delicious" });
+            }
+
             var controller = new RecipeController(db)
             {
                 ControllerContext = context
@@ -144,7 +173,7 @@ namespace CookShare.Tests.Integration
             string actorId) => interaction switch
             {
                 "Follow" => db.Follows.CountAsync(item => item.FollowerId == actorId),
-                "Like" => db.RecipeLikes.CountAsync(item => item.UserId == actorId),
+                "Like" or "AjaxLike" => db.RecipeLikes.CountAsync(item => item.UserId == actorId),
                 _ => db.RecipeComments.CountAsync(item => item.UserId == actorId)
             };
 

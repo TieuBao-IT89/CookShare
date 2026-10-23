@@ -1,78 +1,87 @@
-@model IEnumerable<CookShare.Models.Recipe>
-@using System.Security.Claims
-
+@model CookShare.ViewModels.RecipeIndexViewModel
 @{
-    ViewData["Title"] = "Khám phá công thức";
-    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+  ViewData["Title"] = "Khám phá công thức";
+  var categories = new[] { "Món Việt", "Món Á", "Món Âu", "Món chính", "Món phụ", "Món chay", "Món tráng miệng", "Đồ uống", "Ăn sáng" };
+  var hasFilters = !string.IsNullOrEmpty(Model.Query) || !string.IsNullOrEmpty(Model.Category);
 }
-
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/recipe.css"
-          asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/recipe-interactions.css" asp-append-version="true" />
 }
-
 <div class="recipe-page-wrapper">
-    <div class="container recipe-grid-section">
-        <header class="page-intro">
-            <h1>Khám phá <em>món ngon.</em></h1>
-            <a asp-controller="Recipe" asp-action="Create" class="btn">
-                + Chia sẻ công thức
-            </a>
-        </header>
-
-        @if (TempData["Success"] != null)
-        {
-            <p class="notice" role="status">@TempData["Success"]</p>
-        }
-
-        @if (!Model.Any())
-        {
-            <div class="recipe-empty-container">
-                <h2>Chưa có công thức nào</h2>
-                <p>Hãy chia sẻ món ngon đầu tiên của bạn!</p>
-            </div>
-        }
-        else
-        {
-            <div class="recipe-grid">
-                @foreach (var recipe in Model)
-                {
-                    <article class="recipe-card">
-                        <a asp-controller="Recipe" asp-action="Details" asp-route-id="@recipe.Id">
-                            <img src="@(string.IsNullOrEmpty(recipe.Image) ? "/img/recipe-placeholder.svg" : recipe.Image)"
-                                 alt="@recipe.Name"
-                                 loading="lazy" />
-                            <h2>@recipe.Name</h2>
-                        </a>
-
-                        <p>@recipe.Description</p>
-                        <p>Danh mục: @recipe.Category</p>
-                        <p>Tác giả: @(recipe.User?.DisplayName ?? recipe.User?.UserName ?? "CookShare")</p>
-
-                        @if (!string.IsNullOrEmpty(currentUserId) && recipe.UserId == currentUserId)
-                        {
-                            <div class="recipe-manage-actions">
-                                <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@recipe.Id">
-                                    Chỉnh sửa
-                                </a>
-
-                                <form asp-action="Delete"
-                                      asp-route-id="@recipe.Id"
-                                      method="post"
-                                      data-confirm-delete="Bạn có chắc muốn xóa công thức này không?">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-danger">Xóa</button>
-                                </form>
-                            </div>
-                        }
-                    </article>
-                }
-            </div>
-        }
+  <div class="container recipe-grid-section">
+    <header class="page-intro recipe-intro">
+      <div><span class="eyebrow">CẢM HỨNG TỪ CỘNG ĐỒNG</span><h1>Khám phá <em>món ngon.</em></h1><p>Tìm công thức mới cho mỗi lần vào bếp.</p></div>
+      <a asp-controller="Recipe" asp-action="Create" class="btn">+ Chia sẻ công thức</a>
+    </header>
+    @if (TempData["Success"] != null)
+    {
+      <p class="notice" role="status">@TempData["Success"]</p>
+    }
+    <form asp-controller="Recipe" asp-action="Index" method="get" role="search">
+      <div class="recipe-toolbar-grid">
+        <div class="recipe-search-wrap">
+          <svg class="icon"><use href="#i-search" /></svg>
+          <label class="sr-only" for="searchRecipe">Tìm theo tên món ăn</label>
+          <input id="searchRecipe" name="q" type="search" value="@Model.Query" placeholder="Bạn muốn nấu món gì?" />
+        </div>
+        <div class="recipe-filter-wrap">
+          <label class="sr-only" for="categoryFilter">Danh mục</label>
+          <select id="categoryFilter" name="category">
+            <option value="">Tất cả danh mục</option>
+            @if (!string.IsNullOrEmpty(Model.Category) && !categories.Contains(Model.Category))
+            {
+              <option value="@Model.Category" selected>@Model.Category</option>
+            }
+            @foreach (var category in categories)
+            {
+              <option value="@category" selected="@(category == Model.Category)">@category</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="recipe-results-bar"><p><strong>@Model.Recipes.Count</strong> công thức</p><button type="submit" class="btn btn-small">Tìm công thức</button></div>
+    </form>
+    <nav class="recipe-category-pills" aria-label="Danh mục công thức">
+      <a class="category-pill @(string.IsNullOrEmpty(Model.Category) ? "active" : "")" asp-action="Index" asp-route-q="@Model.Query">Tất cả</a>
+      @foreach (var category in categories)
+      {
+        <a class="category-pill @(category == Model.Category ? "active" : "")" asp-action="Index" asp-route-q="@Model.Query" asp-route-category="@category">@category</a>
+      }
+    </nav>
+    <div class="recipe-results-bar">
+      <p>@(hasFilters ? "Kết quả tìm kiếm của bạn" : "Những món ngon mới được chia sẻ")</p>
+      @if (hasFilters)
+      {
+        <a class="text-link" asp-action="Index">Xóa bộ lọc</a>
+      }
     </div>
+    @if (Model.Recipes.Count == 0)
+    {
+      if (hasFilters)
+      {
+        <div class="recipe-empty-container"><h2>Không tìm thấy công thức phù hợp</h2><p>Thử tên món ăn hoặc danh mục khác nhé.</p><a class="btn btn-secondary" asp-action="Index">Xem tất cả công thức</a></div>
+      }
+      else
+      {
+        <partial name="_RecipeEmpty" />
+      }
+    }
+    else
+    {
+      <div class="recipe-grid">
+        @foreach (var recipe in Model.Recipes)
+        {
+          <partial name="_RecipeCard" model="recipe" />
+        }
+      </div>
+    }
+  </div>
 </div>
-
 @section Scripts {
-    <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
+  <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
+  <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
+  <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
 }

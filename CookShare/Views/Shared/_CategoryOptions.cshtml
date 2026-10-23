@@ -1,10 +1,18 @@
+@{
+    var selectedCategory = (ViewData.Model as CookShare.ViewModels.RecipeFormViewModel)?.Category;
+    var categories = new[]
+    {
+        "Món Việt", "Món Á", "Món Âu", "Món chính", "Món phụ",
+        "Món chay", "Món tráng miệng", "Đồ uống", "Ăn sáng"
+    };
+}
+
 <option value="">@(ViewData["IsEditing"] is bool ? "Chọn danh mục món ăn" : "Tất cả danh mục")</option>
-<option value="Món Việt">Món Việt</option>
-<option value="Món Á">Món Á</option>
-<option value="Món Âu">Món Âu</option>
-<option value="Món chính">Món chính</option>
-<option value="Món phụ">Món phụ</option>
-<option value="Món chay">Món chay</option>
-<option value="Món tráng miệng">Món tráng miệng</option>
-<option value="Đồ uống">Đồ uống</option>
-<option value="Ăn sáng">Ăn sáng</option>
+@if (!string.IsNullOrEmpty(selectedCategory) && !categories.Contains(selectedCategory))
+{
+    <option value="@selectedCategory" selected>@selectedCategory</option>
+}
+@foreach (var category in categories)
+{
+    <option value="@category" selected="@(category == selectedCategory)">@category</option>
+}

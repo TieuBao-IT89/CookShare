@@ -129,7 +129,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC01 - Tạo Recipe hợp lệ.
-        [Fact]
+        [PostgresFact]
         public async Task TC01_CreateValidRecipe_ShouldSaveToDatabase()
         {
             using var client =
@@ -157,7 +157,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC02 - Tạo Recipe thiếu Name.
-        [Fact]
+        [PostgresFact]
         public async Task TC02_MissingName_ShouldBeRejected()
         {
             using var client =
@@ -182,7 +182,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC03 - Tạo Recipe khi chưa đăng nhập.
-        [Fact]
+        [PostgresFact]
         public async Task TC03_CreateAnonymous_ShouldRedirectToLogin()
         {
             using var client = _factory.CreateTestClient();
@@ -200,7 +200,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC04 - Danh sách lấy từ database.
-        [Fact]
+        [PostgresFact]
         public async Task TC04_Index_ShouldShowDatabaseRecipe()
         {
             var name = "Index Test " + Guid.NewGuid();
@@ -219,7 +219,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC05 - ID không tồn tại.
-        [Fact]
+        [PostgresFact]
         public async Task TC05_DetailsMissing_ShouldReturn404()
         {
             using var client = _factory.CreateTestClient();
@@ -233,7 +233,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC06 - Chủ sở hữu sửa công thức.
-        [Fact]
+        [PostgresFact]
         public async Task TC06_OwnerEdit_ShouldUpdateDatabase()
         {
             var id = await SeedRecipeAsync(_factory.OwnerId);
@@ -259,7 +259,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC07 - Người khác không được sửa.
-        [Fact]
+        [PostgresFact]
         public async Task TC07_OtherUserEdit_ShouldReturn403()
         {
             var id = await SeedRecipeAsync(_factory.OwnerId);
@@ -278,7 +278,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC08 - Chủ sở hữu xóa công thức.
-        [Fact]
+        [PostgresFact]
         public async Task TC08_OwnerDelete_ShouldRemoveRecipe()
         {
             var id = await SeedRecipeAsync(_factory.OwnerId);
@@ -301,7 +301,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC09 - Người khác không được xóa.
-        [Fact]
+        [PostgresFact]
         public async Task TC09_OtherUserDelete_ShouldReturn403()
         {
             var id = await SeedRecipeAsync(_factory.OwnerId);
@@ -322,7 +322,7 @@ namespace CookShare.Tests.Integration
         }
 
         // TC10 - POST không có Anti-Forgery Token.
-        [Fact]
+        [PostgresFact]
         public async Task TC10_MissingAntiForgery_ShouldReturn400()
         {
             using var client =

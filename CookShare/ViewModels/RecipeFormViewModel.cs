@@ -1,5 +1,6 @@
-
 using System.ComponentModel.DataAnnotations;
+using CookShare.Helpers;
+using CookShare.Validation;
 
 namespace CookShare.ViewModels
 {
@@ -10,19 +11,23 @@ namespace CookShare.ViewModels
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng nhập mô tả.")]
+        [StringLength(2000, ErrorMessage = "Mô tả không được vượt quá 2000 ký tự.")]
         public string Description { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng nhập nguyên liệu.")]
+        [StringLength(10000, ErrorMessage = "Nguyên liệu không được vượt quá 10000 ký tự.")]
         public string Ingredients { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng nhập cách chế biến.")]
+        [StringLength(20000, ErrorMessage = "Cách chế biến không được vượt quá 20000 ký tự.")]
         public string Instructions { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng chọn danh mục.")]
         [StringLength(100)]
         public string Category { get; set; } = string.Empty;
 
-        [StringLength(2000)]
+        [StringLength(RecipeImageReference.MaxLength)]
+        [RecipeImageReferenceAttribute]
         public string? Image { get; set; }
     }
 }
