@@ -1,0 +1,63 @@
+@model IReadOnlyList<CookShare.ViewModels.NotificationViewModel>
+
+@{
+    ViewData["Title"] = "Thông báo";
+}
+
+<section class="notifications-page container">
+    <header class="page-intro">
+        <div>
+            <h1>Thông báo</h1>
+            <p>Bạn có @ViewBag.UnreadCount thông báo chưa đọc.</p>
+        </div>
+    </header>
+
+    @if (Model.Count == 0)
+    {
+        <div class="recipe-empty-container">
+            <h2>Bạn chưa có thông báo</h2>
+            <p>Các lượt theo dõi, thích và bình luận mới sẽ xuất hiện ở đây.</p>
+        </div>
+    }
+    else
+    {
+        <ul class="notification-list">
+            @foreach (var notification in Model)
+            {
+                <li class="notification-item @(notification.IsRead ? "is-read" : "is-unread")">
+                    <div class="notification-copy">
+                        @if (!string.IsNullOrWhiteSpace(notification.ActorAvatarUrl))
+                        {
+                            <img class="notification-avatar"
+                                 src="@notification.ActorAvatarUrl"
+                                 alt=""
+                                 width="44"
+                                 height="44" />
+                        }
+                        <div>
+                            <p><strong>@notification.ActorName</strong> @notification.Message</p>
+                            <time datetime="@notification.CreatedAt.ToString("O")">
+                                @notification.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                            </time>
+                        </div>
+                    </div>
+                    <div class="notification-actions">
+                        <form asp-action="Open" asp-route-id="@notification.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-secondary">
+                                @(notification.HasRecipe ? "Mở công thức" : "Xem hồ sơ")
+                            </button>
+                        </form>
+                        @if (!notification.IsRead)
+                        {
+                            <form asp-action="MarkAsRead" asp-route-id="@notification.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-secondary">Đánh dấu đã đọc</button>
+                            </form>
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</section>

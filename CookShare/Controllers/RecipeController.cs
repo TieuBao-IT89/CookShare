@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using CookShare.Data;
 using CookShare.Models;
+using CookShare.Services;
 using CookShare.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,11 @@ namespace CookShare.Controllers
         {
             var recipe = await _db.Recipes
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(r => r.User)
+                .Include(r => r.Likes)
+                .Include(r => r.Comments)
+                    .ThenInclude(comment => comment.User)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (recipe == null)
@@ -46,6 +51,120 @@ namespace CookShare.Controllers
             }
 
             return View(recipe);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Like(int id)
+        {
+            var userId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge();
+            }
+
+            var recipe = await _db.Recipes
+                .Include(item => item.Likes)
+                .FirstOrDefaultAsync(item => item.Id == id);
+
+            if (recipe == null)
+            {
+                return NotFound();
+            }
+
+            var existingLike = recipe.Likes
+                .FirstOrDefault(like => like.UserId == userId);
+
+            if (existingLike != null)
+            {
+                _db.RecipeLikes.Remove(existingLike);
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                await using var transaction =
+                    await _db.Database.BeginTransactionAsync();
+
+                var like = new RecipeLike
+                {
+                    UserId = userId,
+                    RecipeId = recipe.Id,
+                    Recipe = recipe,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _db.RecipeLikes.Add(like);
+                await _db.SaveChangesAsync();
+
+                await new NotificationService(_db)
+                    .NotifyRecipeLikeAsync(like);
+
+                await transaction.CommitAsync();
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(
+            int id,
+            string content)
+        {
+            var userId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge();
+            }
+
+            var recipe = await _db.Recipes
+                .FirstOrDefaultAsync(item => item.Id == id);
+
+            if (recipe == null)
+            {
+                return NotFound();
+            }
+
+            var trimmedContent = content?.Trim();
+            if (string.IsNullOrEmpty(trimmedContent)
+                || trimmedContent.Length > 1000)
+            {
+                TempData["Error"] =
+                    "Bình luận cần có nội dung và không vượt quá 1000 ký tự.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            await using var transaction =
+                await _db.Database.BeginTransactionAsync();
+
+            var comment = new RecipeComment
+            {
+                UserId = userId,
+                RecipeId = recipe.Id,
+                Recipe = recipe,
+                Content = trimmedContent,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _db.RecipeComments.Add(comment);
+            await _db.SaveChangesAsync();
+
+            await new NotificationService(_db)
+                .NotifyRecipeCommentAsync(comment);
+
+            await transaction.CommitAsync();
+
+            return RedirectToAction(
+                nameof(Details),
+                "Recipe",
+                new { id },
+                $"comment-{comment.Id}");
         }
 
         // GET: /Recipe/Create
