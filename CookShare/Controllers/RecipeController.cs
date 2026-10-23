@@ -78,8 +78,11 @@ namespace CookShare.Controllers
             }
 
             string? userId = User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(_db, new[] { recipe.Id }, userId);
-            ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(_db, new[] { recipe.Id }, userId);
+            var related = await RecipeDiscoveryQueries.RelatedAsync(_db, recipe.Id, recipe.Category);
+            var displayedIds = related.Select(item => item.Id).Prepend(recipe.Id);
+            ViewData["RelatedRecipes"] = related;
+            ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(_db, displayedIds, userId);
+            ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(_db, displayedIds, userId);
             ViewData["RecipeComments"] = new RecipeCommentsViewModel
             {
                 RecipeId = recipe.Id,

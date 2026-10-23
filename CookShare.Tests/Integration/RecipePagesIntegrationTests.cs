@@ -26,8 +26,8 @@ namespace CookShare.Tests.Integration
         public async Task Home_ShouldRenderDatabaseFeaturedAndLatestWithStableOrdering()
         {
             var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var first = await SeedRecipeAsync("First recipe", createdAt: timestamp);
-            var second = await SeedRecipeAsync("Second recipe", createdAt: timestamp.AddDays(1));
+            await SeedRecipeAsync("First recipe", createdAt: timestamp);
+            await SeedRecipeAsync("Second recipe", createdAt: timestamp.AddDays(1));
             var third = await SeedRecipeAsync("Third recipe", createdAt: timestamp.AddDays(2));
             var fourth = await SeedRecipeAsync("Fourth recipe", createdAt: timestamp.AddDays(3));
             var fifth = await SeedRecipeAsync("Fifth recipe", createdAt: timestamp.AddDays(3));
@@ -35,16 +35,79 @@ namespace CookShare.Tests.Integration
 
             var html = await GetHtmlAsync(client, "/");
             var featured = GetSectionContaining(html, "homeFeaturedGrid");
+            var popular = GetSectionContaining(html, "homePopularGrid");
+            var topRated = GetSectionContaining(html, "homeTopRatedGrid");
             var latest = GetSectionContaining(html, "homeLatestGrid");
 
-            Assert.Equal(new[] { first, second, third }, GetCardIds(featured));
+            Assert.Empty(GetCardIds(featured));
+            Assert.Contains("Chưa có món nổi bật", featured);
+            Assert.Empty(GetCardIds(popular));
+            Assert.Contains("Chưa có công thức nào được yêu thích.", popular);
+            Assert.Empty(GetCardIds(topRated));
+            Assert.Contains("Chưa có công thức nào được đánh giá.", topRated);
             Assert.Equal(new[] { fifth, fourth, third }, GetCardIds(latest));
-            AssertRecipeLink(featured, first, "First recipe");
             AssertRecipeLink(latest, fifth, "Fifth recipe");
             Assert.Contains("Kitchen Owner", latest);
             Assert.Contains("/Profile?userId=" + _factory.OwnerId, latest);
             Assert.DoesNotContain("Fourth recipe", featured);
             Assert.DoesNotContain("Second recipe", latest);
+        }
+
+        [Fact]
+        public async Task Home_ShouldRankFeaturedPopularAndTopRatedFromLikesAndRatings()
+        {
+            var timestamp = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc);
+            var quiet = await SeedRecipeAsync("Quiet soup", createdAt: timestamp);
+            var liked = await SeedRecipeAsync("Liked noodles", createdAt: timestamp.AddDays(1));
+            var loved = await SeedRecipeAsync("Loved curry", createdAt: timestamp.AddDays(2));
+            var rated = await SeedRecipeAsync("Rated salad", createdAt: timestamp.AddDays(3));
+            var praised = await SeedRecipeAsync("Praised cake", createdAt: timestamp.AddDays(4));
+            await SeedLikeAsync(loved, _factory.OwnerId);
+            await SeedLikeAsync(loved, _factory.OtherUserId);
+            await SeedLikeAsync(loved, "fan-3");
+            await SeedLikeAsync(liked, _factory.OwnerId);
+            await SeedRatingAsync(praised, _factory.OwnerId, 5);
+            await SeedRatingAsync(praised, _factory.OtherUserId, 5);
+            await SeedRatingAsync(rated, _factory.OwnerId, 4);
+            using var client = _factory.CreateTestClient();
+
+            var html = await GetHtmlAsync(client, "/");
+            var featured = GetSectionContaining(html, "homeFeaturedGrid");
+            var popular = GetSectionContaining(html, "homePopularGrid");
+            var topRated = GetSectionContaining(html, "homeTopRatedGrid");
+
+            Assert.Equal(3, RecipeDiscoveryQueries.SectionSize);
+            Assert.Equal(new[] { praised, loved, rated }, GetCardIds(featured));
+            Assert.Equal(new[] { loved, liked }, GetCardIds(popular));
+            Assert.Equal(new[] { praised, rated }, GetCardIds(topRated));
+            Assert.DoesNotContain($"data-recipe-id=\"{quiet}\"", featured);
+            Assert.DoesNotContain($"data-recipe-id=\"{quiet}\"", popular);
+            Assert.DoesNotContain($"data-recipe-id=\"{quiet}\"", topRated);
+        }
+
+        [Fact]
+        public async Task Details_ShouldShowRelatedRecipesInTheSameCategoryWithoutTheCurrentRecipe()
+        {
+            var current = await SeedRecipeAsync("Pho", category: "Món Việt");
+            var sibling = await SeedRecipeAsync("Bun", category: "món việt");
+            var plain = await SeedRecipeAsync("Rolls", category: "Món Việt");
+            var other = await SeedRecipeAsync("Cake", category: "Món tráng miệng");
+            await SeedLikeAsync(sibling, _factory.OwnerId);
+            using var client = _factory.CreateTestClient();
+
+            var html = await GetHtmlAsync(client, $"/Recipe/Details/{current}");
+            var related = GetSectionContaining(html, "relatedRecipes");
+
+            Assert.Equal(new[] { sibling, plain }, GetCardIds(related));
+            Assert.DoesNotContain($"data-recipe-id=\"{current}\"", related);
+            Assert.DoesNotContain($"data-recipe-id=\"{other}\"", related);
+            Assert.Contains("Bun", related);
+            Assert.DoesNotContain("Cake", related);
+
+            var only = await GetHtmlAsync(client, $"/Recipe/Details/{other}");
+            var emptyRelated = GetSectionContaining(only, "relatedRecipes");
+            Assert.Empty(GetCardIds(emptyRelated));
+            Assert.Contains("Chưa có công thức liên quan trong danh mục này.", emptyRelated);
         }
 
         [Fact]
@@ -392,6 +455,31 @@ namespace CookShare.Tests.Integration
             db.Recipes.Add(recipe);
             await db.SaveChangesAsync();
             return recipe.Id;
+        }
+
+        private async Task SeedLikeAsync(int recipeId, string userId)
+        {
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            db.RecipeLikes.Add(new RecipeLike
+            {
+                RecipeId = recipeId,
+                UserId = userId
+            });
+            await db.SaveChangesAsync();
+        }
+
+        private async Task SeedRatingAsync(int recipeId, string userId, int stars)
+        {
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            db.RecipeRatings.Add(new RecipeRating
+            {
+                RecipeId = recipeId,
+                UserId = userId,
+                Stars = stars
+            });
+            await db.SaveChangesAsync();
         }
 
         private async Task<List<Recipe>> ReadRecipesAsync()

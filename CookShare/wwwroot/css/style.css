@@ -189,6 +189,8 @@ button:disabled { cursor: wait; opacity: .6; transform: none; }
 .recipe-manage-actions .btn-action-delete { margin-left: auto; color: var(--danger); }
 .latest { padding-bottom: 75px; }
 /* States & dialogs */
+.discovery-empty { margin: 0; padding: 28px 8px; color: var(--muted); font-size: 15px; }
+.related-section { padding-block: 36px 8px; }
 .recipe-empty-container { text-align: center; padding: 65px 24px; border: 1px dashed #cfd7c7; border-radius: var(--radius); background: #fffef9; }
 .recipe-empty-container h1, .recipe-empty-container h2 { font: 600 30px var(--font-display); margin: 16px 0 12px; }
 .recipe-empty-container p { max-width: 470px; margin: 0 auto 24px; color: var(--muted); font-size: 13px; }
