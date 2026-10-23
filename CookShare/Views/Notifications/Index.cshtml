@@ -2,39 +2,89 @@
 
 @{
     ViewData["Title"] = "Thông báo";
+    var unread = (int)(ViewBag.UnreadCount ?? 0);
 }
 
 <section class="notifications-page container">
-    <header class="page-intro">
+    <header class="notifications-header">
         <div>
+            <p class="notifications-kicker">Bếp của bạn</p>
             <h1>Thông báo</h1>
-            <p>Bạn có @ViewBag.UnreadCount thông báo chưa đọc.</p>
+            <p>
+                @if (unread > 0)
+                {
+                    <span>Bạn có <strong>@unread</strong> thông báo chưa đọc.</span>
+                }
+                else if (Model.Count == 0)
+                {
+                    <span>Hộp thư đang trống.</span>
+                }
+                else
+                {
+                    <span>Bạn đã xem hết thông báo mới.</span>
+                }
+            </p>
         </div>
+        @if (Model.Count > 0)
+        {
+            <div class="notification-filters" role="group" aria-label="Lọc thông báo">
+                <button type="button" class="is-active" data-notification-filter="all" aria-pressed="true">Tất cả</button>
+                <button type="button" data-notification-filter="unread" aria-pressed="false">Chưa đọc</button>
+            </div>
+        }
     </header>
 
     @if (Model.Count == 0)
     {
-        <div class="recipe-empty-container">
+        <div class="notification-empty">
+            <svg class="icon" aria-hidden="true"><use href="#i-bell" /></svg>
             <h2>Bạn chưa có thông báo</h2>
             <p>Các lượt theo dõi, thích và bình luận mới sẽ xuất hiện ở đây.</p>
         </div>
     }
     else
     {
+        <p id="notificationFilterEmpty" class="notification-empty notification-empty-inline" hidden>
+            Không còn thông báo chưa đọc trong danh sách này.
+        </p>
         <ul class="notification-list">
+            @{ var index = 0; }
             @foreach (var notification in Model)
             {
-                <li class="notification-item @(notification.IsRead ? "is-read" : "is-unread")">
+                var typeLabel = notification.Type switch
+                {
+                    "Like" => "Thích",
+                    "Comment" => "Bình luận",
+                    "Follow" => "Theo dõi",
+                    _ => "Hoạt động"
+                };
+                var initialSource = string.IsNullOrWhiteSpace(notification.ActorName)
+                    ? "?"
+                    : notification.ActorName.Trim();
+                var initial = initialSource[..1].ToUpperInvariant();
+                <li class="notification-item @(notification.IsRead ? "is-read" : "is-unread")"
+                    style="animation-delay: @(Math.Min(index, 8) * 40)ms">
                     <div class="notification-copy">
                         @if (!string.IsNullOrWhiteSpace(notification.ActorAvatarUrl))
                         {
                             <img class="notification-avatar"
                                  src="@notification.ActorAvatarUrl"
                                  alt=""
-                                 width="44"
-                                 height="44" />
+                                 width="48"
+                                 height="48" />
                         }
-                        <div>
+                        else
+                        {
+                            <span class="notification-avatar notification-avatar-fallback" aria-hidden="true">@initial</span>
+                        }
+                        <div class="notification-body">
+                            <div class="notification-meta">
+                                <span class="notification-type" data-type="@notification.Type">@typeLabel</span>
+                                @if (!notification.IsRead)
+                                {
+                                    <span class="notification-unread-label">Chưa đọc</span>
+                                }
+                            </div>
                             <p><strong>@notification.ActorName</strong> @notification.Message</p>
                             <time datetime="@notification.CreatedAt.ToString("O")">
                                 @notification.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
@@ -44,7 +94,7 @@
                     <div class="notification-actions">
                         <form asp-action="Open" asp-route-id="@notification.Id" method="post">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-secondary">
+                            <button type="submit" class="btn">
                                 @(notification.HasRecipe ? "Mở công thức" : "Xem hồ sơ")
                             </button>
                         </form>
@@ -57,7 +107,10 @@
                         }
                     </div>
                 </li>
+                index++;
             }
         </ul>
     }
 </section>
+
+<script src="~/js/notifications-page.js" asp-append-version="true"></script>

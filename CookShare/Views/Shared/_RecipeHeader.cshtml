@@ -22,7 +22,7 @@
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <a asp-controller="Profile" asp-action="Index">Trang cá nhân</a>
-                    <a asp-controller="Notifications" asp-action="Index">Thông báo</a>
+                    @await Component.InvokeAsync("NotificationBadge")
                     <span class="login account-name">@User.Identity?.Name</span>
                     <form class="logout-form" asp-controller="Account" asp-action="Logout" method="post">
                         @Html.AntiForgeryToken()

@@ -94,3 +94,49 @@
     .details-cover-image { height: 300px; } .details-content-grid { grid-template-columns: 1fr; } .section-card-title { font-size: 25px; } .ingredients-card, .instructions-card { padding: 24px 20px; }
     .details-footer-nav, .details-footer-nav > div { width: 100%; } .details-footer-nav .btn { flex: 1; font-size: 10px; }
 }
+
+.studio-kicker { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.recipe-studio-intro { align-items: flex-end; }
+.recipe-studio-intro h1 { margin-bottom: 8px; }
+.recipe-studio-intro p:last-child { max-width: 62ch; font-size: 14px; line-height: 1.7; }
+.recipe-studio-form .field-validation-error { display: block; margin-top: 6px; color: var(--danger); font-size: 12px; }
+.recipe-studio-form .field-validation-valid { display: none; }
+.recipe-studio-form .validation-summary-valid { display: none; }
+.recipe-studio-form .validation-summary-errors { margin: 0 0 20px; padding: 14px 16px; border: 1px solid var(--danger); border-radius: var(--radius-sm); background: var(--white); color: var(--danger); }
+.recipe-studio-form .validation-summary-errors ul { margin: 0; padding-left: 18px; }
+.form-hint { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.required-mark { color: var(--accent); }
+.recipe-studio-form button.is-submitting { opacity: .65; pointer-events: none; }
+.recipe-studio-form .btn:focus-visible, .details-jump a:focus-visible, .details-author:focus-visible, .like-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.details-hero-card { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .9fr); gap: 32px; align-items: center; }
+.details-hero-copy { min-width: 0; }
+.details-hero-copy .details-title { margin-top: 12px; }
+.details-hero-copy .details-desc-box { margin-bottom: 18px; }
+.details-cover-image { height: min(520px, 68vw); margin: 0; }
+.details-author { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 8px; color: inherit; text-decoration: none; }
+.details-author img, .details-author-mark { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.details-author-mark { display: grid; place-items: center; background: var(--light); color: var(--primary); font-family: var(--font-display); font-weight: 700; }
+.details-author:hover { color: var(--primary); }
+.details-jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.details-jump a { min-height: 36px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--white); color: var(--primary); font-size: 12px; font-weight: 600; text-decoration: none; transition: background var(--transition), transform var(--transition); }
+.details-jump a:hover { background: var(--light); transform: translateY(-2px); }
+.like-button.is-liked { background: var(--primary); border-color: var(--primary); color: var(--white); }
+.like-button.is-liked .icon { fill: currentColor; }
+.like-button:active { transform: scale(.97); }
+.details-actions form { margin: 0; }
+.ingredient-item input { accent-color: var(--primary); width: 16px; height: 16px; }
+.instruction-steps { position: relative; }
+.instruction-steps::before { content: ""; position: absolute; left: 14px; top: 18px; bottom: 8px; width: 2px; background: var(--line); }
+.step-number { position: relative; z-index: 1; border: 2px solid var(--primary); background: var(--white); }
+.comment-body p { margin: 0; line-height: 1.75; overflow-wrap: anywhere; }
+.comment-login-note { margin: 0 0 24px; }
+@media (min-width: 960px) { .ingredients-card { position: sticky; top: 96px; } }
+@media (max-width: 959px) { .details-hero-card { grid-template-columns: 1fr; } .ingredients-card { position: static; } }
+@media (max-width: 420px) {
+    .recipe-form-card { padding: 18px 14px; }
+    .recipe-form-actions { flex-direction: column-reverse; align-items: stretch; }
+    .recipe-form-actions .btn { width: 100%; }
+    .details-cover-image { height: 220px; }
+    .details-title { font-size: 30px; }
+    .details-jump a { flex: 1; text-align: center; }
+}

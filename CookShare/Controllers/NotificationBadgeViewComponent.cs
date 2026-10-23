@@ -24,10 +24,18 @@ namespace CookShare.Controllers
                 return Content(string.Empty);
             }
 
+            const string unreadCountItemKey = "CookShare.NotificationUnreadCount";
+            if (HttpContext.Items.TryGetValue(unreadCountItemKey, out var cached)
+                && cached is int cachedCount)
+            {
+                return View(cachedCount);
+            }
+
             var unreadCount = await _db.Notifications
                 .CountAsync(notification =>
                     notification.RecipientId == userId
                     && !notification.IsRead);
+            HttpContext.Items[unreadCountItemKey] = unreadCount;
 
             return View(unreadCount);
         }

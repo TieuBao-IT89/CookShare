@@ -6,10 +6,15 @@
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     var ingredients = Model.Ingredients.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     var instructions = Model.Instructions.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    var authorName = Model.User?.DisplayName ?? Model.User?.UserName ?? "CookShare";
+    var authorInitial = string.IsNullOrWhiteSpace(authorName) ? "C" : authorName.Trim()[..1].ToUpperInvariant();
+    var liked = Model.Likes.Any(like => like.UserId == currentUserId);
+    var cover = string.IsNullOrEmpty(Model.Image) ? "/img/recipe-placeholder.svg" : Model.Image;
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-comments.css" asp-append-version="true" />
 }
 
 <div class="recipe-page-wrapper">
@@ -28,40 +33,72 @@
         }
 
         <article class="details-hero-card" data-recipe-id="@Model.Id">
-            <div class="details-top-bar">
-                <span class="details-category-tag">@Model.Category</span>
-            </div>
-            <h1 class="details-title">@Model.Name</h1>
-            <div class="details-meta-row">
-                <span class="details-meta-item">
-                    Công thức từ <b>@(Model.User?.DisplayName ?? Model.User?.UserName ?? "CookShare")</b>
-                </span>
-                <span class="details-meta-item">@ingredients.Length nguyên liệu · @instructions.Length bước</span>
-            </div>
-            <p class="details-desc-box">@Model.Description</p>
-            <div class="details-actions">
-                <form asp-action="Like" asp-route-id="@Model.Id" method="post">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-secondary">
-                        @(Model.Likes.Any(like => like.UserId == currentUserId)
-                            ? "Bỏ thích"
-                            : "Thích")
-                        (@Model.Likes.Count)
-                    </button>
-                </form>
-            </div>
             <div class="details-cover-image">
-                <img src="@(string.IsNullOrEmpty(Model.Image) ? "/img/recipe-placeholder.svg" : Model.Image)"
+                <img src="@cover"
                      alt="@Model.Name"
                      width="1100"
                      height="700"
                      fetchpriority="high" />
             </div>
+            <div class="details-hero-copy">
+                <div class="details-top-bar">
+                    <span class="details-category-tag">@Model.Category</span>
+                </div>
+                <h1 class="details-title">@Model.Name</h1>
+                @if (!string.IsNullOrEmpty(Model.UserId))
+                {
+                    <a class="details-author"
+                       asp-controller="Profile"
+                       asp-action="Index"
+                       asp-route-userId="@Model.UserId">
+                        @if (!string.IsNullOrWhiteSpace(Model.User?.AvatarUrl))
+                        {
+                            <img src="@Model.User.AvatarUrl" alt="" width="40" height="40" />
+                        }
+                        else
+                        {
+                            <span class="details-author-mark" aria-hidden="true">@authorInitial</span>
+                        }
+                        <span>Công thức từ <b>@authorName</b></span>
+                    </a>
+                }
+                else
+                {
+                    <p class="details-meta-item">Công thức từ <b>@authorName</b></p>
+                }
+                <div class="details-meta-row">
+                    <span class="details-meta-item">@ingredients.Length nguyên liệu</span>
+                    <span class="details-meta-item">@instructions.Length bước</span>
+                    <span class="details-meta-item">@Model.Likes.Count lượt thích</span>
+                </div>
+                <p class="details-desc-box">@Model.Description</p>
+                <div class="details-actions">
+                    <form asp-action="Like" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-secondary like-button@(liked ? " is-liked" : "")">
+                            <svg class="icon" aria-hidden="true"><use href="#i-heart" /></svg>
+                            <span>@(liked ? "Bỏ thích" : "Thích") (@Model.Likes.Count)</span>
+                        </button>
+                    </form>
+                </div>
+                <nav class="details-jump" aria-label="Trong trang">
+                    <a href="#ingredients">Nguyên liệu</a>
+                    <a href="#instructions">Cách làm</a>
+                    <a href="#comments">Bình luận</a>
+                </nav>
+            </div>
         </article>
 
         <div class="details-content-grid">
-            <section class="ingredients-card" aria-labelledby="ingredientHeading">
-                <h2 class="section-card-title" id="ingredientHeading">Nguyên liệu</h2>
+            <section class="ingredients-card" id="ingredients" aria-labelledby="ingredientHeading">
+                <h2 class="section-card-title" id="ingredientHeading">
+                    <svg class="icon" aria-hidden="true"><use href="#i-leaf" /></svg>
+                    Nguyên liệu
+                </h2>
+                @if (ingredients.Length > 0)
+                {
+                    <p class="ingredient-progress"><span id="ingredientCheckedCount">0/@ingredients.Length</span> đã chuẩn bị</p>
+                }
                 <ul class="ingredient-list">
                     @foreach (var ingredient in ingredients)
                     {
@@ -72,8 +109,11 @@
                 </ul>
             </section>
 
-            <section class="instructions-card" aria-labelledby="instructionHeading">
-                <h2 class="section-card-title" id="instructionHeading">Cùng vào bếp</h2>
+            <section class="instructions-card" id="instructions" aria-labelledby="instructionHeading">
+                <h2 class="section-card-title" id="instructionHeading">
+                    <svg class="icon" aria-hidden="true"><use href="#i-spark" /></svg>
+                    Cùng vào bếp
+                </h2>
                 <div class="instruction-steps">
                     @for (var index = 0; index < instructions.Length; index++)
                     {
@@ -101,35 +141,60 @@
 
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <form asp-action="AddComment" asp-route-id="@Model.Id" method="post">
+                <form class="comment-form-area" asp-action="AddComment" asp-route-id="@Model.Id" method="post">
                     @Html.AntiForgeryToken()
-                    <label for="commentContent">Chia sẻ cảm nhận của bạn</label>
-                    <textarea id="commentContent"
-                              name="content"
-                              class="comment-textarea"
-                              maxlength="1000"
-                              required></textarea>
-                    <button type="submit" class="btn">Gửi bình luận</button>
+                    <div class="comment-form-content">
+                        <label class="form-label" for="commentContent">Chia sẻ cảm nhận của bạn</label>
+                        <div class="comment-textarea-wrapper">
+                            <textarea id="commentContent"
+                                      name="content"
+                                      class="comment-textarea"
+                                      maxlength="1000"
+                                      required
+                                      placeholder="Món này hợp với ai, hoặc bạn đã chỉnh gì khi nấu?"></textarea>
+                        </div>
+                        <div class="comment-form-actions">
+                            <button type="submit" class="btn-submit-comment">Gửi bình luận</button>
+                        </div>
+                    </div>
                 </form>
             }
             else
             {
-                <p><a asp-controller="Account" asp-action="Login">Đăng nhập</a> để bình luận.</p>
+                <p class="comment-login-note"><a asp-controller="Account" asp-action="Login">Đăng nhập</a> để bình luận.</p>
             }
 
             @if (Model.Comments.Count == 0)
             {
-                <p>Chưa có bình luận nào.</p>
+                <div class="comment-empty-state">
+                    <p class="comment-empty-state-text">Chưa có bình luận nào. Hãy là người đầu tiên kể lại cảm nhận sau khi nấu.</p>
+                </div>
             }
             else
             {
-                <ul class="notification-list">
+                <ul class="comment-list">
                     @foreach (var comment in Model.Comments.OrderByDescending(item => item.CreatedAt))
                     {
-                        <li class="notification-item" id="comment-@comment.Id">
-                            <strong>@(comment.User?.DisplayName ?? comment.User?.UserName ?? "CookShare User")</strong>
-                            <p>@comment.Content</p>
-                            <time datetime="@comment.CreatedAt.ToString("O")">@comment.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</time>
+                        var commentAuthor = comment.User?.DisplayName ?? comment.User?.UserName ?? "CookShare User";
+                        var commentInitial = string.IsNullOrWhiteSpace(commentAuthor) ? "C" : commentAuthor.Trim()[..1].ToUpperInvariant();
+                        <li class="comment-item" id="comment-@comment.Id">
+                            <div class="comment-avatar comment-avatar--small" aria-hidden="true">
+                                @if (!string.IsNullOrWhiteSpace(comment.User?.AvatarUrl))
+                                {
+                                    <img src="@comment.User.AvatarUrl" alt="" width="36" height="36" />
+                                }
+                                else
+                                {
+                                    @commentInitial
+                                }
+                            </div>
+                            <div class="comment-body">
+                                <div class="comment-header-row">
+                                    <span class="comment-author-name">@commentAuthor</span>
+                                    <time class="comment-timestamp" datetime="@comment.CreatedAt.ToString("O")">@comment.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</time>
+                                </div>
+                                <p>@comment.Content</p>
+                            </div>
                         </li>
                     }
                 </ul>
@@ -142,6 +207,7 @@
             {
                 <div>
                     <a class="btn btn-secondary" asp-controller="Recipe" asp-action="Edit" asp-route-id="@Model.Id">
+                        <svg class="icon" aria-hidden="true"><use href="#i-edit" /></svg>
                         Chỉnh sửa
                     </a>
                     <form asp-controller="Recipe"
@@ -150,7 +216,10 @@
                           method="post"
                           data-confirm-delete="Bạn có chắc muốn xóa công thức này không?">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger">Xóa công thức</button>
+                        <button type="submit" class="btn btn-danger">
+                            <svg class="icon" aria-hidden="true"><use href="#i-trash" /></svg>
+                            Xóa công thức
+                        </button>
                     </form>
                 </div>
             }

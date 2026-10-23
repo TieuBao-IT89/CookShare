@@ -8,30 +8,27 @@
 <div class="recipe-page-wrapper">
     <div class="container recipe-form-wrapper">
 
-        <nav class="recipe-breadcrumb">
-            <a asp-controller="Home" asp-action="Index">
-                Trang chủ
-            </a>
+        <nav class="recipe-breadcrumb" aria-label="Đường dẫn">
+            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
             <span>/</span>
-            <a asp-controller="Recipe" asp-action="Index">
-                Công thức
-            </a>
+            <a asp-controller="Recipe" asp-action="Index">Công thức</a>
             <span>/</span>
-            <span>@(editing ? "Chỉnh sửa" : "Chia sẻ")</span>
+            <span aria-current="page">@(editing ? "Chỉnh sửa" : "Chia sẻ")</span>
         </nav>
 
-        <header class="page-intro">
-            <h1>
-                @(editing ? "Chỉnh sửa công thức"
-                           : "Chia sẻ công thức")
-            </h1>
+        <header class="page-intro recipe-studio-intro">
+            <div>
+                <p class="studio-kicker">Sổ tay công thức</p>
+                <h1>@(editing ? "Chỉnh sửa công thức" : "Chia sẻ công thức")</h1>
+                <p>Điền từng phần bên dưới. Ảnh dùng đường dẫn có sẵn, không tải tệp lên máy chủ.</p>
+            </div>
         </header>
 
         <form asp-controller="Recipe"
               asp-action="@actionName"
               asp-route-id="@(editing ? ViewBag.RecipeId : null)"
               method="post"
-              class="auth-form">
+              class="auth-form recipe-studio-form">
 
             @Html.AntiForgeryToken()
 
@@ -41,99 +38,143 @@
 
             <div class="recipe-form-grid">
                 <div class="recipe-form-col">
-                    <section class="recipe-form-card">
+                    <section class="recipe-form-card" aria-labelledby="recipeInfoHeading">
+                        <div class="form-section-heading">
+                            <span>01</span>
+                            <div>
+                                <h2 id="recipeInfoHeading">Thông tin món ăn</h2>
+                                <p>Tên, danh mục và câu chuyện ngắn của món.</p>
+                            </div>
+                        </div>
 
                         <div class="form-field-group">
-                            <label asp-for="Name"
-                                   class="form-label">
-                                Tên món ăn
+                            <label asp-for="Name" class="form-label">
+                                Tên món ăn <span class="required-mark" aria-hidden="true">*</span>
                             </label>
                             <input asp-for="Name"
-                                   class="form-input" />
-                            <span asp-validation-for="Name"
-                                  class="text-danger"></span>
+                                   class="form-input"
+                                   placeholder="Ví dụ: Phở bò Hà Nội" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="form-field-group">
-                            <label asp-for="Category"
-                                   class="form-label">
-                                Danh mục
+                            <label asp-for="Category" class="form-label">
+                                Danh mục <span class="required-mark" aria-hidden="true">*</span>
                             </label>
-                            <select asp-for="Category"
-                                    class="form-select">
+                            <select asp-for="Category" class="form-select">
                                 <partial name="_CategoryOptions" />
                             </select>
-                            <span asp-validation-for="Category"
-                                  class="text-danger"></span>
+                            <span asp-validation-for="Category" class="text-danger"></span>
                         </div>
 
                         <div class="form-field-group">
-                            <label asp-for="Description"
-                                   class="form-label">
-                                Mô tả
+                            <label asp-for="Description" class="form-label">
+                                Mô tả <span class="required-mark" aria-hidden="true">*</span>
                             </label>
                             <textarea asp-for="Description"
                                       class="form-textarea"
-                                      rows="5"></textarea>
-                            <span asp-validation-for="Description"
-                                  class="text-danger"></span>
+                                      rows="5"
+                                      placeholder="Nguồn gốc, hương vị hoặc kỷ niệm gắn với món ăn"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                    </section>
+
+                    <section class="recipe-form-card" aria-labelledby="recipeImageHeading">
+                        <div class="form-section-heading">
+                            <span>02</span>
+                            <div>
+                                <h2 id="recipeImageHeading">Hình ảnh</h2>
+                                <p>Dán một đường dẫn ảnh. Phần xem trước chỉ hiện trên trình duyệt.</p>
+                            </div>
                         </div>
 
                         <div class="form-field-group">
-                            <label asp-for="Image"
-                                   class="form-label">
-                                Đường dẫn ảnh
-                            </label>
+                            <label asp-for="Image" class="form-label">Đường dẫn ảnh</label>
                             <input asp-for="Image"
                                    class="form-input"
-                                   placeholder="/img/recipe-placeholder.svg" />
-                            <span asp-validation-for="Image"
-                                  class="text-danger"></span>
+                                   inputmode="url"
+                                   placeholder="https://… hoặc /img/recipe-placeholder.svg"
+                                   aria-describedby="imageHint" />
+                            <p id="imageHint" class="form-hint">Không bắt buộc. Có thể dùng ảnh trong thư mục /img hoặc một liên kết công khai.</p>
+                            <span asp-validation-for="Image" class="text-danger"></span>
                         </div>
 
+                        <div class="image-preview-wrapper" id="recipeImagePreview" hidden>
+                            <img id="recipeImagePreviewImg" alt="Xem trước ảnh công thức" />
+                            <div class="image-preview-overlay">
+                                <span>Xem trước từ đường dẫn hiện có</span>
+                            </div>
+                        </div>
                     </section>
                 </div>
 
-                <section class="recipe-form-card">
+                <div class="recipe-form-col">
+                    <section class="recipe-form-card" aria-labelledby="ingredientsHeading">
+                        <div class="form-section-heading">
+                            <span>03</span>
+                            <div>
+                                <h2 id="ingredientsHeading">Nguyên liệu</h2>
+                                <p>Mỗi dòng là một nguyên liệu.</p>
+                            </div>
+                        </div>
 
-                    <div class="form-field-group">
-                        <label asp-for="Ingredients"
-                               class="form-label">
-                            Nguyên liệu
-                        </label>
-                        <textarea asp-for="Ingredients"
-                                  class="form-textarea"
-                                  rows="8"></textarea>
-                        <span asp-validation-for="Ingredients"
-                              class="text-danger"></span>
-                    </div>
+                        <div class="form-field-group">
+                            <label asp-for="Ingredients" class="form-label">
+                                Nguyên liệu <span class="required-mark" aria-hidden="true">*</span>
+                            </label>
+                            <textarea asp-for="Ingredients"
+                                      class="form-textarea"
+                                      rows="8"
+                                      placeholder="500 g thịt bò&#10;1 củ hành tây&#10;Gia vị"
+                                      aria-describedby="ingredientsHint"></textarea>
+                            <p id="ingredientsHint" class="form-hint">Trang chi tiết tách từng dòng thành danh sách có thể đánh dấu.</p>
+                            <span asp-validation-for="Ingredients" class="text-danger"></span>
+                        </div>
+                    </section>
 
-                    <div class="form-field-group">
-                        <label asp-for="Instructions"
-                               class="form-label">
-                            Hướng dẫn chế biến
-                        </label>
-                        <textarea asp-for="Instructions"
-                                  class="form-textarea"
-                                  rows="12"></textarea>
-                        <span asp-validation-for="Instructions"
-                              class="text-danger"></span>
-                    </div>
+                    <section class="recipe-form-card" aria-labelledby="instructionsHeading">
+                        <div class="form-section-heading">
+                            <span>04</span>
+                            <div>
+                                <h2 id="instructionsHeading">Các bước thực hiện</h2>
+                                <p>Mỗi dòng là một bước.</p>
+                            </div>
+                        </div>
 
-                </section>
+                        <div class="form-field-group">
+                            <label asp-for="Instructions" class="form-label">
+                                Hướng dẫn chế biến <span class="required-mark" aria-hidden="true">*</span>
+                            </label>
+                            <textarea asp-for="Instructions"
+                                      class="form-textarea"
+                                      rows="12"
+                                      placeholder="Sơ chế nguyên liệu&#10;Nấu nước dùng&#10;Trình bày và thưởng thức"
+                                      aria-describedby="instructionsHint"></textarea>
+                            <p id="instructionsHint" class="form-hint">Giữ mỗi bước trên một dòng để trang chi tiết xếp thành dòng thời gian.</p>
+                            <span asp-validation-for="Instructions" class="text-danger"></span>
+                        </div>
+
+                        <aside class="kitchen-tip">
+                            <svg class="icon" aria-hidden="true"><use href="#i-leaf" /></svg>
+                            <div>
+                                <strong>Mẹo trình bày</strong>
+                                <p>Viết ngắn, theo thứ tự nấu. Người đọc có thể đánh dấu nguyên liệu khi đã chuẩn bị xong.</p>
+                            </div>
+                        </aside>
+                    </section>
+                </div>
             </div>
 
-            <div class="recipe-form-actions">
-                <a asp-controller="Recipe"
-                   asp-action="Index"
-                   class="btn btn-secondary">
-                    Hủy
-                </a>
+            <p class="required-note form-hint"><span class="required-mark" aria-hidden="true">*</span> Trường bắt buộc</p>
 
-                <button type="submit" class="btn">
-                    @(editing ? "Lưu thay đổi" : "Lưu công thức")
+            <div class="recipe-form-actions">
+                <a asp-controller="Recipe" asp-action="Index" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn" data-submit>
+                    @(editing ? "Lưu thay đổi" : "Đăng công thức")
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<script src="~/js/recipe-form.js" asp-append-version="true"></script>

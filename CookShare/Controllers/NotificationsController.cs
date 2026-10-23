@@ -39,6 +39,7 @@ namespace CookShare.Controllers
                         ?? "CookShare User",
                     ActorAvatarUrl = notification.Actor.AvatarUrl,
                     Message = notification.Message ?? string.Empty,
+                    Type = notification.Type,
                     IsRead = notification.IsRead,
                     CreatedAt = notification.CreatedAt,
                     HasRecipe = notification.RecipeId.HasValue
