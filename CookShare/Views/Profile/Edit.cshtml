@@ -1,0 +1,83 @@
+
+@model CookShare.ViewModels.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa hồ sơ";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/edit-profile.css"
+          asp-append-version="true" />
+}
+
+<section class="auth-page container">
+    <div class="auth-shell">
+
+        <partial name="_AuthAside" />
+
+        <div class="auth-form-area">
+
+            <a class="back-link"
+               asp-controller="Profile"
+               asp-action="Index">
+                ← Quay lại trang cá nhân
+            </a>
+
+            <span class="eyebrow">
+                THÔNG TIN CÁ NHÂN
+            </span>
+
+            <h1>Chỉnh sửa <em>hồ sơ.</em></h1>
+
+            <p class="auth-subtitle">
+                Cập nhật thông tin của bạn trên CookShare.
+            </p>
+
+            <form asp-controller="Profile"
+                  asp-action="Edit"
+                  method="post"
+                  class="auth-form">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All"
+                     class="text-danger"
+                     role="alert"></div>
+
+                <div class="form-field-group">
+                    <label asp-for="DisplayName"
+                           class="form-label">
+                        Tên hiển thị
+                    </label>
+
+                    <input asp-for="DisplayName"
+                           class="form-input"
+                           autocomplete="name" />
+
+                    <span asp-validation-for="DisplayName"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-field-group">
+                    <label asp-for="AvatarUrl"
+                           class="form-label">
+                        Đường dẫn ảnh đại diện
+                    </label>
+
+                    <input asp-for="AvatarUrl"
+                           class="form-input"
+                           placeholder="/img/recipes/profile-avatar.webp" />
+
+                    <span asp-validation-for="AvatarUrl"
+                          class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-full">
+                    Lưu thay đổi
+                </button>
+            </form>
+
+        </div>
+    </div>
+</section>
