@@ -14,6 +14,8 @@ namespace CookShare.ViewModels
         public int LikeCount { get; set; }
         public bool IsLiked { get; set; }
         public int CommentCount { get; set; }
+        public int RatingCount { get; set; }
+        public double AverageRating { get; set; }
         public bool IsSaved { get; set; }
     }
 

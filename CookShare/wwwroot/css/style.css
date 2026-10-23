@@ -40,6 +40,9 @@ h1 em, h2 em { color: var(--primary); font-style: italic; font-weight: inherit; 
 .footer-kitchen > .icon.fa-regular { font-size: 24px; }
 .footer-bottom .icon.fa-solid { font-size: 12px; }
 .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.recipe-rating-display { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 500; }
+.recipe-rating-display > i { color: #b77a24; flex-shrink: 0; }
+.recipe-card-body > .recipe-rating-display { margin-bottom: 12px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .skip-link { position: fixed; z-index: 100; top: -100px; left: 20px; padding: 12px 20px; background: var(--primary); color: white; border-radius: var(--radius-sm); }
 .skip-link:focus { top: 12px; }

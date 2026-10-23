@@ -95,6 +95,8 @@
 .feed-action .icon, .feed-save .icon { width: 17px; height: 17px; }
 .feed-post .db-recipe-like { justify-content: center; gap: 0; }
 .feed-post .like-count-pill { font-size: 9px; min-width: 16px; padding: 0; background: none; }
+.feed-post-rating { padding: 12px 20px 0; }
+.feed-post-rating .recipe-rating-display { font-size: 10px; }
 .feed-post .liked, .feed-post .saved { color: var(--primary); }
 .feed-post [data-feed-comment-count] { font-size: 9px; }
 .feed-post .db-interaction-status:empty { display: none; }

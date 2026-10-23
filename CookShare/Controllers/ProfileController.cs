@@ -143,6 +143,8 @@ namespace CookShare.Controllers
 
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
                 _db, recipes.Concat(favorites).Select(recipe => recipe.Id), currentUserId);
+            ViewData["RecipeRatingSummaries"] = await RecipeRatingQueries.LoadAsync(
+                _db, recipes.Concat(favorites).Select(recipe => recipe.Id), currentUserId);
             ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(
                 _db, recipes.Concat(favorites).Select(recipe => recipe.Id), currentUserId);
 

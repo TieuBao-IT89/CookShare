@@ -1,0 +1,57 @@
+@model CookShare.ViewModels.RecipeRatingViewModel
+@{
+    var ratingsUrl = Url.Content($"~/Recipe/{Model.RecipeId}/Ratings");
+    var returnUrl = Url.Action("Details", "Recipe", new { id = Model.RecipeId }) + "#recipeRatingSection";
+    var labels = new[] { "Rất tệ", "Chưa tốt", "Bình thường", "Rất ngon", "Xuất sắc" };
+}
+<section class="recipe-rating-section" id="recipeRatingSection" aria-labelledby="ratingSectionHeading"
+         data-db-recipe-rating data-recipe-id="@Model.RecipeId" data-viewer-id="@Model.ViewerId"
+         data-ratings-url="@ratingsUrl" data-can-rate="@Model.CanRate.ToString().ToLowerInvariant()"
+         data-user-rating="@Model.UserRating">
+    <div class="recipe-rating-card">
+        <header class="rating-header">
+            <span class="rating-header-badge"><i class="fa-solid fa-star" aria-hidden="true"></i> GÓC ĐÁNH GIÁ</span>
+            <h2 class="rating-title" id="ratingSectionHeading">Món này có hợp vị bạn?</h2>
+            <p class="rating-subtitle">Chia sẻ cảm nhận để cộng đồng tìm được những món ngon.</p>
+        </header>
+        <div class="rating-content-layout">
+            <div class="rating-overview-box">
+                <partial name="_RecipeRatingSummary" model="Model" />
+                <p class="rating-count-text">Điểm trung bình từ cộng đồng</p>
+            </div>
+            <div class="rating-interactive-box" data-rating-controls>
+                @if (Model.CanRate)
+                {
+                    <form action="@ratingsUrl" method="post" asp-antiforgery="false" data-rating-form>
+                        @Html.AntiForgeryToken()
+                        <fieldset class="rating-fieldset">
+                            <legend class="rating-action-prompt">Chọn từ 1 đến 5 sao</legend>
+                            <div class="rating-stars-control">
+                                @for (var star = 1; star <= 5; star++)
+                                {
+                                    <label class="star-btn" title="@star sao — @labels[star - 1]">
+                                        <input class="rating-star-input" type="radio" name="Stars" value="@star" required
+                                               checked="@(Model.UserRating == star)" aria-label="@star sao — @labels[star - 1]" />
+                                        <i class="fa-solid fa-star" aria-hidden="true"></i>
+                                    </label>
+                                }
+                            </div>
+                        </fieldset>
+                        <p class="rating-status-pill" data-rating-own>@(Model.UserRating.HasValue ? $"Bạn đã đánh giá {Model.UserRating} sao. Có thể chọn lại để cập nhật." : "Bạn chưa đánh giá công thức này.")</p>
+                        <button type="submit" class="btn btn-small" data-rating-submit>@(Model.UserRating.HasValue ? "Cập nhật đánh giá" : "Gửi đánh giá")</button>
+                    </form>
+                }
+                else if (User.Identity?.IsAuthenticated == true)
+                {
+                    <p>Bạn là tác giả của công thức này. Đánh giá dành cho những người đã ghé bếp của bạn.</p>
+                }
+                else
+                {
+                    <p>Đăng nhập để chia sẻ đánh giá của bạn.</p>
+                    <a class="btn btn-small" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@returnUrl">Đăng nhập để đánh giá</a>
+                }
+            </div>
+        </div>
+        <p class="rating-feedback-alert" data-rating-status role="status" aria-live="polite" hidden></p>
+    </div>
+</section>

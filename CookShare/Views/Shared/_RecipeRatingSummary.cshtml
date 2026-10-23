@@ -1,0 +1,11 @@
+@model CookShare.ViewModels.RecipeRatingViewModel
+@{
+    var label = Model.RatingCount > 0
+        ? $"{Model.AverageRating.ToString("0.0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))} / 5 · {Model.RatingCount} đánh giá"
+        : "Chưa có đánh giá";
+}
+<span class="recipe-rating-display" data-db-rating-summary data-recipe-id="@Model.RecipeId"
+      data-rating-count="@Model.RatingCount" data-average-rating="@Model.AverageRating.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+    <i class="@(Model.RatingCount > 0 ? "fa-solid" : "fa-regular") fa-star" aria-hidden="true"></i>
+    <span data-rating-summary-text>@label</span>
+</span>

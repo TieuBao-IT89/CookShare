@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Persistent rating browser checks</title>
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/style.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe-ratings.css">
+</head>
+<body>
+  <main style="max-width:960px;margin:20px auto;padding:12px">
+    <h1>Đánh giá công thức</h1>
+    <span data-db-rating-summary data-recipe-id="12" data-rating-count="2" data-average-rating="3.5"><i class="fa-solid fa-star"></i><span data-rating-summary-text>3,5 / 5 · 2 đánh giá</span></span>
+    <section class="recipe-rating-section" data-db-recipe-rating data-recipe-id="12" data-viewer-id="reader" data-user-rating="4" data-can-rate="true" data-ratings-url="/Recipe/12/Ratings">
+      <div class="recipe-rating-card">
+        <header class="rating-header"><h2 class="rating-title">Món này có hợp vị bạn?</h2></header>
+        <div class="rating-content-layout">
+          <div class="rating-overview-box"><span data-db-rating-summary data-recipe-id="12" data-rating-count="2" data-average-rating="3.5"><i class="fa-solid fa-star"></i><span data-rating-summary-text>3,5 / 5 · 2 đánh giá</span></span></div>
+          <div class="rating-interactive-box" data-rating-controls><form data-rating-form action="/Recipe/12/Ratings" method="post">
+            <input type="hidden" name="__RequestVerificationToken" value="test-token">
+            <fieldset class="rating-fieldset"><legend>Chọn từ 1 đến 5 sao</legend><div class="rating-stars-control" id="stars"></div></fieldset>
+            <p class="rating-status-pill" data-rating-own>Bạn đã đánh giá 4 sao.</p><button class="btn btn-small" data-rating-submit>Cập nhật đánh giá</button>
+          </form></div>
+        </div><p data-rating-status class="rating-feedback-alert" role="status" hidden></p>
+      </div>
+    </section>
+    <pre id="results">RUNNING</pre>
+  </main>
+  <script>
+    window.requests = []; window.replies = []; window.storageTouches = 0; window.errors = [];
+    Object.defineProperty(window, "localStorage", { get() { storageTouches++; throw Error("Ratings must not use browser storage"); } });
+    window.addEventListener("error", event => errors.push(event.message));
+    window.addEventListener("unhandledrejection", event => errors.push(String(event.reason)));
+    document.getElementById("stars").innerHTML = [1,2,3,4,5].map(star => `<label class="star-btn"><input type="radio" class="rating-star-input" name="Stars" value="${star}" ${star===4?'checked':''} aria-label="${star} sao"><span aria-hidden="true">★</span></label>`).join("");
+    window.fetch = (url, options) => {
+      requests.push({ url, options }); const reply = replies.shift();
+      return typeof reply === "function" ? reply() : reply ? Promise.resolve(reply) : Promise.reject(Error("Missing reply"));
+    };
+  </script>
+  <script src="../../CookShare/wwwroot/js/recipe-ratings.js"></script>
+  <script>
+    (async () => {
+      const results = [];
+      const assert = (condition, name) => { if (!condition) throw Error(name); results.push("PASS " + name); };
+      const tick = () => new Promise(resolve => setTimeout(resolve, 0));
+      const section = document.querySelector("[data-db-recipe-rating]");
+      const form = section.querySelector("form");
+      const status = section.querySelector("[data-rating-status]");
+      const summary = () => document.querySelector("[data-db-rating-summary]");
+      const choose = star => { form.querySelector(`[value="${star}"]`).checked = true; };
+      const submit = () => form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      const state = extra => ({ recipeId: 12, viewerId: "reader", canRate: true, ratingCount: 2, averageRating: 4, userRating: 5, ...extra });
+      const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { "Content-Type": "application/json" } });
+      try {
+        const scenario = new URLSearchParams(location.search).get("case");
+        if (scenario) {
+          replies.push(scenario === "account" ? json(state({ viewerId: "another-reader" })) : json({}, Number(scenario)));
+          choose(5); submit(); await tick(); await tick();
+          assert(!section.querySelector("[data-rating-form]") && section.dataset.userRating === "", scenario + " clears personal rating and disables writes");
+          assert(summary().dataset.averageRating === "3.5", scenario + " cannot apply another session's response");
+          parent.postMessage({ type: "rating-case", scenario, success: true }, location.origin);
+        } else {
+          assert(requests.length === 0 && section.dataset.userRating === "4", "initial rating comes from server markup without a storage read or request");
+          let release;
+          replies.push(() => new Promise(resolve => { release = resolve; }));
+          choose(5); submit(); submit(); await tick();
+          assert(requests.length === 1 && form.querySelector("button").disabled && section.getAttribute("aria-busy") === "true", "pending writes lock controls and block duplicate requests");
+          assert(summary().dataset.averageRating === "3.5", "average stays confirmed while save is pending");
+          const body = new URLSearchParams(requests[0].options.body);
+          assert(body.get("Stars") === "5" && body.get("__RequestVerificationToken") === "test-token" && !body.has("UserId"), "POST sends stars and CSRF without a client-selected account");
+          assert(requests[0].options.cache === "no-store" && requests[0].options.credentials === "same-origin", "requests use authenticated uncached server state");
+          release(json(state())); await tick(); await tick();
+          assert([...document.querySelectorAll("[data-db-rating-summary]")].every(item => item.dataset.averageRating === "4" && item.dataset.ratingCount === "2"), "confirmed save updates all summaries for this recipe");
+          assert(section.dataset.userRating === "5" && !form.querySelector("button").disabled && !status.hidden, "confirmed vote updates own state and accessible feedback");
+          replies.push(json(state({ averageRating: 2, userRating: 1 }))); choose(1); submit(); await tick(); await tick();
+          assert(summary().dataset.ratingCount === "2" && section.dataset.userRating === "1", "updating a vote does not invent an additional rating");
+          replies.push(() => Promise.reject(Error("Offline"))); choose(3); submit(); await tick(); await tick();
+          assert(status.classList.contains("error") && summary().dataset.averageRating === "2" && section.dataset.userRating === "1" && !form.querySelector("button").disabled, "offline save preserves confirmed state and allows retry");
+          replies.push(json({ message: "private database details" }, 503)); submit(); await tick(); await tick();
+          assert(!status.textContent.includes("private") && summary().dataset.averageRating === "2", "database failures show a safe message without a false saved rating");
+          replies.push(new Response("not JSON", { headers: { "Content-Type": "text/html" } })); submit(); await tick(); await tick();
+          assert(status.classList.contains("error") && section.dataset.userRating === "1", "malformed successful responses cannot change confirmed state");
+          replies.push(json(state({ recipeId: 99 }))); submit(); await tick(); await tick();
+          assert(section.dataset.userRating === "1", "a response for another recipe is rejected");
+          const duplicate = document.createElement("script"); duplicate.src = "../../CookShare/wwwroot/js/recipe-ratings.js";
+          await new Promise(resolve => { duplicate.onload = resolve; document.body.append(duplicate); });
+          const before = requests.length; replies.push(json(state())); submit(); await tick(); await tick();
+          assert(requests.length === before + 1, "loading the module twice registers one submit handler");
+          replies.push(json(state({ averageRating: 2.5, userRating: 2 }))); await CookShareRatings.refresh();
+          assert(summary().dataset.averageRating === "2.5" && section.dataset.userRating === "2" && requests.at(-1).options.method !== "POST", "refresh reconciles cross-tab changes through a GET");
+          replies.push(json(state({ averageRating: 3, userRating: 3 })));
+          dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })); await tick(); await tick();
+          assert(section.dataset.userRating === "3", "bfcache restore revalidates the account and vote");
+          assert(document.documentElement.scrollWidth <= innerWidth, "rating form has no horizontal overflow");
+          assert(storageTouches === 0 && errors.length === 0, "ratings never use localStorage or raise browser errors");
+          for (const scenario of ["401", "403", "account"]) {
+            const frame = document.createElement("iframe"); frame.hidden = true;
+            const done = new Promise((resolve, reject) => {
+              const timeout = setTimeout(() => reject(Error("Scenario timed out: " + scenario)), 10000);
+              const receive = event => {
+                if (event.source !== frame.contentWindow || event.data.type !== "rating-case") return;
+                clearTimeout(timeout); removeEventListener("message", receive);
+                event.data.success ? resolve() : reject(Error(event.data.error));
+              };
+              addEventListener("message", receive);
+            });
+            frame.src = location.pathname + "?case=" + scenario; document.body.append(frame); await done;
+            assert(true, scenario + " rejects stale or unauthorized personal data"); frame.remove();
+          }
+        }
+        document.body.dataset.testStatus = "passed";
+      } catch (error) {
+        results.push("FAIL " + error.message); document.body.dataset.testStatus = "failed";
+        if (new URLSearchParams(location.search).has("case")) parent.postMessage({ type: "rating-case", success: false, error: error.message }, location.origin);
+      }
+      document.getElementById("results").textContent = results.join("\n") + `\nCOMPLETE ${results.filter(line => line.startsWith("PASS")).length} passed`;
+      if (parent !== window && !new URLSearchParams(location.search).has("case")) parent.postMessage({ type: "rating-test-result", status: document.body.dataset.testStatus, output: document.getElementById("results").textContent }, location.origin);
+    })();
+  </script>
+</body>
+</html>
