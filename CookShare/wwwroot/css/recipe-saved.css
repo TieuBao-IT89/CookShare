@@ -7,4 +7,12 @@
 .saved-empty-state { flex-direction: column; align-items: center; margin-bottom: 25px; }
 .saved-card-unsave-btn { margin-top: 12px; border: 0; border-top: 1px dashed var(--line); padding: 11px 0 0; background: none; color: var(--muted); font-size: 10px; text-align: left; min-height: 36px; }
 .saved-card-unsave-btn:hover { color: var(--danger); }
+.db-recipe-save { display: contents; }
+.db-recipe-save form { margin: 0; }
+.recipe-save-btn:disabled { cursor: wait; opacity: .65; transform: none; }
+.recipe-save-btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.db-save-status { margin: 6px 0; font-size: 12px; line-height: 1.6; color: var(--primary); overflow-wrap: anywhere; }
+.db-save-status.error { color: var(--danger); }
+.db-save-status[hidden], #savedRecipeGrid[hidden], #savedEmptyState[hidden], #profileFavoriteGrid[hidden], #profileFavoriteEmptyState[hidden] { display: none; }
+.recipe-image .db-save-status { position: absolute; left: 10px; right: 10px; bottom: 8px; padding: 8px 10px; border-radius: 6px; background: var(--white); box-shadow: var(--shadow-sm); }
 @media (max-width: 719px) { .saved-page-wrapper { padding-bottom: 40px; } .saved-toolbar { flex-wrap: wrap; gap: 6px; margin-block: 20px; } .saved-toolbar p, .saved-toolbar .text-link { font-size: 10px; } }

@@ -28,6 +28,7 @@ namespace CookShare.Controllers
         // GET: /Profile
         // GET: /Profile?userId=...
         [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Index(string? userId = null)
         {
             var currentUserId =
@@ -59,7 +60,9 @@ namespace CookShare.Controllers
             var recipes = await _db.Recipes
                 .AsNoTracking()
                 .Where(r => r.UserId == profileUser.Id)
+                .Include(r => r.User)
                 .OrderByDescending(r => r.CreatedAt)
+                .ThenByDescending(r => r.Id)
                 .ToListAsync();
 
             var followersCount = await _db.Follows
@@ -110,6 +113,9 @@ namespace CookShare.Controllers
                     .AsNoTracking()
                     .Where(f => f.UserId == profileUser.Id)
                     .OrderByDescending(f => f.CreatedAt)
+                    .ThenByDescending(f => f.Id)
+                    .Include(f => f.Recipe)
+                    .ThenInclude(r => r.User)
                     .Select(f => f.Recipe)
                     .ToListAsync()
                 : new List<CookShare.Models.Recipe>();
@@ -134,6 +140,11 @@ namespace CookShare.Controllers
                 Following = following,
                 Favorites = favorites
             };
+
+            ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
+                _db, recipes.Concat(favorites).Select(recipe => recipe.Id), currentUserId);
+            ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(
+                _db, recipes.Concat(favorites).Select(recipe => recipe.Id), currentUserId);
 
             return View(model);
         }

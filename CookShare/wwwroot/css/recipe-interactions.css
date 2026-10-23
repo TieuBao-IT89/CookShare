@@ -1,0 +1,22 @@
+/* Database interactions retain the existing Like and Comment presentation. */
+.db-recipe-like { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.db-recipe-like form { margin: 0; }
+.db-recipe-like a.btn-details-like { text-decoration: none; }
+.db-recipe-like .recipe-like-btn:disabled { cursor: wait; opacity: .65; transform: none; }
+.db-interaction-status { margin: 0; font-size: 12px; line-height: 1.6; color: var(--primary); overflow-wrap: anywhere; }
+.db-interaction-status.error { color: var(--danger); }
+.db-interaction-status[hidden], [data-db-recipe-comments] [hidden] { display: none; }
+.recipe-card-footer { flex-wrap: wrap; }
+.recipe-card-footer .btn-details-like { padding: 6px 10px; font-size: 11px; gap: 5px; }
+.recipe-card-footer .like-count-pill { min-width: 20px; font-size: 10px; }
+.recipe-card-footer .db-interaction-status { max-width: 220px; }
+.comment-login-prompt { padding: 14px 16px; margin-bottom: 24px; background: var(--rc-primary-light); border-radius: 10px; font-size: 13px; line-height: 1.8; }
+.comment-login-prompt a { color: var(--rc-primary); font-weight: 700; text-decoration: underline; }
+.comment-form-content > label { display: block; margin-bottom: 9px; font-size: 13px; font-weight: 600; }
+.comment-section > .db-interaction-status:not([hidden]) { margin-bottom: 16px; }
+.comment-author-name { overflow-wrap: anywhere; white-space: normal; }
+.comment-actions-row button:disabled, .comment-edit-actions button:disabled { opacity: .6; cursor: wait; }
+.comment-edit-form .comment-validation-msg { margin: 0; }
+@media (max-width: 767px) {
+    .comment-textarea, .comment-edit-textarea { font-size: 16px; }
+}

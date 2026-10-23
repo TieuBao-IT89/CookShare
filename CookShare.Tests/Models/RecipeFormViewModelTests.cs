@@ -40,7 +40,9 @@ namespace CookShare.Tests.Models
         [Theory]
         [InlineData(nameof(RecipeFormViewModel.Name), 200)]
         [InlineData(nameof(RecipeFormViewModel.Category), 100)]
-        [InlineData(nameof(RecipeFormViewModel.Image), 2000)]
+        [InlineData(nameof(RecipeFormViewModel.Description), 2000)]
+        [InlineData(nameof(RecipeFormViewModel.Ingredients), 10000)]
+        [InlineData(nameof(RecipeFormViewModel.Instructions), 20000)]
         public void FieldAtLengthLimit_ShouldPassValidation(string propertyName, int maxLength)
         {
             var model = CreateValidModel();
@@ -52,7 +54,9 @@ namespace CookShare.Tests.Models
         [Theory]
         [InlineData(nameof(RecipeFormViewModel.Name), 200)]
         [InlineData(nameof(RecipeFormViewModel.Category), 100)]
-        [InlineData(nameof(RecipeFormViewModel.Image), 2000)]
+        [InlineData(nameof(RecipeFormViewModel.Description), 2000)]
+        [InlineData(nameof(RecipeFormViewModel.Ingredients), 10000)]
+        [InlineData(nameof(RecipeFormViewModel.Instructions), 20000)]
         public void FieldOverLengthLimit_ShouldFailValidation(string propertyName, int maxLength)
         {
             var model = CreateValidModel();
@@ -72,6 +76,55 @@ namespace CookShare.Tests.Models
             model.Image = image;
 
             Assert.Empty(Validate(model));
+        }
+
+        [Theory]
+        [InlineData("https://images.example.com/pho.jpg?width=800")]
+        [InlineData("http://images.example.com/pho.jpg")]
+        [InlineData("/img/recipes/pho.webp")]
+        [InlineData("~/img/recipes/pho.webp")]
+        public void SupportedImageReference_ShouldPassValidation(string image)
+        {
+            var model = CreateValidModel();
+            model.Image = image;
+
+            Assert.Empty(Validate(model));
+        }
+
+        [Theory]
+        [InlineData("data:image/png;base64,aGVsbG8=")]
+        [InlineData("javascript:alert(1)")]
+        [InlineData("file:///C:/photos/pho.jpg")]
+        [InlineData("//images.example.com/pho.jpg")]
+        [InlineData("http:")]
+        [InlineData("not an image reference")]
+        [InlineData("/img/../private/pho.jpg")]
+        [InlineData("/img/%2e%2e/private/pho.jpg")]
+        [InlineData("/\\images.example.com/pho.jpg")]
+        public void UnsupportedImageReference_ShouldFailValidation(string image)
+        {
+            var model = CreateValidModel();
+            model.Image = image;
+
+            Assert.Contains(Validate(model), error => error.MemberNames.Contains(nameof(model.Image)));
+        }
+
+        [Fact]
+        public void ImageAtLengthLimit_ShouldPassValidation()
+        {
+            var model = CreateValidModel();
+            model.Image = "/" + new string('a', 1999);
+
+            Assert.Empty(Validate(model));
+        }
+
+        [Fact]
+        public void ImageOverLengthLimit_ShouldFailValidation()
+        {
+            var model = CreateValidModel();
+            model.Image = "/" + new string('a', 2000);
+
+            Assert.Contains(Validate(model), error => error.MemberNames.Contains(nameof(model.Image)));
         }
 
         private static RecipeFormViewModel CreateValidModel()

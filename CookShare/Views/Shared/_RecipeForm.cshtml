@@ -31,6 +31,7 @@
               asp-action="@actionName"
               asp-route-id="@(editing ? ViewBag.RecipeId : null)"
               method="post"
+              data-prevent-duplicate-submit
               class="auth-form">
 
             @Html.AntiForgeryToken()
@@ -87,6 +88,7 @@
                             <input asp-for="Image"
                                    class="form-input"
                                    placeholder="/img/recipe-placeholder.svg" />
+                            <p class="form-hint">Dùng đường dẫn ảnh có sẵn hoặc URL HTTP/HTTPS. Tải ảnh lên sẽ được hỗ trợ sau.</p>
                             <span asp-validation-for="Image"
                                   class="text-danger"></span>
                         </div>
