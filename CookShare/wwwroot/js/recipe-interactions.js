@@ -244,7 +244,11 @@
     }
 
     function updateCommentCount(section, count) {
-        section.querySelector("[data-db-comment-count]").textContent = count.toLocaleString("vi-VN");
+        document.querySelectorAll("[data-db-comment-count]").forEach(counter => {
+            if (counter.closest("[data-recipe-id]")?.dataset.recipeId === section.dataset.recipeId) {
+                counter.textContent = count.toLocaleString("vi-VN");
+            }
+        });
         section.querySelector("[data-comment-empty]").hidden = count > 0;
     }
 

@@ -17,6 +17,7 @@
 .comment-author-name { overflow-wrap: anywhere; white-space: normal; }
 .comment-actions-row button:disabled, .comment-edit-actions button:disabled { opacity: .6; cursor: wait; }
 .comment-edit-form .comment-validation-msg { margin: 0; }
+.cs108-comments > .comment-section { margin: 0; padding: 0; border: 0; box-shadow: none; }
 @media (max-width: 767px) {
     .comment-textarea, .comment-edit-textarea { font-size: 16px; }
 }
