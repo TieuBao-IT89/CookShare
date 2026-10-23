@@ -1,0 +1,313 @@
+name: CookShare CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Deploy the current develop commit, or restore the last successful package
+        type: choice
+        options:
+          - deploy
+          - rollback
+        default: deploy
+  push:
+    branches:
+      - develop
+    paths:
+      - "CookShare/**"
+      - "CookShare.Tests/**"
+      - "CookShare.sln"
+      - ".github/workflows/deploy.yml"
+      - ".github/scripts/**"
+
+permissions:
+  contents: read
+  actions: read
+  deployments: write
+
+concurrency:
+  group: cookshare-staging
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  guard:
+    name: Require the develop branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject unapproved branches
+        if: github.ref != 'refs/heads/develop'
+        run: |
+          echo "::error::Deployment is only allowed from the develop branch."
+          exit 1
+
+  publish:
+    name: Build, Test and Publish
+    needs: guard
+    if: >-
+      needs.guard.result == 'success' &&
+      (github.event_name == 'push' || github.event.inputs.action != 'rollback')
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: cookshare_test
+          POSTGRES_PASSWORD: cookshare_test
+          POSTGRES_DB: cookshare_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cookshare_test -d cookshare_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore CookShare.sln
+
+      - name: Build solution
+        run: dotnet build CookShare.sln --configuration Release --no-restore
+
+      - name: Run unit and integration tests
+        run: dotnet test CookShare.sln --configuration Release --no-build --no-restore
+        env:
+          COOKSHARE_TEST_CONNECTION: "Host=localhost;Port=5432;Database=cookshare_test;Username=cookshare_test;Password=cookshare_test;SSL Mode=Disable"
+
+      - name: Publish ASP.NET Core application
+        run: dotnet publish CookShare/CookShare.csproj --configuration Release --no-restore --output ./publish
+
+      - name: Create deployment package
+        run: |
+          set -euo pipefail
+          (cd publish && zip -qr ../cookshare.zip .)
+          test -s cookshare.zip
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cookshare-publish
+          path: cookshare.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    name: Deploy to Azure Staging
+    needs: publish
+    if: >-
+      needs.publish.result == 'success' &&
+      (github.event_name == 'push' || github.event.inputs.action == 'deploy')
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.health.outputs.site_url }}
+
+    steps:
+      - name: Check staging secrets
+        id: secrets
+        env:
+          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          STAGING_CONNECTION_STRING: ${{ secrets.STAGING_CONNECTION_STRING }}
+        run: |
+          set -euo pipefail
+          missing=0
+          [ -z "${AZURE_WEBAPP_NAME}" ] && missing=$((missing + 1))
+          [ -z "${AZURE_WEBAPP_PUBLISH_PROFILE}" ] && missing=$((missing + 1))
+          [ -z "${STAGING_CONNECTION_STRING}" ] && missing=$((missing + 1))
+
+          if [ "${missing}" -eq 3 ]; then
+            echo "ready=false" >> "${GITHUB_OUTPUT}"
+            echo "::warning::Staging secrets are not configured, so deployment was skipped."
+            exit 0
+          fi
+
+          if [ "${missing}" -ne 0 ]; then
+            echo "::error::Add AZURE_WEBAPP_NAME, AZURE_WEBAPP_PUBLISH_PROFILE, and STAGING_CONNECTION_STRING to the staging environment."
+            exit 1
+          fi
+
+          echo "ready=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Record skipped deployment
+        if: steps.secrets.outputs.ready == 'false'
+        run: |
+          {
+            echo "### Staging deployment"
+            echo "Skipped. Add the staging environment secrets, then run this workflow again."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Checkout repository
+        if: steps.secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        if: steps.secrets.outputs.ready == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install dotnet-ef
+        if: steps.secrets.outputs.ready == 'true'
+        run: dotnet tool install --global dotnet-ef --version 8.0.11
+
+      - name: Apply database migrations
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.STAGING_CONNECTION_STRING }}
+          ASPNETCORE_ENVIRONMENT: Staging
+        run: |
+          set -euo pipefail
+          export PATH="${PATH}:${HOME}/.dotnet/tools"
+          dotnet ef database update --project CookShare/CookShare.csproj --configuration Release
+
+      - name: Download deployment package
+        if: steps.secrets.outputs.ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: cookshare-publish
+          path: ./package
+
+      - name: Download last deployed package
+        id: previous
+        if: steps.secrets.outputs.ready == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/select-staging-package.sh
+
+      - name: Deploy to Azure App Service
+        id: ship
+        if: steps.secrets.outputs.ready == 'true'
+        uses: Azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./package/cookshare.zip
+
+      - name: Verify application health
+        id: health
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          SITE_URL: ${{ steps.ship.outputs.webapp-url }}
+        run: bash .github/scripts/check-staging-site.sh "${SITE_URL}"
+
+      - name: Restore last successful package
+        id: restore
+        if: steps.secrets.outputs.ready == 'true' && failure() && steps.health.outcome == 'failure' && steps.previous.outputs.found == 'true'
+        uses: Azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./previous-package/cookshare.zip
+
+      - name: Verify restored application
+        if: always() && steps.restore.outcome == 'success'
+        env:
+          SITE_URL: ${{ steps.restore.outputs.webapp-url }}
+        run: |
+          set -euo pipefail
+          if bash .github/scripts/check-staging-site.sh "${SITE_URL}"; then
+            echo "Restored the last successful package."
+            echo "::error::The new deployment failed its health check and the previous package was restored."
+            exit 1
+          fi
+
+          echo "::error::Rollback was deployed, but the restored application is still unhealthy."
+          exit 1
+
+      - name: Record deployment result
+        if: steps.secrets.outputs.ready == 'true' && always() && steps.ship.outcome == 'success'
+        env:
+          SITE_URL: ${{ steps.health.outputs.site_url }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Staging deployment"
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Environment: staging"
+            echo "- URL: ${SITE_URL}"
+            echo "- Health check: ${{ steps.health.outputs.health_status }}"
+            if [ "${{ steps.restore.outcome }}" = "success" ]; then
+              echo "- Rollback: previous package from run ${{ steps.previous.outputs.run_id }} was deployed."
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  rollback:
+    name: Roll back Azure Staging
+    needs: guard
+    if: >-
+      needs.guard.result == 'success' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.action == 'rollback'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.health.outputs.site_url }}
+
+    steps:
+      - name: Check staging secrets
+        env:
+          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${AZURE_WEBAPP_NAME}" ] || [ -z "${AZURE_WEBAPP_PUBLISH_PROFILE}" ]; then
+            echo "::error::Add AZURE_WEBAPP_NAME and AZURE_WEBAPP_PUBLISH_PROFILE to the staging environment."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download last deployed package
+        id: previous
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! bash .github/scripts/select-staging-package.sh; then
+            echo "::error::No previous successful deployment package is available. Artifacts are kept for 14 days."
+            exit 1
+          fi
+
+      - name: Deploy previous package
+        id: ship
+        uses: Azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./previous-package/cookshare.zip
+
+      - name: Verify restored application
+        id: health
+        env:
+          SITE_URL: ${{ steps.ship.outputs.webapp-url }}
+        run: |
+          set -euo pipefail
+          if ! bash .github/scripts/check-staging-site.sh "${SITE_URL}"; then
+            echo "::error::Rollback package was deployed, but the application is still unhealthy."
+            exit 1
+          fi
+
+          RESOLVED_URL="$(cat "${RUNNER_TEMP}/cookshare-site-url")"
+          {
+            echo "### Staging rollback"
+            echo "- Restored package from run ${{ steps.previous.outputs.run_id }}"
+            echo "- URL: ${RESOLVED_URL}"
+            echo "- Health check: /health and / returned HTTP 200"
+            echo "- Database schema changes are not reverted by this job."
+          } >> "${GITHUB_STEP_SUMMARY}"

@@ -314,6 +314,12 @@ CookShare/
 │   ├── appsettings.json
 │   ├── appsettings.Development.json
 │   └── CookShare.csproj
+├── .github/
+│   └── workflows/
+│       ├── deploy.yml
+│       └── dotnet-ci.yml
+├── docs/
+│   └── DEPLOYMENT.md
 ├── .gitignore
 ├── CONTRIBUTING.md
 ├── LICENSE
@@ -432,7 +438,30 @@ Kết quả được hiển thị tại [GitHub Actions](https://github.com/Tieu
 
 CI giúp phát hiện lỗi biên dịch sớm và hỗ trợ Maintainer đánh giá chất lượng mã nguồn trước khi Merge.
 
-## 14. Chính sách bảo mật (Security Policy)
+## 14. Triển khai liên tục (Continuous Deployment)
+
+CookShare triển khai bản đã được review trên nhánh `develop` lên **Azure App Service**, môi trường **Staging**.
+
+Workflow nằm tại `.github/workflows/deploy.yml`. Hướng dẫn cấu hình secret, kiểm tra sau triển khai, triển khai thủ công và rollback nằm tại [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+### Khi nào CD chạy?
+
+- Sau khi thay đổi trong ứng dụng hoặc bài kiểm thử được merge vào `develop`.
+- Khi Maintainer chạy thủ công workflow **CookShare CD** và chọn nhánh `develop`.
+
+Pull Request chưa merge không được triển khai. Workflow cũng từ chối mọi nhánh khác `develop`.
+
+### Điều kiện để lần triển khai được chấp nhận
+
+1. `dotnet build` và `dotnet test` thành công trong workflow.
+2. Environment `staging` trên GitHub đã có secret của App Service và chuỗi kết nối database. Các giá trị này không được commit.
+3. Sau khi triển khai, `/health` và trang chủ trả về HTTP 200.
+
+Nếu kiểm tra sức khỏe thất bại, workflow triển khai lại gói của lần thành công gần nhất và đánh dấu lần chạy là thất bại. Có thể chạy lại bằng input `rollback` trên nhánh `develop`.
+
+Bản phát hành chính thức trên `main` vẫn theo [RELEASING.md](RELEASING.md).
+
+## 15. Chính sách bảo mật (Security Policy)
 
 CookShare khuyến khích cộng đồng báo cáo các lỗ hổng bảo mật một cách có trách nhiệm.
 
@@ -442,13 +471,13 @@ Xem hướng dẫn báo cáo và các quy trình xử lý tại [SECURITY.md](SE
 
 Bạn có thể truy cập [GitHub Security](https://github.com/TieuBao-IT89/CookShare/security) để tìm hiểu các tùy chọn báo cáo bảo mật đang được hỗ trợ.
 
-## 15. Giấy phép (License)
+## 16. Giấy phép (License)
 
 CookShare được phát hành theo giấy phép **MIT License**.
 
 Chi tiết xem tại [LICENSE](LICENSE).
 
-## 16. Lịch sử thay đổi (Changelog)
+## 17. Lịch sử thay đổi (Changelog)
 
 CookShare sử dụng tài liệu Changelog để ghi nhận các tính năng mới,
 những cải tiến, sửa lỗi và cập nhật bảo mật trong quá trình phát triển.
@@ -474,7 +503,7 @@ Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
 
 Các bản phát hành: [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases).
 
-## 17. Liên kết dự án
+## 18. Liên kết dự án
 
 - [GitHub Repository](https://github.com/TieuBao-IT89/CookShare)
 - [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues)

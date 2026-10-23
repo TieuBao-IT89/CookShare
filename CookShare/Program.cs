@@ -1,4 +1,5 @@
 using CookShare.Data;
+using CookShare.Health;
 using CookShare.Identity;
 using CookShare.Models.Identity;
 using CookShare.Options;
@@ -10,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ASP.NET Core MVC
 builder.Services.AddControllersWithViews();
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database");
 
 // PostgreSQL - Neon
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -96,7 +99,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+app.MapHealthChecks("/health");
 app.Run();
 
 public partial class Program { }

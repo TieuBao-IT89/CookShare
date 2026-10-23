@@ -13,6 +13,7 @@ Các thay đổi được thực hiện sau khi chốt phiên bản `v0.1.0` s�
 ### Added
 
 - Thêm trang cài đặt tài khoản: xác minh email, đổi email, đổi mật khẩu, quên mật khẩu và xóa tài khoản kèm dữ liệu liên quan. Tên hiển thị và ảnh đại diện được chỉnh trên trang hồ sơ.
+- Thiết lập triển khai tự động lên Azure App Service (Staging) bằng GitHub Actions, kèm kiểm tra `/health` và phương án rollback.
 
 ## [0.1.0] - YYYY-MM-DD
 
