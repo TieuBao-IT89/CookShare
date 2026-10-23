@@ -239,7 +239,17 @@ dotnet test CookShare.sln
 
 **Lưu ý:** Nên sử dụng database branch riêng để phát triển và kiểm thử. Không chạy các Migrations thử nghiệm trực tiếp trên môi trường Production.
 
+### Dữ liệu công thức mẫu
+
+Xem [hướng dẫn Recipe Seeding](docs/RECIPE_SEEDING.md) để thêm 30 công thức mẫu cho các tài khoản kiểm thử hoặc import từ TheMealDB. Công cụ hỗ trợ Dry Run, chống trùng và chỉ chạy bằng lệnh riêng trong Development/Testing.
+
 ## 8. Hướng dẫn chạy dự án (Getting Started)
+
+Sau khi lấy mã mới hoặc chuyển nhánh, áp dụng các migration còn thiếu vào database Development đã cấu hình trước khi mở website:
+
+```bash
+dotnet ef database update --project CookShare/CookShare.csproj -- --environment Development
+```
 
 Tại thư mục gốc repository, chạy:
 

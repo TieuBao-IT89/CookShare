@@ -35,6 +35,13 @@ namespace CookShare.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Null for recipes written by users. The pair identifies an imported recipe.
+        public string? Source { get; set; }
+
+        public string? ExternalId { get; set; }
+
+        public string? SourceUrl { get; set; }
+
         public ICollection<RecipeLike> Likes { get; set; } = new List<RecipeLike>();
 
         public ICollection<RecipeComment> Comments { get; set; } = new List<RecipeComment>();

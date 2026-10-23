@@ -1,0 +1,272 @@
+[
+  {
+    "key": "pho-bo",
+    "name": "Phở bò gừng nướng",
+    "description": "Nước dùng bò thơm gừng, hành nướng và quế, dùng cùng bánh phở mềm. Công thức mẫu cho bữa sáng cuối tuần, có nhiều bước để kiểm tra phần hướng dẫn dài.",
+    "image": "/img/recipes/pho.webp",
+    "ingredients": "500 g thịt bò phần nạm\n1 kg xương bò\n400 g bánh phở\n1 củ hành tây\n30 g gừng\n1 thanh quế\n2 hoa hồi\n2 lít nước\n2 thìa canh nước mắm\nHành lá, rau thơm",
+    "instructions": "Chần xương bò trong nước sôi 5 phút rồi rửa sạch.\nNướng hành tây, gừng đến khi thơm; cạo bỏ phần cháy.\nNinh xương, thịt nạm, hành, gừng, quế và hồi với 2 lít nước khoảng 2 giờ, hớt bọt.\nVớt thịt chín ra, thái mỏng; lọc nước dùng và nêm nước mắm.\nTrụng bánh phở, chia vào tô, thêm thịt và chan nước dùng đang sôi. Rắc hành và dùng cùng rau thơm.",
+    "category": "Món Việt"
+  },
+  {
+    "key": "com-ga-gung",
+    "name": "Cơm gà gừng",
+    "description": "Cơm nấu bằng nước luộc gà, ăn kèm thịt gà và gừng thái sợi.",
+    "image": "/img/recipes/chicken-rice.webp",
+    "ingredients": "500 g đùi gà\n300 g gạo\n20 g gừng\n2 tép tỏi\n1 thìa canh dầu ăn\n1 quả dưa chuột\nMuối",
+    "instructions": "Luộc gà với gừng và chút muối đến khi chín hoàn toàn; giữ lại nước luộc.\nPhi tỏi với dầu, cho gạo đã vo ráo vào đảo 2 phút.\nNấu cơm bằng nước luộc gà theo lượng nước phù hợp với loại gạo.\nChặt gà, xới cơm ra đĩa và ăn cùng dưa chuột.",
+    "category": "Món Việt"
+  },
+  {
+    "key": "goi-cuon-tom",
+    "name": "Gỏi cuốn tôm rau thơm",
+    "description": "Cuốn bánh tráng với tôm chín, bún và rau tươi; thích hợp làm món phụ.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "12 bánh tráng\n200 g tôm\n150 g bún tươi\n1 cây xà lách\nRau húng\n3 thìa canh tương đậu\n1 thìa canh lạc rang giã",
+    "instructions": "Luộc tôm đến khi chín, bóc vỏ và chẻ đôi.\nRửa sạch rau, để ráo; chia bún thành phần nhỏ.\nLàm ẩm bánh tráng, xếp rau, bún và tôm rồi cuốn chặt tay.\nRắc lạc lên tương đậu và dùng làm nước chấm.",
+    "category": "Món phụ"
+  },
+  {
+    "key": "canh-chua-dau-hu",
+    "name": "Canh chua đậu hũ nấm",
+    "description": "Canh chua thanh từ me và cà chua, kết hợp đậu hũ mềm cùng nấm. Phiên bản chay dùng nước tương để nêm.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "300 g đậu hũ\n150 g nấm rơm\n2 quả cà chua\n100 g dứa\n20 g me\n1 lít nước\n1 thìa canh nước tương\nRau ngổ, đường, muối",
+    "instructions": "Hòa me với nước ấm rồi lọc lấy nước cốt; cắt đậu hũ, cà chua và dứa.\nĐun nước với dứa, cà chua và nước me khoảng 8 phút.\nThêm nấm, đậu hũ, nước tương, chút đường và muối; nấu thêm 5 phút.\nRắc rau ngổ đã rửa sạch trước khi dùng.",
+    "category": "Món chay"
+  },
+  {
+    "key": "thit-kho-trung",
+    "name": "Thịt kho trứng nước dừa",
+    "description": "Thịt ba chỉ kho mềm với trứng và nước dừa, dùng cùng cơm trắng.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "500 g thịt ba chỉ\n4 quả trứng\n400 ml nước dừa\n2 thìa canh nước mắm\n1 thìa canh đường\n2 củ hành tím\nTiêu",
+    "instructions": "Luộc trứng chín, bóc vỏ. Cắt thịt thành miếng vừa ăn.\nƯớp thịt với nước mắm, đường, hành băm và tiêu trong 20 phút.\nĐảo thịt săn, thêm nước dừa và kho nhỏ lửa 40 phút.\nCho trứng vào, kho thêm 20 phút đến khi thịt mềm, nêm lại trước khi dùng.",
+    "category": "Món chính"
+  },
+  {
+    "key": "bun-cha-nam",
+    "name": "Bún chả nấm chay",
+    "description": "Chả đậu hũ nấm áp chảo, ăn cùng bún, rau sống và nước tương chua ngọt.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "300 g đậu hũ\n150 g nấm bào ngư\n30 g bột năng\n300 g bún\n2 thìa canh nước tương\n1 thìa canh nước cốt chanh\n1 thìa cà phê đường\nRau sống, dầu ăn",
+    "instructions": "Vắt ráo đậu hũ, băm nấm rồi trộn với bột năng và 1 thìa nước tương.\nNặn thành miếng nhỏ, áp chảo với dầu đến khi hai mặt vàng và phần giữa chín.\nPha phần nước tương còn lại với nước chanh, đường và 3 thìa nước.\nXếp bún, rau đã rửa sạch và chả ra tô; chan nước chấm khi ăn.",
+    "category": "Món chay"
+  },
+  {
+    "key": "mi-xao-rau-cu",
+    "name": "Mì xào rau củ",
+    "description": "Mì xào nhanh với cà rốt, cải thìa và nấm hương.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "250 g mì lúa mì không trứng\n1 củ cà rốt\n200 g cải thìa\n100 g nấm hương tươi\n2 thìa canh nước tương\n1 thìa cà phê dầu mè\n1 thìa canh dầu ăn",
+    "instructions": "Luộc mì theo hướng dẫn trên bao bì, để ráo.\nCắt cà rốt sợi, bổ nấm, rửa và cắt cải thìa.\nLàm nóng dầu ăn, xào cà rốt và nấm 4 phút, thêm cải thìa.\nCho mì, nước tương và dầu mè vào đảo thêm 2 phút rồi dùng nóng.",
+    "category": "Món Á"
+  },
+  {
+    "key": "ca-ri-ga-khoai",
+    "name": "Cà ri gà khoai tây",
+    "description": "Cà ri gà với khoai tây, cà rốt và nước cốt dừa, ăn kèm bánh mì hoặc cơm.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "500 g thịt đùi gà\n2 củ khoai tây\n1 củ cà rốt\n200 ml nước cốt dừa\n300 ml nước\n1 thìa canh bột cà ri\n1 củ hành tây\n1 thìa canh dầu ăn\nMuối",
+    "instructions": "Cắt thịt gà và rau củ thành miếng vừa ăn.\nPhi hành tây với dầu, thêm bột cà ri rồi đảo gà đến khi săn.\nThêm nước, khoai tây và cà rốt, đậy nắp nấu nhỏ lửa khoảng 25 phút.\nCho nước cốt dừa, nêm muối và nấu thêm 5 phút; kiểm tra gà chín hoàn toàn trước khi dùng.",
+    "category": "Món Á"
+  },
+  {
+    "key": "sushi-cuon-rau",
+    "name": "Cơm cuộn rong biển rau củ",
+    "description": "Cơm cuộn với dưa chuột, cà rốt và bơ; không dùng cá sống.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "250 g gạo hạt tròn\n4 lá rong biển\n1 quả dưa chuột\n1 củ cà rốt\n1 quả bơ\n2 thìa canh giấm gạo\n1 thìa cà phê đường\nNước tương",
+    "instructions": "Nấu chín cơm, trộn với giấm và đường khi còn ấm rồi để nguội bớt.\nLuộc cà rốt vừa chín; cắt cà rốt, dưa chuột và bơ thành thanh.\nTrải rong biển, dàn cơm mỏng, đặt rau củ rồi cuộn bằng mành tre.\nDùng dao sạch làm ẩm cắt cuộn thành khoanh và ăn cùng nước tương.",
+    "category": "Món Á"
+  },
+  {
+    "key": "com-chien-trung",
+    "name": "Cơm chiên trứng hành lá",
+    "description": "Bữa sáng từ cơm, trứng và hành lá, hoàn thành trong khoảng 15 phút.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "2 bát cơm chín để nguội\n2 quả trứng\n2 nhánh hành lá\n1 thìa canh dầu ăn\n1 thìa canh nước tương\nTiêu",
+    "instructions": "Đánh tan trứng, thái nhỏ hành lá.\nLàm nóng dầu trong chảo, cho trứng vào đảo đến khi vừa đông.\nThêm cơm, nước tương và đảo đều đến khi cơm nóng hoàn toàn.\nCho hành lá, tiêu vào, đảo thêm 30 giây rồi dùng ngay.",
+    "category": "Ăn sáng"
+  },
+  {
+    "key": "pasta-ca-chua",
+    "name": "Pasta sốt cà chua húng quế",
+    "description": "Mì Ý sốt cà chua nấu cùng tỏi và húng quế. Giữ lại một ít nước luộc mì để sốt bám đều mà không cần thêm kem.",
+    "image": "/img/recipes/pasta.webp",
+    "ingredients": "250 g pasta\n400 g cà chua băm\n2 tép tỏi\n2 thìa canh dầu ô liu\n5 lá húng quế\nMuối, tiêu",
+    "instructions": "Luộc pasta trong nước muối theo thời gian trên bao bì; giữ lại nửa bát nước luộc.\nPhi tỏi với dầu ô liu, thêm cà chua và nấu nhỏ lửa 15 phút.\nNêm muối, tiêu, thêm pasta và một ít nước luộc mì.\nĐảo cho sốt bám đều, xé húng quế cho vào rồi dùng nóng.",
+    "category": "Món Âu"
+  },
+  {
+    "key": "sup-bi-do",
+    "name": "Súp bí đỏ sữa tươi",
+    "description": "Súp bí đỏ xay mịn với hành tây và sữa, dùng làm món mở đầu bữa ăn.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "500 g bí đỏ\n1 củ hành tây nhỏ\n150 ml sữa tươi không đường\n500 ml nước dùng rau củ\n15 g bơ\nMuối, tiêu",
+    "instructions": "Gọt vỏ bí, bỏ hạt và cắt miếng; băm hành tây.\nĐun chảy bơ, xào hành cho mềm rồi thêm bí và nước dùng.\nNấu khoảng 20 phút đến khi bí mềm; tắt bếp, để nguội bớt trước khi xay mịn.\nCho súp lại vào nồi, thêm sữa và đun nóng nhẹ, nêm muối tiêu.",
+    "category": "Món phụ"
+  },
+  {
+    "key": "salad-rau-dau",
+    "name": "Salad rau xanh đậu gà",
+    "description": "Rau xanh giòn với đậu gà chín và sốt dầu ô liu chanh.",
+    "image": "/img/recipes/salad.webp",
+    "ingredients": "150 g xà lách\n200 g đậu gà đã nấu chín\n100 g cà chua bi\n1 quả dưa chuột\n2 thìa canh dầu ô liu\n1 thìa canh nước cốt chanh\nMuối, tiêu",
+    "instructions": "Rửa rau và để thật ráo; cắt đôi cà chua, thái dưa chuột.\nTrộn dầu ô liu, nước chanh, muối và tiêu thành sốt.\nCho rau, cà chua, dưa chuột và đậu gà vào tô.\nRưới sốt và trộn nhẹ ngay trước khi ăn.",
+    "category": "Món chay"
+  },
+  {
+    "key": "khoai-tay-nuong",
+    "name": "Khoai tây nướng hương thảo",
+    "description": "Khoai tây nướng vàng cạnh với tỏi và hương thảo.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "500 g khoai tây\n2 thìa canh dầu ô liu\n2 tép tỏi\n1 nhánh hương thảo\nMuối, tiêu",
+    "instructions": "Làm nóng lò ở 200°C. Rửa sạch khoai và cắt múi vừa ăn.\nTrộn khoai với dầu, tỏi băm, lá hương thảo, muối và tiêu.\nTrải một lớp trên khay, nướng khoảng 35 phút, trở khoai sau 20 phút.\nKiểm tra khoai mềm bên trong và vàng bên ngoài trước khi lấy ra.",
+    "category": "Món phụ"
+  },
+  {
+    "key": "ga-nuong-chanh",
+    "name": "Gà nướng chanh và tỏi",
+    "description": "Đùi gà ướp chanh, tỏi và dầu ô liu, nướng cùng hành tây cho bữa tối.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "600 g đùi gà\n1 quả chanh\n3 tép tỏi\n1 củ hành tây\n2 thìa canh dầu ô liu\n1 thìa cà phê muối\nTiêu",
+    "instructions": "Trộn nước chanh, tỏi băm, dầu ô liu, muối và tiêu; ướp gà 30 phút trong tủ lạnh.\nLàm nóng lò ở 200°C, xếp hành tây cắt múi và gà vào khay.\nNướng khoảng 40 phút, trở mặt một lần.\nKiểm tra phần thịt dày nhất đạt 74°C; để nghỉ 5 phút rồi dùng.",
+    "category": "Món Âu"
+  },
+  {
+    "key": "dau-hu-sot-nam",
+    "name": "Đậu hũ sốt nấm hương",
+    "description": "Đậu hũ áp chảo phủ sốt nấm sánh nhẹ, hợp với cơm nóng.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "400 g đậu hũ\n150 g nấm hương tươi\n2 thìa canh nước tương\n1 thìa cà phê bột bắp\n150 ml nước\n1 thìa canh dầu ăn\nHành lá",
+    "instructions": "Cắt đậu hũ thành miếng, thấm khô và áp chảo vàng hai mặt.\nThái nấm, xào trong chảo 3 phút rồi thêm nước và nước tương.\nHòa bột bắp với chút nước lạnh, cho vào sốt và khuấy đến khi sánh.\nThêm đậu hũ, nấu nhẹ 3 phút rồi rắc hành lá.",
+    "category": "Món chay"
+  },
+  {
+    "key": "chao-yen-mach-nam",
+    "name": "Cháo yến mạch nấm",
+    "description": "Cháo yến mạch mặn với nấm và cà rốt, phù hợp cho bữa sáng ấm bụng.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "100 g yến mạch cán\n100 g nấm bào ngư\n1 củ cà rốt nhỏ\n600 ml nước dùng rau củ\n1 thìa cà phê dầu ăn\nMuối, hành lá",
+    "instructions": "Băm cà rốt, xé nhỏ nấm và xào với dầu 3 phút.\nThêm nước dùng, đun sôi rồi cho yến mạch vào.\nNấu nhỏ lửa khoảng 8 phút, khuấy thường xuyên và thêm nước nếu cần.\nNêm muối, rắc hành lá và dùng nóng.",
+    "category": "Ăn sáng"
+  },
+  {
+    "key": "banh-mi-trung",
+    "name": "Bánh mì trứng cà chua",
+    "description": "Bánh mì nóng kẹp trứng chín, cà chua và dưa chuột.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "2 ổ bánh mì nhỏ\n2 quả trứng\n1 quả cà chua\nNửa quả dưa chuột\n1 thìa cà phê dầu ăn\nMuối, tiêu",
+    "instructions": "Rửa và thái lát cà chua, dưa chuột; làm nóng bánh mì.\nLàm nóng dầu, chiên trứng đến khi lòng trắng và lòng đỏ chín theo ý muốn, nêm muối tiêu.\nRạch bánh mì, xếp rau và trứng vào, dùng ngay.",
+    "category": "Ăn sáng"
+  },
+  {
+    "key": "pancake-chuoi",
+    "name": "Pancake chuối",
+    "description": "Bánh áp chảo mềm từ chuối chín, trứng và bột mì, dùng cùng trái cây.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "1 quả chuối chín\n120 g bột mì\n1 quả trứng\n120 ml sữa tươi\n1 thìa cà phê bột nở\n10 g bơ",
+    "instructions": "Nghiền chuối, trộn với trứng và sữa.\nRây bột mì, bột nở vào hỗn hợp, trộn vừa hòa quyện.\nLàm nóng chảo lửa nhỏ, phết bơ và múc bột thành bánh nhỏ.\nKhi mặt bánh nổi bọt, lật bánh và rán thêm 1–2 phút đến khi chín bên trong.",
+    "category": "Ăn sáng"
+  },
+  {
+    "key": "khoai-lang-hap",
+    "name": "Khoai lang hấp mè",
+    "description": "Khoai lang hấp chín, rắc mè rang.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "500 g khoai lang\n1 thìa canh mè rang\nMột nhúm muối",
+    "instructions": "Rửa khoai, cắt bỏ phần hỏng và cho vào xửng.\nHấp 25–35 phút đến khi xiên đũa dễ dàng qua phần dày nhất.\nBổ khoai, rắc mè và chút muối rồi dùng ấm.",
+    "category": "Món phụ"
+  },
+  {
+    "key": "tiramisu-khong-trung-song",
+    "name": "Tiramisu không trứng sống",
+    "description": "Tiramisu gồm bánh ladyfinger nhúng cà phê và kem mascarpone. Công thức mẫu không dùng trứng sống; cần giữ lạnh trước khi phục vụ.",
+    "image": "/img/recipes/tiramisu.webp",
+    "ingredients": "200 g bánh ladyfinger\n250 g mascarpone\n200 ml whipping cream lạnh\n50 g đường bột\n200 ml cà phê đã nguội\n1 thìa canh bột cacao",
+    "instructions": "Đánh whipping cream với đường đến bông mềm.\nLàm mềm mascarpone rồi trộn nhẹ với kem đã đánh.\nNhúng nhanh bánh vào cà phê, xếp một lớp vào khuôn và phủ kem.\nLặp lại các lớp, đậy kín và để tủ lạnh ít nhất 6 giờ.\nRây cacao lên mặt ngay trước khi cắt và dùng lạnh.",
+    "category": "Món tráng miệng"
+  },
+  {
+    "key": "che-dau-xanh",
+    "name": "Chè đậu xanh nước cốt dừa",
+    "description": "Đậu xanh nấu mềm, ngọt nhẹ, thêm nước cốt dừa khi dùng.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "200 g đậu xanh bỏ vỏ\n80 g đường\n150 ml nước cốt dừa\n1 lít nước\nMột nhúm muối",
+    "instructions": "Rửa và ngâm đậu xanh 2 giờ, sau đó để ráo.\nNấu đậu với nước khoảng 25 phút đến mềm, khuấy nhẹ và hớt bọt.\nThêm đường, muối và nấu thêm 5 phút.\nMúc chè ra bát, thêm nước cốt dừa; dùng ấm hoặc để nguội và bảo quản lạnh.",
+    "category": "Món tráng miệng"
+  },
+  {
+    "key": "sua-chua-trai-cay",
+    "name": "Sữa chua trái cây yến mạch",
+    "description": "Sữa chua không đường kết hợp chuối, dâu tây và yến mạch rang.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "300 g sữa chua không đường\n1 quả chuối\n100 g dâu tây\n30 g yến mạch cán\n1 thìa cà phê mật ong",
+    "instructions": "Rang yến mạch trên chảo khô lửa nhỏ đến thơm rồi để nguội.\nRửa dâu, bỏ cuống và cắt miếng; thái chuối.\nChia sữa chua vào ly, xếp trái cây, thêm yến mạch và mật ong. Dùng ngay.",
+    "category": "Món tráng miệng"
+  },
+  {
+    "key": "banh-chuoi-nuong",
+    "name": "Bánh chuối nướng sữa",
+    "description": "Bánh chuối tận dụng bánh mì, thơm mùi chuối chín và sữa dừa.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "4 quả chuối chín\n150 g bánh mì\n200 ml nước cốt dừa\n100 ml sữa tươi\n40 g đường\n15 g bơ",
+    "instructions": "Làm nóng lò ở 175°C; phết bơ vào khuôn.\nXé bánh mì, ngâm với sữa, nước cốt dừa và đường trong 10 phút.\nThái chuối, trộn phần lớn vào bánh mì, đổ khuôn và xếp chuối còn lại lên mặt.\nNướng khoảng 45 phút đến khi bánh đông chắc và mặt vàng; để nguội trước khi cắt.",
+    "category": "Món tráng miệng"
+  },
+  {
+    "key": "rau-cau-dua",
+    "name": "Rau câu nước dừa",
+    "description": "Rau câu trong từ nước dừa, cắt miếng nhỏ và dùng lạnh.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "1 lít nước dừa\n5 g bột agar\n60 g đường",
+    "instructions": "Trộn khô bột agar với đường, rắc từ từ vào nước dừa và khuấy đều.\nNgâm theo hướng dẫn của loại bột, sau đó đun sôi và khuấy 2–3 phút đến tan hoàn toàn.\nĐổ vào khuôn sạch, để nguội rồi cho vào tủ lạnh đến đông. Cắt miếng khi dùng.",
+    "category": "Món tráng miệng"
+  },
+  {
+    "key": "tra-dao-cam-sa",
+    "name": "Trà đào cam sả",
+    "description": "Trà đen ủ với sả, thêm đào và cam, dùng cùng đá.",
+    "image": "/img/recipes/peach-tea.webp",
+    "ingredients": "2 túi trà đen\n2 cây sả\n500 ml nước\n100 g đào ngâm\n1 quả cam\n2 thìa canh siro đào\nĐá viên",
+    "instructions": "Đập dập sả, đun với nước 5 phút rồi tắt bếp.\nỦ trà trong nước sả khoảng 4 phút, bỏ túi trà và lọc sả.\nĐể nguội, thêm siro đào, cam cắt lát và đào.\nChia ra ly, thêm đá và dùng ngay.",
+    "category": "Đồ uống"
+  },
+  {
+    "key": "sinh-to-bo",
+    "name": "Sinh tố bơ sữa chua",
+    "description": "Sinh tố bơ mịn, vị chua nhẹ của sữa chua.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "1 quả bơ chín\n100 g sữa chua không đường\n100 ml sữa tươi lạnh\n1 thìa cà phê mật ong\n4 viên đá nhỏ",
+    "instructions": "Bổ bơ, bỏ hạt và lấy phần thịt.\nCho bơ, sữa chua, sữa, mật ong và đá vào máy xay.\nXay đến mịn, rót ra ly và dùng ngay.",
+    "category": "Đồ uống"
+  },
+  {
+    "key": "nuoc-chanh-bac-ha",
+    "name": "Nước chanh bạc hà",
+    "description": "Nước chanh pha với bạc hà tươi và đá.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "2 quả chanh\n500 ml nước lọc\n30 g đường\n6 lá bạc hà\nĐá viên",
+    "instructions": "Hòa đường với một ít nước ấm, để nguội.\nVắt chanh, bỏ hạt và trộn với nước đường cùng nước lọc.\nRửa bạc hà, vò nhẹ, cho vào bình và thêm đá khi dùng.",
+    "category": "Đồ uống"
+  },
+  {
+    "key": "ca-hap-gung",
+    "name": "Cá hấp gừng hành",
+    "description": "Phi lê cá hấp với gừng, hành lá và nước tương, giữ phần nước hấp để dùng cùng cơm.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "400 g phi lê cá\n20 g gừng\n3 nhánh hành lá\n2 thìa canh nước tương\n1 thìa cà phê dầu mè\nTiêu",
+    "instructions": "Thấm khô cá, thái gừng sợi và cắt hành lá.\nĐặt cá lên đĩa chịu nhiệt, thêm gừng, nước tương và tiêu.\nHấp trên nước đang sôi khoảng 12–15 phút tùy độ dày, đến khi cá chín hoàn toàn và dễ tách thớ.\nThêm hành lá, dầu mè và hấp thêm 1 phút rồi dùng nóng.",
+    "category": "Món chính"
+  },
+  {
+    "key": "bap-cai-cuon-thit",
+    "name": "Bắp cải cuộn thịt hấp",
+    "description": "Lá bắp cải bọc nhân thịt lợn, cà rốt và nấm mèo, hấp chín mềm. Mỗi cuộn có thể cắt đôi để kiểm tra cách hiển thị khẩu phần trong công thức dài.",
+    "image": "/img/recipe-placeholder.svg",
+    "ingredients": "8 lá bắp cải lớn\n300 g thịt lợn xay\n1 củ cà rốt nhỏ\n10 g nấm mèo khô\n1 củ hành tím\n1 thìa canh nước mắm\nTiêu, hành lá",
+    "instructions": "Ngâm nấm mèo theo hướng dẫn trên bao bì, rửa sạch và băm nhỏ cùng cà rốt, hành tím.\nChần lá bắp cải trong nước sôi đến mềm, để ráo và gọt bớt gân dày.\nTrộn thịt với nấm, cà rốt, hành, nước mắm và tiêu.\nChia nhân lên lá, gập hai mép rồi cuộn kín; có thể buộc bằng hành lá đã chần.\nHấp khoảng 25 phút đến khi nhân thịt chín hoàn toàn, dùng cùng nước hấp và cơm.",
+    "category": "Món Việt"
+  }
+]

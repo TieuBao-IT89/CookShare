@@ -82,6 +82,18 @@
 
                 <p class="details-desc-box">@Model.Description</p>
 
+                @if (Model.Source == "themealdb" && !string.IsNullOrEmpty(Model.ExternalId))
+                {
+                    <p class="cs108-muted-label">
+                        Nguồn công thức:
+                        <a href="https://www.themealdb.com/meal.php?c=@Uri.EscapeDataString(Model.ExternalId)" rel="external noopener noreferrer">TheMealDB</a>
+                        @if (Uri.TryCreate(Model.SourceUrl, UriKind.Absolute, out _) && RecipeImageReference.IsValid(Model.SourceUrl))
+                        {
+                            <span> · <a href="@Model.SourceUrl" rel="external noopener noreferrer">Tham khảo gốc</a></span>
+                        }
+                    </p>
+                }
+
                 <div class="cs108-author-row">
                     <img src="@authorAvatar"
                          alt=""
