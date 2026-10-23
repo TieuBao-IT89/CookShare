@@ -20,21 +20,10 @@ namespace CookShare.Controllers
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Index()
         {
-            var latest = await _db.Recipes
-                .AsNoTracking()
-                .Include(r => r.User)
-                .OrderByDescending(r => r.CreatedAt)
-                .ThenByDescending(r => r.Id)
-                .Take(3)
-                .ToListAsync();
-
-            // A stable selection until a recommendation feature is available.
-            var featured = await _db.Recipes
-                .AsNoTracking()
-                .Include(r => r.User)
-                .OrderBy(r => r.Id)
-                .Take(3)
-                .ToListAsync();
+            var featured = await RecipeDiscoveryQueries.FeaturedAsync(_db);
+            var popular = await RecipeDiscoveryQueries.PopularAsync(_db);
+            var topRated = await RecipeDiscoveryQueries.TopRatedAsync(_db);
+            var latest = await RecipeDiscoveryQueries.LatestAsync(_db);
 
             var communityUsers = await _db.Users
                 .AsNoTracking()
@@ -51,17 +40,23 @@ namespace CookShare.Controllers
                 })
                 .ToListAsync();
 
+            var displayedIds = featured
+                .Concat(popular)
+                .Concat(topRated)
+                .Concat(latest)
+                .Select(recipe => recipe.Id);
+            var currentUserId = User?.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(
-                _db, latest.Concat(featured).Select(recipe => recipe.Id),
-                User?.FindFirstValue(ClaimTypes.NameIdentifier));
+                _db, displayedIds, currentUserId);
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
-                _db, latest.Concat(featured).Select(recipe => recipe.Id),
-                User?.FindFirstValue(ClaimTypes.NameIdentifier));
+                _db, displayedIds, currentUserId);
 
             return View(new HomeIndexViewModel
             {
-                LatestRecipes = latest,
                 FeaturedRecipes = featured,
+                PopularRecipes = popular,
+                TopRatedRecipes = topRated,
+                LatestRecipes = latest,
                 CommunityUsers = communityUsers
             });
         }

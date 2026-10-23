@@ -15,6 +15,7 @@
     var likeSummaries = ViewData["RecipeLikeSummaries"] as IReadOnlyDictionary<int, RecipeLikeViewModel>;
     var recipeLike = likeSummaries != null && likeSummaries.TryGetValue(Model.Id, out var summary) ? summary : null;
     var recipeComments = ViewData["RecipeComments"] as RecipeCommentsViewModel;
+    var relatedRecipes = ViewData["RelatedRecipes"] as IReadOnlyList<Recipe> ?? Array.Empty<Recipe>();
 
     var ingredients = Model.Ingredients.Split(
         '\n',
@@ -229,6 +230,25 @@
                 <partial name="_RecipeComments" model="recipeComments" />
             </div>
         }
+
+        <section class="section related-section" aria-labelledby="relatedHeading">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">CÙNG DANH MỤC</span>
+                    <h2 id="relatedHeading">Công thức liên quan</h2>
+                </div>
+            </div>
+            <div class="@(relatedRecipes.Count == 0 ? "" : "recipe-grid")" id="relatedRecipes">
+                @foreach (var related in relatedRecipes)
+                {
+                    <partial name="_RecipeCard" model="related" />
+                }
+                @if (relatedRecipes.Count == 0)
+                {
+                    <p class="discovery-empty" id="relatedRecipesEmpty">Chưa có công thức liên quan trong danh mục này.</p>
+                }
+            </div>
+        </section>
 
         <div class="details-footer-nav">
             <a asp-controller="Recipe"

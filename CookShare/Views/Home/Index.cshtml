@@ -25,7 +25,7 @@
         <div class="hero-visual">
             <div class="hero-photo-frame"><img src="~/img/recipes/salad.webp" alt="Đĩa salad rau củ tươi, đầy màu sắc trên bàn ăn" width="720" height="800" fetchpriority="high" /></div>
             <span class="hero-photo-label"><svg class="icon"><use href="#i-leaf" /></svg> Tươi ngon từ những điều giản dị</span>
-            @if (Model.FeaturedRecipes.FirstOrDefault() is { } suggestion)
+            @if ((Model.FeaturedRecipes.FirstOrDefault() ?? Model.LatestRecipes.FirstOrDefault()) is { } suggestion)
             {
                 <a class="hero-recipe-note" asp-controller="Recipe" asp-action="Details" asp-route-id="@suggestion.Id"><span class="note-icon"><svg class="icon"><use href="#i-chef" /></svg></span><span><small>GỢI Ý CHO HÔM NAY</small><strong>@suggestion.Name</strong><span>@suggestion.Category</span></span><svg class="icon"><use href="#i-arrow" /></svg></a>
             }
@@ -60,7 +60,44 @@
             }
             @if (Model.FeaturedRecipes.Count == 0)
             {
-                <partial name="_RecipeEmpty" />
+                @if (Model.LatestRecipes.Count == 0)
+                {
+                    <partial name="_RecipeEmpty" />
+                }
+                else
+                {
+                    <p class="discovery-empty" id="homeFeaturedEmpty">Chưa có món nổi bật. Hãy thích hoặc đánh giá một công thức.</p>
+                }
+            }
+        </div>
+    </div>
+</section>
+<section class="section" aria-labelledby="popularHeading">
+    <div class="container">
+        <div class="section-heading"><div><span class="eyebrow">ĐƯỢC YÊU THÍCH NHIỀU NHẤT</span><h2 id="popularHeading">Món đang được yêu thích</h2><p>Những món đang nhận nhiều lượt thích nhất.</p></div><a class="text-link" href="/Recipe">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div>
+        <div class="@(Model.PopularRecipes.Count == 0 ? "" : "recipe-grid")" id="homePopularGrid">
+            @foreach (var recipe in Model.PopularRecipes)
+            {
+                <partial name="_RecipeCard" model="recipe" />
+            }
+            @if (Model.PopularRecipes.Count == 0)
+            {
+                <p class="discovery-empty" id="homePopularEmpty">Chưa có công thức nào được yêu thích.</p>
+            }
+        </div>
+    </div>
+</section>
+<section class="section" aria-labelledby="topRatedHeading">
+    <div class="container">
+        <div class="section-heading"><div><span class="eyebrow">ĐIỂM TỪ CỘNG ĐỒNG</span><h2 id="topRatedHeading">Món được đánh giá cao</h2><p>Những món được chấm điểm cao nhất.</p></div><a class="text-link" href="/Recipe">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div>
+        <div class="@(Model.TopRatedRecipes.Count == 0 ? "" : "recipe-grid")" id="homeTopRatedGrid">
+            @foreach (var recipe in Model.TopRatedRecipes)
+            {
+                <partial name="_RecipeCard" model="recipe" />
+            }
+            @if (Model.TopRatedRecipes.Count == 0)
+            {
+                <p class="discovery-empty" id="homeTopRatedEmpty">Chưa có công thức nào được đánh giá.</p>
             }
         </div>
     </div>
