@@ -1,14 +1,24 @@
 
 using CookShare.Data;
+using CookShare.Data.Seeding;
 using CookShare.Health;
 using CookShare.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+bool seedRecipes = args.Length > 0 && args[0] == "seed-recipes";
+var builder = WebApplication.CreateBuilder(seedRecipes ? Array.Empty<string>() : args);
 
 // ASP.NET Core MVC
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<RecipeSeeder>();
+builder.Services.AddScoped<IRecipeSeedSource, LocalRecipeSeedSource>();
+builder.Services.AddHttpClient<TheMealDbClient>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(20);
+    client.MaxResponseContentBufferSize = 4 * 1024 * 1024;
+}).RemoveAllLoggers();
+builder.Services.AddScoped<IRecipeSeedSource>(services => services.GetRequiredService<TheMealDbClient>());
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database");
 
@@ -64,6 +74,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 var app = builder.Build();
+
+if (seedRecipes)
+{
+    Environment.ExitCode = await RecipeSeedCommand.RunAsync(args[1..], app.Services, Console.Out);
+    await app.DisposeAsync();
+    return;
+}
 
 if (!app.Environment.IsDevelopment())
 {

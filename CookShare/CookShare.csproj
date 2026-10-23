@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\img\" />
+    <Content Update="Data\Seeds\sample-recipes.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

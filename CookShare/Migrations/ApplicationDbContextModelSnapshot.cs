@@ -235,6 +235,10 @@ namespace CookShare.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ExternalId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<string>("Image")
                         .HasColumnType("text");
 
@@ -251,6 +255,14 @@ namespace CookShare.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("Source")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("SourceUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
@@ -259,7 +271,14 @@ namespace CookShare.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Recipes");
+                    b.HasIndex("Source", "ExternalId")
+                        .IsUnique()
+                        .HasFilter("\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL");
+
+                    b.ToTable("Recipes", t =>
+                        {
+                            t.HasCheckConstraint("CK_Recipes_SourceIdentity", "(\"Source\" IS NULL AND \"ExternalId\" IS NULL) OR (\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("CookShare.Models.RecipeComment", b =>
