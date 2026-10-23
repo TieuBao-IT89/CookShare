@@ -247,6 +247,10 @@ Xem [hướng dẫn Recipe Seeding](docs/RECIPE_SEEDING.md) để thêm 30 công
 
 Trang chủ có bảng tin Mới nhất và [Đang theo dõi](docs/HOME_FEED.md), hỗ trợ cuộn tải thêm, Like/Lưu, bình luận ngay trên bài và chia sẻ liên kết. Bảng tin Đang theo dõi lấy dữ liệu từ PostgreSQL theo tài khoản đăng nhập.
 
+### Đánh giá công thức
+
+[Đánh giá 1–5 sao](docs/RECIPE_RATINGS.md) được lưu theo tài khoản trong PostgreSQL. Người dùng có thể cập nhật đánh giá; điểm trung bình và tổng số lượt hiển thị trên thẻ công thức, trang chi tiết và bảng tin. Tác giả không thể tự đánh giá công thức của mình.
+
 ## 8. Hướng dẫn chạy dự án (Getting Started)
 
 Sau khi lấy mã mới hoặc chuyển nhánh, áp dụng các migration còn thiếu vào database Development đã cấu hình trước khi mở website:

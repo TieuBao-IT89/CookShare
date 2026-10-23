@@ -47,6 +47,8 @@ namespace CookShare.Controllers
 
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
                 _db, recipes.Select(recipe => recipe.Id), User?.FindFirstValue(ClaimTypes.NameIdentifier));
+            ViewData["RecipeRatingSummaries"] = await RecipeRatingQueries.LoadAsync(
+                _db, recipes.Select(recipe => recipe.Id), User?.FindFirstValue(ClaimTypes.NameIdentifier));
             ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(
                 _db, recipes.Select(recipe => recipe.Id), User?.FindFirstValue(ClaimTypes.NameIdentifier));
 
@@ -82,6 +84,7 @@ namespace CookShare.Controllers
             var displayedIds = related.Select(item => item.Id).Prepend(recipe.Id);
             ViewData["RelatedRecipes"] = related;
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(_db, displayedIds, userId);
+            ViewData["RecipeRatingSummaries"] = await RecipeRatingQueries.LoadAsync(_db, displayedIds, userId);
             ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(_db, displayedIds, userId);
             ViewData["RecipeComments"] = new RecipeCommentsViewModel
             {
@@ -425,6 +428,8 @@ namespace CookShare.Controllers
 
             ViewData["SavedRecipeIds"] = recipes.Select(recipe => recipe.Id).ToHashSet();
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
+                _db, recipes.Select(recipe => recipe.Id), userId);
+            ViewData["RecipeRatingSummaries"] = await RecipeRatingQueries.LoadAsync(
                 _db, recipes.Select(recipe => recipe.Id), userId);
             return View(recipes);
         }

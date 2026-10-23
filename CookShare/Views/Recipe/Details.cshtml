@@ -16,6 +16,8 @@
     var recipeLike = likeSummaries != null && likeSummaries.TryGetValue(Model.Id, out var summary) ? summary : null;
     var recipeComments = ViewData["RecipeComments"] as RecipeCommentsViewModel;
     var relatedRecipes = ViewData["RelatedRecipes"] as IReadOnlyList<Recipe> ?? Array.Empty<Recipe>();
+    var ratingSummaries = ViewData["RecipeRatingSummaries"] as IReadOnlyDictionary<int, RecipeRatingViewModel>;
+    var recipeRating = ratingSummaries != null && ratingSummaries.TryGetValue(Model.Id, out var rating) ? rating : null;
 
     var ingredients = Model.Ingredients.Split(
         '\n',
@@ -47,6 +49,7 @@
     <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/recipe-comments.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/recipe-interactions.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-ratings.css" asp-append-version="true" />
     <link rel="stylesheet"
           href="~/css/issue108.css"
           asp-append-version="true" />
@@ -125,6 +128,10 @@
                 </div>
 
                 <div class="cs108-recipe-summary">
+                    @if (recipeRating != null)
+                    {
+                        <partial name="_RecipeRatingSummary" model="recipeRating" />
+                    }
                     <span>
                         <svg class="icon" aria-hidden="true">
                             <use href="#i-grid" />
@@ -236,6 +243,11 @@
             <p class="notice error" role="alert">@TempData["Error"]</p>
         }
 
+        @if (recipeRating != null)
+        {
+            <partial name="_RecipeRating" model="recipeRating" />
+        }
+
         @if (recipeComments != null)
         {
             <div class="cs108-comments" id="comments">
@@ -302,6 +314,7 @@
             asp-append-version="true"></script>
     <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
     <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-ratings.js" asp-append-version="true"></script>
     <script src="~/js/issue108.js"
             asp-append-version="true"></script>
 }

@@ -49,6 +49,9 @@
         <img src="@image" alt="@Model.Name" width="640" height="480" loading="lazy" decoding="async" />
         <span class="feed-image-link">Vào bếp cùng món này <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></span>
     </a>
+    <div class="feed-post-rating">
+        <partial name="_RecipeRatingSummary" model="new RecipeRatingViewModel { RecipeId = Model.Id, RatingCount = Model.RatingCount, AverageRating = Model.AverageRating }" />
+    </div>
     <div class="feed-post-actions">
         <partial name="_RecipeLikeButton" model="new RecipeLikeViewModel { RecipeId = Model.Id, LikeCount = Model.LikeCount, IsLiked = Model.IsLiked }" />
         <a class="feed-action feed-comment-toggle" href="@detailsUrl#recipeCommentsHeading" data-feed-comment-toggle

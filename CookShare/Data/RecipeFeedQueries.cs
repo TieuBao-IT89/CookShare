@@ -88,6 +88,8 @@ namespace CookShare.Data
                     LikeCount = recipe.Likes.Count,
                     IsLiked = viewerId != null && recipe.Likes.Any(like => like.UserId == viewerId),
                     CommentCount = recipe.Comments.Count,
+                    RatingCount = recipe.Ratings.Count,
+                    AverageRating = recipe.Ratings.Average(rating => (double?)rating.Stars) ?? 0,
                     IsSaved = viewerId != null && recipe.Favorites.Any(favorite => favorite.UserId == viewerId)
                 });
         }

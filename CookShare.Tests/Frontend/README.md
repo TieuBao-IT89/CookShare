@@ -1,5 +1,14 @@
 # Saved Recipes browser checks
 
+## Persistent Recipe Ratings
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-RecipeRatingBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-RecipeRatingBrowserTests.ps1 -Viewport Mobile
+```
+
+The rating harness runs the production `recipe-ratings.js` with controlled responses and the actual rating styles, without an application database or CDN dependency. It verifies confirmed state, updates, CSRF, duplicate requests, errors, session changes, bfcache refresh, and desktop/mobile overflow. See [RECIPE_RATINGS.md](../../docs/RECIPE_RATINGS.md) for the live-page and PostgreSQL checks.
+
 ## Home / Following Feed
 
 ```powershell

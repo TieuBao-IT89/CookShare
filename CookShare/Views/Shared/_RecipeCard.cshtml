@@ -9,6 +9,8 @@
   var summaries = ViewData["RecipeLikeSummaries"] as IReadOnlyDictionary<int, RecipeLikeViewModel>;
   var likeState = summaries != null && summaries.TryGetValue(Model.Id, out var summary) ? summary : null;
   var savedCollection = ViewData["SavedCollection"] as bool? == true;
+  var ratingSummaries = ViewData["RecipeRatingSummaries"] as IReadOnlyDictionary<int, RecipeRatingViewModel>;
+  var ratingState = ratingSummaries != null && ratingSummaries.TryGetValue(Model.Id, out var rating) ? rating : null;
 }
 <article class="recipe-card" data-recipe-id="@Model.Id" data-saved-recipe-id="@(savedCollection ? Model.Id : (int?)null)">
   <div class="recipe-image">
@@ -22,6 +24,10 @@
     <div class="recipe-card-meta"><span class="card-category">@Model.Category</span><span>@ingredientsCount nguyên liệu</span></div>
     <h3 class="recipe-card-title"><a asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id">@Model.Name</a></h3>
     <p class="recipe-card-desc">@Model.Description</p>
+    @if (ratingState != null)
+    {
+      <partial name="_RecipeRatingSummary" model="ratingState" />
+    }
     <div class="recipe-card-author">
       <span class="avatar-small">CS</span>
       @if (!string.IsNullOrEmpty(Model.UserId))
