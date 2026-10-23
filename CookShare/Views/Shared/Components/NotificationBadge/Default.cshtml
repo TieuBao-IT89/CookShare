@@ -1,0 +1,14 @@
+@model int
+
+<a class="notification-nav-link"
+   asp-controller="Notifications"
+   asp-action="Index"
+   aria-label="Thông báo@(Model > 0 ? $", {Model} chưa đọc" : string.Empty)">
+    <span>Thông báo</span>
+    @if (Model > 0)
+    {
+        <span class="notification-count" aria-hidden="true">
+            @(Model > 99 ? "99+" : Model)
+        </span>
+    }
+</a>
