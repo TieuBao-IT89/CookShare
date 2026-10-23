@@ -22,7 +22,7 @@ Tạo một Azure App Service riêng cho Staging:
 - Hệ điều hành: **Linux**.
 - HTTPS mặc định của `*.azurewebsites.net` được bật.
 
-Tên App Service là phần đứng trước `.azurewebsites.net`. Ví dụ ứng dụng `cookshare-staging` có địa chỉ `https://cookshare-staging.azurewebsites.net`.
+`AZURE_WEBAPP_NAME` là tên App Service, không gồm `https://` và không gồm `.azurewebsites.net`. Hostname công khai không phải lúc nào cũng là `<tên>.azurewebsites.net`. App tạo trên Azure Portal có thể dùng hostname dạng `<tên>-<hash>.<vùng>.azurewebsites.net`. Workflow lấy URL thật từ output `webapp-url` của action triển khai, không tự ghép từ tên app.
 
 Trên GitHub, tạo Environment tên `staging` cho repository gốc:
 
@@ -96,7 +96,7 @@ Workflow **CookShare CD** chạy khi một trong hai điều kiện sau xảy ra
 Input `action` có hai giá trị:
 
 - `deploy`: build, test, publish, migration, triển khai, rồi kiểm tra sức khỏe.
-- `rollback`: tải gói của lần chạy thành công gần nhất và triển khai lại gói đó. Job này không chạy migration.
+- `rollback`: tải gói đã được deploy thành công gần nhất và triển khai lại gói đó. Job này không chạy migration. Lần chạy chỉ xanh vì bỏ qua Azure không được chọn.
 
 Thứ tự job `deploy`:
 
@@ -104,8 +104,8 @@ Thứ tự job `deploy`:
 2. Job `publish` restore, build Release, chạy `dotnet test` với PostgreSQL tạm trên runner, rồi `dotnet publish`.
 3. Gói zip được lưu thành artifact `cookshare-publish` trong 14 ngày.
 4. Job `deploy` chỉ chạy khi job `publish` thành công.
-5. Job áp dụng migration, triển khai zip lên App Service, rồi gọi `/health` và trang chủ.
-6. Nếu kiểm tra sức khỏe thất bại và còn gói của một lần chạy thành công trước đó, workflow triển khai lại gói đó rồi vẫn đánh dấu lần chạy này là thất bại.
+5. Job áp dụng migration, triển khai zip lên App Service, rồi gọi `/health` và trang chủ trên URL mà action deploy trả về.
+6. Nếu kiểm tra sức khỏe thất bại và còn một gói đã thực sự được deploy, workflow triển khai lại gói đó rồi vẫn đánh dấu lần chạy này là thất bại. Gói được chọn phải đến từ workflow này trên nhánh `develop`, và lần chạy đó phải có cả bước deploy lẫn health check thành công. Lần chạy chỉ xanh vì bỏ qua Azure khi thiếu secret không được dùng để rollback.
 
 Hai lần triển khai Staging không chạy song song. Lần sau chờ lần trước kết thúc.
 
@@ -113,10 +113,12 @@ Hai lần triển khai Staging không chạy song song. Lần sau chờ lần tr
 
 Endpoint `/health` trả về HTTP 200 khi tiến trình web khởi động và kết nối được database. Nội dung lỗi kết nối không được ghi vào phản hồi của endpoint này.
 
-Workflow gọi tối đa 18 lần, mỗi lần cách 10 giây:
+Workflow không tự ghép `https://<AZURE_WEBAPP_NAME>.azurewebsites.net`. Action `Azure/webapps-deploy` trả output `webapp-url`, và workflow gọi URL đó tối đa 18 lần, mỗi lần cách 10 giây:
 
-- `https://<AZURE_WEBAPP_NAME>.azurewebsites.net/health` phải trả HTTP 200.
-- `https://<AZURE_WEBAPP_NAME>.azurewebsites.net/` phải trả HTTP 200.
+- `<webapp-url>/health` phải trả HTTP 200.
+- `<webapp-url>/` phải trả HTTP 200.
+
+Cùng hai đường dẫn này được kiểm tra sau deploy, sau rollback tự động, và sau rollback chạy tay. Mở đúng URL ghi trong summary của lần chạy, hoặc hostname ở Azure Portal → App Service → Overview.
 
 Sau khi workflow xanh, Maintainer nên kiểm tra thêm trên trình duyệt:
 
@@ -163,15 +165,18 @@ ASPNETCORE_ENVIRONMENT=Staging
 
 ```bash
 dotnet publish CookShare/CookShare.csproj --configuration Release --output ./publish
+(cd publish && zip -qr ../cookshare.zip .)
 ```
 
-Đẩy thư mục `publish` lên App Service bằng một trong hai cách:
+`./publish` là thư mục. `az webapp deploy --type zip` cần đường dẫn tới file ZIP, không nhận thư mục đó.
 
-- Azure Portal → App Service → **Deployment Center** hoặc **Advanced Tools**, dùng ZIP deploy của thư mục đã publish.
+Đẩy file `cookshare.zip` lên App Service bằng một trong hai cách:
+
+- Azure Portal → App Service → **Deployment Center** hoặc **Advanced Tools**, dùng ZIP deploy của file vừa tạo.
 - Azure CLI, sau khi đăng nhập bằng tài khoản có quyền trên resource group:
 
 ```bash
-az webapp deploy --resource-group <resource-group> --name <app-name> --src-path ./publish --type zip
+az webapp deploy --resource-group <resource-group> --name <app-name> --src-path ./cookshare.zip --type zip
 ```
 
 Thay `<resource-group>` và `<app-name>` bằng giá trị của App Service Staging. Không commit file zip, publish profile, hoặc chuỗi kết nối.
@@ -182,7 +187,7 @@ Sau đó mở `/health` và trang chủ như mục 9.
 
 ### Tự động khi health check thất bại
 
-Nếu gói mới đã lên Azure nhưng `/health` hoặc trang chủ không trả HTTP 200, job deploy tìm artifact `cookshare-publish` của lần workflow thành công gần nhất và triển khai lại gói đó. Lần chạy vẫn có trạng thái thất bại để Maintainer biết bản mới không được giữ lại.
+Nếu gói mới đã lên Azure nhưng `/health` hoặc trang chủ không trả HTTP 200, job deploy tìm artifact `cookshare-publish` mới nhất thỏa cả ba điều kiện: workflow là `.github/workflows/deploy.yml`, nhánh là `develop`, và job deploy của lần chạy đó đã triển khai thành công rồi vượt qua health check. Lần chạy xanh vì thiếu secret và bỏ qua Azure không được chọn. Sau khi triển khai lại gói cũ, workflow kiểm tra cả `/health` và trang chủ, rồi vẫn đánh dấu lần chạy này là thất bại.
 
 Lần deploy thành công đầu tiên chưa có gói trước đó. Khi đó workflow không thể tự rollback.
 
@@ -192,7 +197,7 @@ Lần deploy thành công đầu tiên chưa có gói trước đó. Khi đó wo
 2. Chọn nhánh `develop`.
 3. Chọn `action`: `rollback`.
 4. Chờ job **Roll back Azure Staging**.
-5. Xác nhận `/health` trả HTTP 200.
+5. Xác nhận `/health` và trang chủ đều trả HTTP 200. URL là `webapp-url` trong summary, không ghép từ tên App Service.
 
 Artifact chỉ được giữ 14 ngày. Ngoài khoảng đó, dùng Deployment Center của Azure để chọn một lần triển khai cũ hơn, hoặc publish lại commit đã biết là ổn định bằng mục 11.
 

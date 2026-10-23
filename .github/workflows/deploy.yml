@@ -18,6 +18,7 @@ on:
       - "CookShare.Tests/**"
       - "CookShare.sln"
       - ".github/workflows/deploy.yml"
+      - ".github/scripts/**"
 
 permissions:
   contents: read
@@ -180,44 +181,13 @@ jobs:
           name: cookshare-publish
           path: ./package
 
-      - name: Download last successful package
+      - name: Download last deployed package
         id: previous
         if: steps.secrets.outputs.ready == 'true'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          ARTIFACTS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=cookshare-publish&per_page=100")
-          mapfile -t CANDIDATES < <(echo "${ARTIFACTS}" | jq -r --argjson current "${GITHUB_RUN_ID}" '
-            [.artifacts[]
-              | select(.expired == false and .workflow_run.id != $current)]
-            | sort_by(.created_at)
-            | reverse
-            | .[].workflow_run.id')
-
-          RUN_ID=""
-          for candidate in "${CANDIDATES[@]}"; do
-            if [ -z "${candidate}" ]; then
-              continue
-            fi
-            conclusion=$(gh run view "${candidate}" --repo "${GITHUB_REPOSITORY}" --json conclusion --jq .conclusion)
-            if [ "${conclusion}" = "success" ]; then
-              RUN_ID="${candidate}"
-              break
-            fi
-          done
-
-          if [ -z "${RUN_ID}" ]; then
-            echo "found=false" >> "${GITHUB_OUTPUT}"
-            echo "No previous successful package is available."
-            exit 1
-          fi
-
-          gh run download "${RUN_ID}" --repo "${GITHUB_REPOSITORY}" --name cookshare-publish --dir ./previous-package
-          test -s ./previous-package/cookshare.zip
-          echo "found=true" >> "${GITHUB_OUTPUT}"
-          echo "run_id=${RUN_ID}" >> "${GITHUB_OUTPUT}"
+        run: bash .github/scripts/select-staging-package.sh
 
       - name: Deploy to Azure App Service
         id: ship
@@ -232,30 +202,8 @@ jobs:
         id: health
         if: steps.secrets.outputs.ready == 'true'
         env:
-          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
-        run: |
-          set -euo pipefail
-          SITE_URL="https://${AZURE_WEBAPP_NAME}.azurewebsites.net"
-          echo "site_url=${SITE_URL}" >> "${GITHUB_OUTPUT}"
-          echo "Checking ${SITE_URL}/health and ${SITE_URL}/"
-
-          for attempt in $(seq 1 18); do
-            HEALTH=$(curl --silent --show-error --output /dev/null --write-out "%{http_code}" "${SITE_URL}/health" || echo "000")
-            HOME_STATUS=$(curl --silent --show-error --output /dev/null --write-out "%{http_code}" "${SITE_URL}/" || echo "000")
-
-            if [ "${HEALTH}" = "200" ] && [ "${HOME_STATUS}" = "200" ]; then
-              echo "health_status=200" >> "${GITHUB_OUTPUT}"
-              echo "Application is healthy."
-              exit 0
-            fi
-
-            echo "Attempt ${attempt}: health HTTP ${HEALTH}, home HTTP ${HOME_STATUS}."
-            sleep 10
-          done
-
-          echo "health_status=failed" >> "${GITHUB_OUTPUT}"
-          echo "::error::Health check failed after deployment."
-          exit 1
+          SITE_URL: ${{ steps.ship.outputs.webapp-url }}
+        run: bash .github/scripts/check-staging-site.sh "${SITE_URL}"
 
       - name: Restore last successful package
         id: restore
@@ -269,22 +217,14 @@ jobs:
       - name: Verify restored application
         if: always() && steps.restore.outcome == 'success'
         env:
-          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+          SITE_URL: ${{ steps.restore.outputs.webapp-url }}
         run: |
           set -euo pipefail
-          SITE_URL="https://${AZURE_WEBAPP_NAME}.azurewebsites.net"
-
-          for attempt in $(seq 1 18); do
-            HEALTH=$(curl --silent --show-error --output /dev/null --write-out "%{http_code}" "${SITE_URL}/health" || echo "000")
-            if [ "${HEALTH}" = "200" ]; then
-              echo "Restored the last successful package."
-              echo "::error::The new deployment failed its health check and the previous package was restored."
-              exit 1
-            fi
-
-            echo "Restore check ${attempt}: HTTP ${HEALTH}."
-            sleep 10
-          done
+          if bash .github/scripts/check-staging-site.sh "${SITE_URL}"; then
+            echo "Restored the last successful package."
+            echo "::error::The new deployment failed its health check and the previous package was restored."
+            exit 1
+          fi
 
           echo "::error::Rollback was deployed, but the restored application is still unhealthy."
           exit 1
@@ -292,10 +232,9 @@ jobs:
       - name: Record deployment result
         if: steps.secrets.outputs.ready == 'true' && always() && steps.ship.outcome == 'success'
         env:
-          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+          SITE_URL: ${{ steps.health.outputs.site_url }}
         run: |
           set -euo pipefail
-          SITE_URL="https://${AZURE_WEBAPP_NAME}.azurewebsites.net"
           {
             echo "### Staging deployment"
             echo "- Commit: \`${GITHUB_SHA}\`"
@@ -331,42 +270,22 @@ jobs:
             exit 1
           fi
 
-      - name: Download last successful package
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download last deployed package
         id: previous
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          ARTIFACTS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=cookshare-publish&per_page=100")
-          mapfile -t CANDIDATES < <(echo "${ARTIFACTS}" | jq -r --argjson current "${GITHUB_RUN_ID}" '
-            [.artifacts[]
-              | select(.expired == false and .workflow_run.id != $current)]
-            | sort_by(.created_at)
-            | reverse
-            | .[].workflow_run.id')
-
-          RUN_ID=""
-          for candidate in "${CANDIDATES[@]}"; do
-            if [ -z "${candidate}" ]; then
-              continue
-            fi
-            conclusion=$(gh run view "${candidate}" --repo "${GITHUB_REPOSITORY}" --json conclusion --jq .conclusion)
-            if [ "${conclusion}" = "success" ]; then
-              RUN_ID="${candidate}"
-              break
-            fi
-          done
-
-          if [ -z "${RUN_ID}" ]; then
+          if ! bash .github/scripts/select-staging-package.sh; then
             echo "::error::No previous successful deployment package is available. Artifacts are kept for 14 days."
             exit 1
           fi
 
-          gh run download "${RUN_ID}" --repo "${GITHUB_REPOSITORY}" --name cookshare-publish --dir ./previous-package
-          test -s ./previous-package/cookshare.zip
-          echo "run_id=${RUN_ID}" >> "${GITHUB_OUTPUT}"
-
       - name: Deploy previous package
+        id: ship
         uses: Azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
@@ -376,30 +295,19 @@ jobs:
       - name: Verify restored application
         id: health
         env:
-          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+          SITE_URL: ${{ steps.ship.outputs.webapp-url }}
         run: |
           set -euo pipefail
-          SITE_URL="https://${AZURE_WEBAPP_NAME}.azurewebsites.net"
-          echo "site_url=${SITE_URL}" >> "${GITHUB_OUTPUT}"
+          if ! bash .github/scripts/check-staging-site.sh "${SITE_URL}"; then
+            echo "::error::Rollback package was deployed, but the application is still unhealthy."
+            exit 1
+          fi
 
-          for attempt in $(seq 1 18); do
-            HEALTH=$(curl --silent --show-error --output /dev/null --write-out "%{http_code}" "${SITE_URL}/health" || echo "000")
-            HOME_STATUS=$(curl --silent --show-error --output /dev/null --write-out "%{http_code}" "${SITE_URL}/" || echo "000")
-
-            if [ "${HEALTH}" = "200" ] && [ "${HOME_STATUS}" = "200" ]; then
-              {
-                echo "### Staging rollback"
-                echo "- Restored package from run ${{ steps.previous.outputs.run_id }}"
-                echo "- URL: ${SITE_URL}"
-                echo "- Health check: HTTP 200"
-                echo "- Database schema changes are not reverted by this job."
-              } >> "${GITHUB_STEP_SUMMARY}"
-              exit 0
-            fi
-
-            echo "Attempt ${attempt}: health HTTP ${HEALTH}, home HTTP ${HOME_STATUS}."
-            sleep 10
-          done
-
-          echo "::error::Rollback package was deployed, but the application is still unhealthy."
-          exit 1
+          RESOLVED_URL="$(cat "${RUNNER_TEMP}/cookshare-site-url")"
+          {
+            echo "### Staging rollback"
+            echo "- Restored package from run ${{ steps.previous.outputs.run_id }}"
+            echo "- URL: ${RESOLVED_URL}"
+            echo "- Health check: /health and / returned HTTP 200"
+            echo "- Database schema changes are not reverted by this job."
+          } >> "${GITHUB_STEP_SUMMARY}"
