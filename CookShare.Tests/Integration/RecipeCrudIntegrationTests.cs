@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CookShare.Tests.Integration
 {
-    [Collection(CookShareDatabaseCollection.Name)]
+    [Collection(PostgreSqlIntegrationCollection.Name)]
     public class RecipeCrudIntegrationTests
     {
         private readonly CookShareWebApplicationFactory _factory;

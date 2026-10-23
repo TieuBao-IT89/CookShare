@@ -51,6 +51,12 @@ namespace CookShare.Services
                     x.FollowingId == userId)
                 .ExecuteDeleteAsync();
 
+            await _db.Notifications
+                .Where(x =>
+                    x.ActorId == userId ||
+                    x.RecipientId == userId)
+                .ExecuteDeleteAsync();
+
             var recipeIds = await _db.Recipes
                 .Where(r => r.UserId == userId)
                 .Select(r => r.Id)
@@ -58,6 +64,12 @@ namespace CookShare.Services
 
             if (recipeIds.Count > 0)
             {
+                await _db.Notifications
+                    .Where(x =>
+                        x.RecipeId != null &&
+                        recipeIds.Contains(x.RecipeId.Value))
+                    .ExecuteDeleteAsync();
+
                 await _db.RecipeLikes
                     .Where(x => recipeIds.Contains(x.RecipeId))
                     .ExecuteDeleteAsync();

@@ -32,6 +32,9 @@ namespace CookShare.Data
         public DbSet<RecipeRating> RecipeRatings
             => Set<RecipeRating>();
 
+        public DbSet<Notification> Notifications
+            => Set<Notification>();
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
@@ -67,6 +70,59 @@ namespace CookShare.Data
 
                 entity.Property(u => u.AvatarUrl)
                     .HasMaxLength(500);
+            });
+
+            // Notification
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.RecipientId)
+                    .IsRequired();
+
+                entity.Property(x => x.ActorId)
+                    .IsRequired();
+
+                entity.Property(x => x.Type)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(x => x.Message)
+                    .HasMaxLength(500);
+
+                entity.Property(x => x.EventKey)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.HasIndex(x => x.EventKey)
+                    .IsUnique();
+
+                entity.HasIndex(x => new
+                {
+                    x.RecipientId,
+                    x.IsRead,
+                    x.CreatedAt
+                });
+
+                entity.HasOne(x => x.Recipient)
+                    .WithMany()
+                    .HasForeignKey(x => x.RecipientId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Actor)
+                    .WithMany()
+                    .HasForeignKey(x => x.ActorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<Recipe>()
+                    .WithMany()
+                    .HasForeignKey(x => x.RecipeId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne<RecipeComment>()
+                    .WithMany()
+                    .HasForeignKey(x => x.CommentId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // RecipeLike

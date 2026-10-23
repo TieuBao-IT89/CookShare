@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace CookShare.Tests.Integration
 {
-    [Collection(CookShareDatabaseCollection.Name)]
+    [Collection(PostgreSqlIntegrationCollection.Name)]
     public class AccountSettingsIntegrationTests
     {
         private const string Password = "TestPassword123!";
@@ -428,6 +428,11 @@ namespace CookShare.Tests.Integration
             Assert.False(await db.Follows.AnyAsync(follow =>
                 follow.FollowerId == owner.Id ||
                 follow.FollowingId == owner.Id));
+            Assert.False(await db.Notifications.AnyAsync(item =>
+                item.ActorId == owner.Id ||
+                item.RecipientId == owner.Id));
+            Assert.True(await db.Notifications.AnyAsync(item =>
+                item.EventKey == "delete-other-" + other.Id));
             Assert.False(await db.Favorites.AnyAsync(
                 favorite => favorite.UserId == owner.Id ||
                     favorite.RecipeId == ownedRecipeId));
@@ -655,6 +660,22 @@ namespace CookShare.Tests.Integration
             {
                 FollowerId = ownerId,
                 FollowingId = otherId
+            });
+            db.Notifications.Add(new Notification
+            {
+                RecipientId = otherId,
+                ActorId = ownerId,
+                Type = "like",
+                EventKey = "delete-owner-" + ownerId,
+                RecipeId = otherRecipeId
+            });
+            db.Notifications.Add(new Notification
+            {
+                RecipientId = otherId,
+                ActorId = otherId,
+                Type = "like",
+                EventKey = "delete-other-" + otherId,
+                RecipeId = otherRecipeId
             });
 
             await db.SaveChangesAsync();

@@ -181,7 +181,7 @@ Dịch vụ email đọc cấu hình `Email`. `Email__SmtpPassword` và `Email__
 
 Khi người dùng xác nhận xóa tài khoản bằng mật khẩu hiện tại, CookShare xóa theo thứ tự:
 
-1. Lượt thích, bình luận, đánh giá và công thức đã lưu của người đó.
+1. Lượt thích, bình luận, đánh giá, công thức đã lưu và thông báo của người đó.
 2. Quan hệ theo dõi mà người đó là người theo dõi hoặc người được theo dõi.
 3. Công thức do người đó đăng, cùng tương tác của người khác trên những công thức này.
 4. Bản ghi ASP.NET Core Identity của tài khoản, gồm tên hiển thị và ảnh đại diện.

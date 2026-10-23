@@ -1,7 +1,9 @@
 
 using System.Security.Claims;
 using CookShare.Data;
+using CookShare.Models;
 using CookShare.Models.Identity;
+using CookShare.Services;
 using CookShare.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -134,6 +136,80 @@ namespace CookShare.Controllers
             };
 
             return View(model);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Follow(string userId)
+        {
+            var followerId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(followerId))
+            {
+                return Challenge();
+            }
+
+            if (string.IsNullOrWhiteSpace(userId)
+                || userId == followerId
+                || !await _db.Users.AnyAsync(user => user.Id == userId))
+            {
+                return NotFound();
+            }
+
+            var existingFollow = await _db.Follows
+                .FirstOrDefaultAsync(follow =>
+                    follow.FollowerId == followerId
+                    && follow.FollowingId == userId);
+
+            if (existingFollow == null)
+            {
+                await using var transaction =
+                    await _db.Database.BeginTransactionAsync();
+
+                var follow = new Follow
+                {
+                    FollowerId = followerId,
+                    FollowingId = userId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _db.Follows.Add(follow);
+                await _db.SaveChangesAsync();
+                await new NotificationService(_db)
+                    .NotifyFollowAsync(follow);
+
+                await transaction.CommitAsync();
+            }
+
+            return RedirectToAction(nameof(Index), new { userId });
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unfollow(string userId)
+        {
+            var followerId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(followerId))
+            {
+                return Challenge();
+            }
+
+            var follow = await _db.Follows.FirstOrDefaultAsync(item =>
+                item.FollowerId == followerId
+                && item.FollowingId == userId);
+
+            if (follow != null)
+            {
+                _db.Follows.Remove(follow);
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index), new { userId });
         }
 
         // GET: /Profile/Edit
