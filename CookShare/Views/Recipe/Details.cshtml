@@ -126,7 +126,7 @@
                 <ul class="notification-list">
                     @foreach (var comment in Model.Comments.OrderByDescending(item => item.CreatedAt))
                     {
-                        <li class="notification-item">
+                        <li class="notification-item" id="comment-@comment.Id">
                             <strong>@(comment.User?.DisplayName ?? comment.User?.UserName ?? "CookShare User")</strong>
                             <p>@comment.Content</p>
                             <time datetime="@comment.CreatedAt.ToString("O")">@comment.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</time>

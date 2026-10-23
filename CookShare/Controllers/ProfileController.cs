@@ -165,6 +165,9 @@ namespace CookShare.Controllers
 
             if (existingFollow == null)
             {
+                await using var transaction =
+                    await _db.Database.BeginTransactionAsync();
+
                 var follow = new Follow
                 {
                     FollowerId = followerId,
@@ -176,6 +179,8 @@ namespace CookShare.Controllers
                 await _db.SaveChangesAsync();
                 await new NotificationService(_db)
                     .NotifyFollowAsync(follow);
+
+                await transaction.CommitAsync();
             }
 
             return RedirectToAction(nameof(Index), new { userId });

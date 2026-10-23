@@ -1,8 +1,11 @@
 using System.Net;
 using System.Text.RegularExpressions;
+using CookShare.Controllers;
 using CookShare.Data;
 using CookShare.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CookShare.Tests.Integration
@@ -80,7 +83,8 @@ namespace CookShare.Tests.Integration
                         .AsNoTracking()
                         .Where(item =>
                             item.RecipientId == _factory.OwnerId
-                            && item.ActorId == _factory.OtherUserId)
+                            && item.ActorId == _factory.OtherUserId
+                            && (item.Type == "Follow" || item.RecipeId == recipeId))
                         .Select(item => item.Type)
                         .OrderBy(type => type)
                         .ToArrayAsync());
@@ -123,6 +127,100 @@ namespace CookShare.Tests.Integration
                 }));
 
             Assert.Equal(HttpStatusCode.NotFound, unauthorizedResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task CommentNotification_OpensTheRenderedCommentAnchor()
+        {
+            var recipeId = await SeedRecipeAsync(_factory.OwnerId);
+            using var actorClient =
+                _factory.CreateTestClient(_factory.OtherUserId);
+            var token = await GetTokenAsync(
+                actorClient,
+                $"/Recipe/Details/{recipeId}");
+            using var commentResponse = await actorClient.PostAsync(
+                $"/Recipe/AddComment/{recipeId}",
+                new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["__RequestVerificationToken"] = token,
+                    ["content"] = "Comment anchor test"
+                }));
+            Assert.Equal(HttpStatusCode.Redirect, commentResponse.StatusCode);
+
+            int notificationId;
+            int commentId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider
+                    .GetRequiredService<ApplicationDbContext>();
+                var notification = await db.Notifications.SingleAsync(item =>
+                    item.RecipeId == recipeId && item.Type == "Comment");
+                notificationId = notification.Id;
+                commentId = notification.CommentId!.Value;
+            }
+
+            var expectedUrl = $"/Recipe/Details/{recipeId}#comment-{commentId}";
+            Assert.Equal(expectedUrl, commentResponse.Headers.Location?.ToString());
+
+            using var ownerClient =
+                _factory.CreateTestClient(_factory.OwnerId);
+            var ownerToken = await GetTokenAsync(
+                ownerClient,
+                "/Notifications/Index");
+            using var openResponse = await ownerClient.PostAsync(
+                $"/Notifications/Open/{notificationId}",
+                new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["__RequestVerificationToken"] = ownerToken
+                }));
+            Assert.Equal(HttpStatusCode.Redirect, openResponse.StatusCode);
+            Assert.Equal(expectedUrl, openResponse.Headers.Location?.ToString());
+
+            using var detailsResponse = await ownerClient.GetAsync(
+                $"/Recipe/Details/{recipeId}");
+            detailsResponse.EnsureSuccessStatusCode();
+            var html = await detailsResponse.Content.ReadAsStringAsync();
+            Assert.Contains($"id=\"comment-{commentId}\"", html);
+            Assert.Contains("Comment anchor test", html);
+        }
+
+        [Fact]
+        public async Task Details_LoadsInteractionsWithoutCollectionJoinWarning()
+        {
+            var recipeId = await SeedRecipeAsync(_factory.OwnerId);
+            using var scope = _factory.Services.CreateScope();
+            var connection = scope.ServiceProvider
+                .GetRequiredService<ApplicationDbContext>()
+                .Database.GetConnectionString();
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseNpgsql(connection)
+                .ConfigureWarnings(warnings => warnings.Throw(
+                    RelationalEventId.MultipleCollectionIncludeWarning))
+                .Options;
+            await using var db = new ApplicationDbContext(options);
+            db.RecipeLikes.AddRange(
+                new RecipeLike { RecipeId = recipeId, UserId = _factory.OwnerId },
+                new RecipeLike { RecipeId = recipeId, UserId = _factory.OtherUserId });
+            for (int index = 0; index < 3; index++)
+            {
+                db.RecipeComments.Add(new RecipeComment
+                {
+                    RecipeId = recipeId,
+                    UserId = _factory.OtherUserId,
+                    Content = $"Comment {index}"
+                });
+            }
+
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            var result = Assert.IsType<ViewResult>(
+                await new RecipeController(db).Details(recipeId));
+            var recipe = Assert.IsType<Recipe>(result.Model);
+            Assert.Equal(2, recipe.Likes.Count);
+            Assert.Equal(3, recipe.Comments.Count);
+            Assert.NotNull(recipe.User);
+            Assert.All(recipe.Comments, comment => Assert.NotNull(comment.User));
         }
 
         private async Task<int> SeedRecipeAsync(string ownerId)

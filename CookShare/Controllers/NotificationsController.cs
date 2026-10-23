@@ -91,7 +91,10 @@ namespace CookShare.Controllers
                 return RedirectToAction(
                     "Details",
                     "Recipe",
-                    new { id = notification.RecipeId.Value });
+                    new { id = notification.RecipeId.Value },
+                    notification.CommentId.HasValue
+                        ? $"comment-{notification.CommentId.Value}"
+                        : null);
             }
 
             return RedirectToAction(

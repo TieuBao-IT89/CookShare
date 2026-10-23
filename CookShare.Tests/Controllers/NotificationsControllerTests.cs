@@ -70,6 +70,46 @@ namespace CookShare.Tests.Controllers
             Assert.True((await db.Notifications.SingleAsync()).IsRead);
         }
 
+        [Theory]
+        [InlineData("Comment", 10, 30, "Recipe", "Details", "comment-30")]
+        [InlineData("Comment", 10, null, "Recipe", "Details", null)]
+        [InlineData("Like", 10, null, "Recipe", "Details", null)]
+        [InlineData("Follow", null, null, "Profile", "Index", null)]
+        public async Task Open_RedirectsToRelatedContentAndMarksAsRead(
+            string type,
+            int? recipeId,
+            int? commentId,
+            string controllerName,
+            string actionName,
+            string? fragment)
+        {
+            await using var db = CreateDb();
+            var notification = NewNotification("owner", "actor", 1);
+            notification.Type = type;
+            notification.RecipeId = recipeId;
+            notification.CommentId = commentId;
+            db.Notifications.Add(notification);
+            await db.SaveChangesAsync();
+
+            var result = Assert.IsType<RedirectToActionResult>(
+                await CreateController(db, "owner").Open(notification.Id));
+
+            Assert.Equal(controllerName, result.ControllerName);
+            Assert.Equal(actionName, result.ActionName);
+            Assert.Equal(fragment, result.Fragment);
+            if (recipeId.HasValue)
+            {
+                Assert.Equal(recipeId.Value, result.RouteValues!["id"]);
+            }
+            else
+            {
+                Assert.Equal("actor", result.RouteValues!["userId"]);
+            }
+
+            db.ChangeTracker.Clear();
+            Assert.True((await db.Notifications.SingleAsync()).IsRead);
+        }
+
         private static ApplicationDbContext CreateDb()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()

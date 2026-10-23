@@ -38,6 +38,7 @@ namespace CookShare.Controllers
         {
             var recipe = await _db.Recipes
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(r => r.User)
                 .Include(r => r.Likes)
                 .Include(r => r.Comments)
@@ -80,9 +81,13 @@ namespace CookShare.Controllers
             if (existingLike != null)
             {
                 _db.RecipeLikes.Remove(existingLike);
+                await _db.SaveChangesAsync();
             }
             else
             {
+                await using var transaction =
+                    await _db.Database.BeginTransactionAsync();
+
                 var like = new RecipeLike
                 {
                     UserId = userId,
@@ -96,9 +101,9 @@ namespace CookShare.Controllers
 
                 await new NotificationService(_db)
                     .NotifyRecipeLikeAsync(like);
-            }
 
-            await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
 
             return RedirectToAction(nameof(Details), new { id });
         }
@@ -135,6 +140,9 @@ namespace CookShare.Controllers
                 return RedirectToAction(nameof(Details), new { id });
             }
 
+            await using var transaction =
+                await _db.Database.BeginTransactionAsync();
+
             var comment = new RecipeComment
             {
                 UserId = userId,
@@ -150,7 +158,13 @@ namespace CookShare.Controllers
             await new NotificationService(_db)
                 .NotifyRecipeCommentAsync(comment);
 
-            return Redirect($"{Url.Action(nameof(Details), new { id })}#comments");
+            await transaction.CommitAsync();
+
+            return RedirectToAction(
+                nameof(Details),
+                "Recipe",
+                new { id },
+                $"comment-{comment.Id}");
         }
 
         // GET: /Recipe/Create
