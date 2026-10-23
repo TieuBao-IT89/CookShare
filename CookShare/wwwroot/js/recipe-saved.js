@@ -54,6 +54,11 @@
             clearStatus(button);
             button.dataset.isSaved = String(saved);
             button.classList.toggle("saved", saved);
+            const icon = button.querySelector(".save-icon .fa-bookmark");
+            if (icon) {
+                icon.classList.toggle("fa-solid", saved);
+                icon.classList.toggle("fa-regular", !saved);
+            }
             button.setAttribute("aria-pressed", String(saved));
             button.setAttribute("title", saved ? "Bỏ lưu công thức này" : "Lưu công thức này");
             button.setAttribute("aria-label", `${saved ? "Bỏ lưu" : "Lưu"} ${button.dataset.recipeName || "công thức"}`);

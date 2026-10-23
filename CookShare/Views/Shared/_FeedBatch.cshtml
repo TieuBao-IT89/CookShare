@@ -1,0 +1,12 @@
+@model CookShare.ViewModels.RecipeFeedPage
+@{
+    ViewData["InteractionReturnUrl"] = Url.Action("Index", "Home", new { feed = Model.Mode });
+}
+<div class="feed-batch" data-feed-batch data-mode="@Model.Mode" data-viewer-id="@Model.ViewerId"
+     data-next-url="@(Model.NextCursor == null ? null : Url.Action("More", "Home", new { feed = Model.Mode, cursor = Model.NextCursor }))"
+     data-next-page="@(Model.NextCursor == null ? null : Url.Action("Index", "Home", new { feed = Model.Mode, cursor = Model.NextCursor }))">
+    @foreach (var post in Model.Recipes)
+    {
+        <partial name="_FeedPost" model="post" />
+    }
+</div>

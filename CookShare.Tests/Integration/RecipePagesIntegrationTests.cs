@@ -26,8 +26,8 @@ namespace CookShare.Tests.Integration
         public async Task Home_ShouldRenderDatabaseFeaturedAndLatestWithStableOrdering()
         {
             var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            await SeedRecipeAsync("First recipe", createdAt: timestamp);
-            await SeedRecipeAsync("Second recipe", createdAt: timestamp.AddDays(1));
+            var first = await SeedRecipeAsync("First recipe", createdAt: timestamp);
+            var second = await SeedRecipeAsync("Second recipe", createdAt: timestamp.AddDays(1));
             var third = await SeedRecipeAsync("Third recipe", createdAt: timestamp.AddDays(2));
             var fourth = await SeedRecipeAsync("Fourth recipe", createdAt: timestamp.AddDays(3));
             var fifth = await SeedRecipeAsync("Fifth recipe", createdAt: timestamp.AddDays(3));
@@ -37,7 +37,7 @@ namespace CookShare.Tests.Integration
             var featured = GetSectionContaining(html, "homeFeaturedGrid");
             var popular = GetSectionContaining(html, "homePopularGrid");
             var topRated = GetSectionContaining(html, "homeTopRatedGrid");
-            var latest = GetSectionContaining(html, "homeLatestGrid");
+            var latest = GetSectionContaining(html, "homeFeedItems");
 
             Assert.Empty(GetCardIds(featured));
             Assert.Contains("Chưa có món nổi bật", featured);
@@ -45,12 +45,12 @@ namespace CookShare.Tests.Integration
             Assert.Contains("Chưa có công thức nào được yêu thích.", popular);
             Assert.Empty(GetCardIds(topRated));
             Assert.Contains("Chưa có công thức nào được đánh giá.", topRated);
-            Assert.Equal(new[] { fifth, fourth, third }, GetCardIds(latest));
+            Assert.Equal(new[] { fifth, fourth, third, second, first }, GetCardIds(latest));
             AssertRecipeLink(latest, fifth, "Fifth recipe");
             Assert.Contains("Kitchen Owner", latest);
             Assert.Contains("/Profile?userId=" + _factory.OwnerId, latest);
             Assert.DoesNotContain("Fourth recipe", featured);
-            Assert.DoesNotContain("Second recipe", latest);
+            Assert.Contains("Second recipe", latest);
         }
 
         [Fact]
@@ -77,9 +77,9 @@ namespace CookShare.Tests.Integration
             var topRated = GetSectionContaining(html, "homeTopRatedGrid");
 
             Assert.Equal(3, RecipeDiscoveryQueries.SectionSize);
-            Assert.Equal(new[] { praised, loved, rated }, GetCardIds(featured));
-            Assert.Equal(new[] { loved, liked }, GetCardIds(popular));
-            Assert.Equal(new[] { praised, rated }, GetCardIds(topRated));
+            Assert.Equal(new[] { praised, loved, rated }, GetDiscoveryIds(featured));
+            Assert.Equal(new[] { loved, liked }, GetDiscoveryIds(popular));
+            Assert.Equal(new[] { praised, rated }, GetDiscoveryIds(topRated));
             Assert.DoesNotContain($"data-recipe-id=\"{quiet}\"", featured);
             Assert.DoesNotContain($"data-recipe-id=\"{quiet}\"", popular);
             Assert.DoesNotContain($"data-recipe-id=\"{quiet}\"", topRated);
@@ -537,6 +537,11 @@ namespace CookShare.Tests.Integration
 
         private static string GetSectionContaining(string html, string gridId)
         {
+            if (gridId is "homePopularGrid" or "homeTopRatedGrid")
+            {
+                return Regex.Match(html, $"<details id=\"{gridId}\">[\\s\\S]*?</details>").Value;
+            }
+
             return Regex.Matches(html, @"<section\b[^>]*>[\s\S]*?</section>", RegexOptions.IgnoreCase)
                 .Select(match => match.Value)
                 .Single(section => section.Contains($"id=\"{gridId}\"", StringComparison.Ordinal));
@@ -547,6 +552,12 @@ namespace CookShare.Tests.Integration
             return Regex.Matches(html, "<article\\b[^>]*\\bdata-recipe-id=\"(\\d+)\"", RegexOptions.IgnoreCase)
                 .Select(match => int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture))
                 .ToArray();
+        }
+
+        private static int[] GetDiscoveryIds(string html)
+        {
+            return Regex.Matches(html, "data-recipe-id=\"(\\d+)\"")
+                .Select(match => int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture)).ToArray();
         }
     }
 }

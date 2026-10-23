@@ -1,16 +1,18 @@
 @model CookShare.ViewModels.RecipeCommentsViewModel
 @{
-  var returnUrl = Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString;
+  var returnUrl = ViewData["InteractionReturnUrl"] as string ?? (Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString);
   var loginUrl = Url.Action("Login", "Account", new { returnUrl });
   var commentsUrl = Url.Content($"~/Recipe/{Model.RecipeId}/Comments");
   var textareaId = $"recipeComment_{Model.RecipeId}";
   var counterId = $"recipeCommentCounter_{Model.RecipeId}";
   var validationId = $"recipeCommentValidation_{Model.RecipeId}";
+  var headingId = ViewData["CommentsHeadingId"] as string ?? "recipeCommentsHeading";
+  var commentCount = Model.TotalCount ?? Model.Comments.Count;
 }
-<section class="comment-section" data-db-recipe-comments data-recipe-id="@Model.RecipeId" data-comments-url="@commentsUrl" data-profile-url="@Url.Action("Index", "Profile")" data-login-url="@loginUrl" aria-labelledby="recipeCommentsHeading">
+<section class="comment-section" data-db-recipe-comments data-recipe-id="@Model.RecipeId" data-viewer-id="@ViewData["FeedViewerId"]" data-comments-url="@commentsUrl" data-profile-url="@Url.Action("Index", "Profile")" data-login-url="@loginUrl" aria-labelledby="@headingId">
   <div class="comment-section-header">
-    <h2 class="comment-section-title" id="recipeCommentsHeading"><span class="title-icon" aria-hidden="true">💬</span> Bình luận</h2>
-    <span class="comment-count-badge" data-db-comment-count aria-label="Số bình luận">@Model.Comments.Count</span>
+    <h2 class="comment-section-title" id="@headingId"><span class="title-icon" aria-hidden="true">💬</span> Bình luận</h2>
+    <span class="comment-count-badge" data-db-comment-count aria-label="Số bình luận">@commentCount</span>
   </div>
   @if (Model.IsAuthenticated)
   {
@@ -41,7 +43,11 @@
       <partial name="_RecipeCommentItem" model="comment" />
     }
   </div>
-  <div class="comment-empty-state" data-comment-empty hidden="@(Model.Comments.Count > 0)">
+  @if (commentCount > Model.Comments.Count)
+  {
+    <a class="text-link" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.RecipeId" asp-fragment="recipeCommentsHeading">Xem tất cả bình luận</a>
+  }
+  <div class="comment-empty-state" data-comment-empty hidden="@(commentCount > 0)">
     <div class="comment-empty-state-icon" aria-hidden="true">💬</div>
     <p class="comment-empty-state-text">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận về món ăn này!</p>
   </div>

@@ -243,6 +243,10 @@ dotnet test CookShare.sln
 
 Xem [hướng dẫn Recipe Seeding](docs/RECIPE_SEEDING.md) để thêm 30 công thức mẫu cho các tài khoản kiểm thử hoặc import từ TheMealDB. Công cụ hỗ trợ Dry Run, chống trùng và chỉ chạy bằng lệnh riêng trong Development/Testing.
 
+### Bảng tin công thức
+
+Trang chủ có bảng tin Mới nhất và [Đang theo dõi](docs/HOME_FEED.md), hỗ trợ cuộn tải thêm, Like/Lưu, bình luận ngay trên bài và chia sẻ liên kết. Bảng tin Đang theo dõi lấy dữ liệu từ PostgreSQL theo tài khoản đăng nhập.
+
 ## 8. Hướng dẫn chạy dự án (Getting Started)
 
 Sau khi lấy mã mới hoặc chuyển nhánh, áp dụng các migration còn thiếu vào database Development đã cấu hình trước khi mở website:

@@ -7,5 +7,7 @@ namespace CookShare.ViewModels
         public IReadOnlyList<RecipeCommentViewModel> Comments { get; set; } = Array.Empty<RecipeCommentViewModel>();
 
         public bool IsAuthenticated { get; set; }
+
+        public int? TotalCount { get; set; }
     }
 }

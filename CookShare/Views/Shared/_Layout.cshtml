@@ -7,6 +7,10 @@
     <meta name="theme-color" content="#245c43" />
     <title>@ViewData["Title"] · CookShare</title>
     <link rel="icon" href="~/favicon.ico" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+          integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -41,18 +45,18 @@
                 <a asp-controller="Profile" asp-action="Index">Trang cá nhân</a>
                 <a asp-controller="Home" asp-action="Register">Tham gia cộng đồng</a>
             </div>
-            <div class="footer-kitchen"><svg class="icon"><use href="#i-heart" /></svg><p>Món ngon hơn<br />khi được sẻ chia.</p></div>
+            <div class="footer-kitchen"><i class="icon fa-regular fa-heart" aria-hidden="true"></i><p>Món ngon hơn<br />khi được sẻ chia.</p></div>
         </div>
         <div class="container footer-bottom">
             <span>© @DateTime.Now.Year CookShare. Cộng đồng yêu bếp.</span>
-            <span>Một chút cảm hứng cho bữa cơm mỗi ngày <svg class="icon"><use href="#i-leaf" /></svg></span>
+            <span>Một chút cảm hứng cho bữa cơm mỗi ngày <i class="icon fa-solid fa-leaf" aria-hidden="true"></i></span>
         </div>
     </footer>
     <partial name="_RecipeCardTemplate" />
     <div id="uiToast" class="ui-toast" role="status" aria-live="polite" hidden></div>
     <dialog id="confirmDialog" class="confirm-dialog" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
         <form method="dialog" asp-antiforgery="false">
-            <span class="state-icon danger"><svg class="icon"><use href="#i-trash" /></svg></span>
+            <span class="state-icon danger"><i class="icon fa-regular fa-trash-can" aria-hidden="true"></i></span>
             <h2 id="confirmTitle">Xóa công thức?</h2><p id="confirmMessage"></p>
             <div class="dialog-actions">
                 <button class="btn btn-secondary" value="cancel" autofocus>Giữ lại</button>

@@ -5,7 +5,7 @@
   var saved = savedIds?.Contains(Model.Id) == true;
   var buttonClass = ViewData["SaveButtonClass"] as string ?? "card-save";
   var isUnsaveButton = buttonClass == "saved-card-unsave-btn";
-  var returnUrl = Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString;
+  var returnUrl = ViewData["InteractionReturnUrl"] as string ?? (Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString);
   var loginUrl = Url.Action("Login", "Account", new { returnUrl });
   var saveUrl = Url.Content($"~/Recipe/{Model.Id}/Favorites");
   var unsaveUrl = Url.Content($"~/Recipe/{Model.Id}/Favorites/Unsave");
@@ -23,7 +23,7 @@
               data-is-saved="@saved.ToString().ToLowerInvariant()" data-saved-user-id="@userId"
               data-save-url="@saveUrl" data-unsave-url="@unsaveUrl" data-state-url="@stateUrl" data-login-url="@loginUrl"
               aria-pressed="@saved.ToString().ToLowerInvariant()" aria-label="@label" title="@label">
-        <span class="save-icon"><svg class="icon" aria-hidden="true"><use href="#i-bookmark" /></svg></span>
+        <span class="save-icon"><i class="icon @(saved ? "fa-solid" : "fa-regular") fa-bookmark" aria-hidden="true"></i></span>
         @if (buttonClass != "card-save")
         {
           <span class="save-text">@(isUnsaveButton ? "Bỏ lưu công thức" : saved ? "Đã lưu" : "Lưu")</span>
@@ -36,7 +36,7 @@
     <a class="recipe-save-btn @buttonClass" href="@loginUrl"
        data-db-recipe-save data-recipe-id="@Model.Id" data-is-saved="false"
        data-saved-user-id="" data-login-url="@loginUrl" aria-label="Đăng nhập để lưu @Model.Name" title="Đăng nhập để lưu công thức">
-      <span class="save-icon"><svg class="icon" aria-hidden="true"><use href="#i-bookmark" /></svg></span>
+      <span class="save-icon"><i class="icon fa-regular fa-bookmark" aria-hidden="true"></i></span>
       @if (buttonClass != "card-save")
       {
         <span class="save-text">Lưu</span>
