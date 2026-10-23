@@ -87,9 +87,15 @@ namespace CookShare.Tests.Integration
 
         public async Task InitializeAsync()
         {
-            // xUnit can initialize class fixtures even when every PostgreSQL
-            // fact is skipped. Do not start its host or migrate without opt-in.
-            if (!PostgresFactAttribute.IsEnabled)
+            // xUnit can initialize this fixture even when every PostgreSQL
+            // fact is skipped. Account settings tests in the same collection
+            // still run on CI, which sets the connection string but not
+            // COOKSHARE_RUN_POSTGRES_TESTS. Migrate in that case too.
+            var connection = Environment.GetEnvironmentVariable(
+                "COOKSHARE_TEST_CONNECTION");
+
+            if (!PostgresFactAttribute.IsEnabled
+                && string.IsNullOrWhiteSpace(connection))
             {
                 return;
             }
