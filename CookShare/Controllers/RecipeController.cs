@@ -46,9 +46,9 @@ namespace CookShare.Controllers
                 .ToListAsync();
 
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
-                _db, recipes.Select(recipe => recipe.Id), User.FindFirstValue(ClaimTypes.NameIdentifier));
+                _db, recipes.Select(recipe => recipe.Id), User?.FindFirstValue(ClaimTypes.NameIdentifier));
             ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(
-                _db, recipes.Select(recipe => recipe.Id), User.FindFirstValue(ClaimTypes.NameIdentifier));
+                _db, recipes.Select(recipe => recipe.Id), User?.FindFirstValue(ClaimTypes.NameIdentifier));
 
             return View(new RecipeIndexViewModel
             {
@@ -77,14 +77,14 @@ namespace CookShare.Controllers
                 return NotFound();
             }
 
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? userId = User?.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(_db, new[] { recipe.Id }, userId);
             ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(_db, new[] { recipe.Id }, userId);
             ViewData["RecipeComments"] = new RecipeCommentsViewModel
             {
                 RecipeId = recipe.Id,
                 Comments = await RecipeCommentQueries.LoadAsync(_db, recipe.Id, userId),
-                IsAuthenticated = User.Identity?.IsAuthenticated == true
+                IsAuthenticated = User?.Identity?.IsAuthenticated == true
             };
 
             return View(recipe);
