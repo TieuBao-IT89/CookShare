@@ -170,8 +170,8 @@ Nhóm CookShare khuyến khích:
 
 Người dùng đã đăng nhập quản lý tài khoản của chính mình tại `/Account/Settings`. Mỗi thao tác ghi dữ liệu dùng Authentication và Anti-Forgery. Người dùng không cập nhật được tài khoản của người khác.
 
-- Đổi tên hiển thị chỉ thay `DisplayName`.
-- Đổi email yêu cầu mật khẩu hiện tại. Địa chỉ cũ được giữ cho đến khi địa chỉ mới mở liên kết xác nhận.
+- Tên hiển thị và ảnh đại diện được chỉnh tại `/Profile/Edit`. Trang cài đặt tài khoản chỉ đọc hai trường này.
+- Đổi email yêu cầu mật khẩu hiện tại. Địa chỉ cũ được giữ cho đến khi địa chỉ mới mở liên kết xác nhận. Đổi email và đổi mật khẩu giữ nguyên hồ sơ.
 - Đổi mật khẩu yêu cầu mật khẩu hiện tại. Security stamp được cập nhật và phiên đăng nhập được làm mới.
 - Email xác minh và liên kết đặt lại mật khẩu hết hạn sau 1 giờ.
 - Trang quên mật khẩu luôn trả cùng một thông báo, dù email có tài khoản hay không. Trang đó không hiển thị email, token hoặc mật khẩu.
@@ -184,7 +184,9 @@ Khi người dùng xác nhận xóa tài khoản bằng mật khẩu hiện tạ
 1. Lượt thích, bình luận, đánh giá và công thức đã lưu của người đó.
 2. Quan hệ theo dõi mà người đó là người theo dõi hoặc người được theo dõi.
 3. Công thức do người đó đăng, cùng tương tác của người khác trên những công thức này.
-4. Bản ghi ASP.NET Core Identity của tài khoản.
+4. Bản ghi ASP.NET Core Identity của tài khoản, gồm tên hiển thị và ảnh đại diện.
+
+Hồ sơ, công thức và tương tác của các tài khoản khác được giữ nguyên. Tương tác của họ trên công thức của tài khoản bị xóa đi cùng những công thức đó.
 
 Các quan hệ này đang dùng `DeleteBehavior.Restrict`. Xóa dữ liệu phụ thuộc trước giúp không để lại khóa ngoại mồ côi và không chặn lệnh xóa tài khoản.
 

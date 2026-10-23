@@ -25,21 +25,12 @@
         </article>
 
         <article class="settings-card">
-            <h2>Tên hiển thị</h2>
-            <p>Tên này xuất hiện trên công thức bạn chia sẻ.</p>
-            <form asp-action="UpdateDisplayName" method="post">
-                @Html.AntiForgeryToken()
-                @if (activeForm == "display")
-                {
-                    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-                }
-                <div class="form-field-group">
-                    <label class="form-label" asp-for="DisplayNameForm.DisplayName">Tên hiển thị</label>
-                    <input class="form-input" asp-for="DisplayNameForm.DisplayName" autocomplete="nickname" />
-                    <span asp-validation-for="DisplayNameForm.DisplayName" class="text-danger"></span>
-                </div>
-                <button class="btn" type="submit">Lưu tên</button>
-            </form>
+            <h2>Hồ sơ</h2>
+            <p>
+                Tên hiển thị hiện tại: @Model.DisplayName.
+                Tên hiển thị và ảnh đại diện được lưu trên trang cá nhân.
+            </p>
+            <a class="btn btn-secondary" asp-controller="Profile" asp-action="Edit">Chỉnh sửa hồ sơ</a>
         </article>
 
         <article class="settings-card">

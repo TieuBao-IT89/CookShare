@@ -53,28 +53,44 @@ namespace CookShare.Tests.Integration
         }
 
         [Fact]
-        public async Task UpdateDisplayName_changes_only_the_signed_in_user()
+        public async Task Settings_reads_profile_fields_without_changing_them()
         {
-            var owner = await CreateUserAsync("Tên cũ");
+            var owner = await CreateUserAsync("Bếp nhà");
             var other = await CreateUserAsync("Người khác");
-            using var client = _factory.CreateTestClient(owner.Id);
-            var token = await GetTokenAsync(client, "/Account/Settings");
+            await SetProfileAsync(
+                owner.Id, "Bếp nhà", "/img/owner-avatar.png");
+            await SetProfileAsync(
+                other.Id, "Người khác", "/img/other-avatar.png");
 
-            var response = await PostAsync(
+            using var client = _factory.CreateTestClient(owner.Id);
+            var page = await client.GetAsync("/Account/Settings");
+            var html = await page.Content.ReadAsStringAsync();
+
+            Assert.Equal(HttpStatusCode.OK, page.StatusCode);
+            Assert.Contains(
+                "/Profile/Edit", html, StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                "UpdateDisplayName", html, StringComparison.Ordinal);
+            Assert.Contains(
+                "Bếp nhà", VisibleText(html), StringComparison.Ordinal);
+
+            var changed = await PostAsync(
                 client,
-                "/Account/UpdateDisplayName",
-                token,
+                "/Account/ChangePassword",
+                TokenFrom(html),
                 new Dictionary<string, string>
                 {
-                    ["DisplayNameForm.DisplayName"] = "Bếp nhà"
+                    ["PasswordForm.CurrentPassword"] = Password,
+                    ["PasswordForm.NewPassword"] = "NewPassword123!",
+                    ["PasswordForm.ConfirmPassword"] = "NewPassword123!"
                 });
 
-            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-
-            var savedOwner = await FindUserAsync(owner.Id);
-            var savedOther = await FindUserAsync(other.Id);
-            Assert.Equal("Bếp nhà", savedOwner?.DisplayName);
-            Assert.Equal("Người khác", savedOther?.DisplayName);
+            Assert.Equal(HttpStatusCode.Redirect, changed.StatusCode);
+            await AssertProfileUnchangedAsync(
+                owner.Id, "Bếp nhà", "/img/owner-avatar.png");
+            await AssertProfileUnchangedAsync(
+                other.Id, "Người khác", "/img/other-avatar.png");
+            Assert.True(await CheckPasswordAsync(other.Id, Password));
         }
 
         [Fact]
@@ -144,6 +160,8 @@ namespace CookShare.Tests.Integration
                 saved?.Email,
                 ignoreCase: true);
             Assert.True(saved?.EmailConfirmed);
+            Assert.Equal("Đầu bếp", saved?.DisplayName);
+            Assert.Null(saved?.AvatarUrl);
         }
 
         [Fact]
@@ -236,13 +254,136 @@ namespace CookShare.Tests.Integration
         }
 
         [Fact]
+        public async Task Invalid_tokens_do_not_change_email_or_password()
+        {
+            var user = await CreateUserAsync("Đầu bếp");
+            var other = await CreateUserAsync("Người khác");
+            var newEmail = UniqueEmail();
+            using var client = _factory.CreateTestClient(user.Id);
+
+            var confirm = await client.GetAsync(
+                "/Account/ConfirmEmail?userId=" +
+                Uri.EscapeDataString(user.Id) +
+                "&code=" +
+                Uri.EscapeDataString("not-a-token"));
+            Assert.Contains(
+                "Liên kết không hợp lệ hoặc đã hết hạn.",
+                VisibleText(await confirm.Content.ReadAsStringAsync()),
+                StringComparison.Ordinal);
+            Assert.False((await FindUserAsync(user.Id))?.EmailConfirmed);
+
+            var requested = await PostAsync(
+                client,
+                "/Account/ChangeEmail",
+                await GetTokenAsync(client, "/Account/Settings"),
+                new Dictionary<string, string>
+                {
+                    ["EmailForm.NewEmail"] = newEmail,
+                    ["EmailForm.CurrentPassword"] = Password
+                });
+            Assert.Equal(HttpStatusCode.Redirect, requested.StatusCode);
+
+            var change = await client.GetAsync(
+                "/Account/ConfirmEmailChange?userId=" +
+                Uri.EscapeDataString(user.Id) +
+                "&email=" +
+                Uri.EscapeDataString(newEmail) +
+                "&code=" +
+                Uri.EscapeDataString("not-a-token"));
+            Assert.Contains(
+                "Liên kết không hợp lệ hoặc đã hết hạn.",
+                VisibleText(await change.Content.ReadAsStringAsync()),
+                StringComparison.Ordinal);
+            Assert.Equal(
+                user.Email,
+                (await FindUserAsync(user.Id))?.Email,
+                ignoreCase: true);
+
+            await ForgotPasswordAsync(client, user.Email!);
+            var code = QueryValue(LinkFor(user.Email!), "code");
+            var crossed = await ResetAsync(client, other.Id, code);
+            Assert.Contains(
+                "Liên kết không hợp lệ hoặc đã hết hạn.",
+                VisibleText(await crossed.Content.ReadAsStringAsync()),
+                StringComparison.Ordinal);
+            Assert.True(await CheckPasswordAsync(user.Id, Password));
+            Assert.True(await CheckPasswordAsync(other.Id, Password));
+            Assert.Equal("Đầu bếp", (await FindUserAsync(user.Id))?.DisplayName);
+            Assert.Equal(
+                "Người khác",
+                (await FindUserAsync(other.Id))?.DisplayName);
+        }
+
+        [Fact]
+        public async Task Expired_tokens_do_not_change_email_or_password()
+        {
+            var user = await CreateUserAsync("Đầu bếp");
+            var newEmail = UniqueEmail();
+            using var client = _factory.CreateTestClient(user.Id);
+
+            await PostAsync(
+                client,
+                "/Account/SendEmailConfirmation",
+                await GetTokenAsync(client, "/Account/Settings"),
+                new Dictionary<string, string>());
+            var confirmLink = LinkFor(user.Email!);
+
+            _factory.Emails.Messages.Clear();
+            await PostAsync(
+                client,
+                "/Account/ChangeEmail",
+                await GetTokenAsync(client, "/Account/Settings"),
+                new Dictionary<string, string>
+                {
+                    ["EmailForm.NewEmail"] = newEmail,
+                    ["EmailForm.CurrentPassword"] = Password
+                });
+            var changeLink = LinkFor(newEmail);
+
+            _factory.Emails.Messages.Clear();
+            await ForgotPasswordAsync(client, user.Email!);
+            var resetCode = QueryValue(LinkFor(user.Email!), "code");
+
+            await UsingTokenLifespanAsync(TimeSpan.FromTicks(-1), async () =>
+            {
+                var confirmed = await client.GetAsync(confirmLink);
+                var changed = await client.GetAsync(changeLink);
+                var reset = await ResetAsync(client, user.Id, resetCode);
+
+                Assert.Contains(
+                    "Liên kết không hợp lệ hoặc đã hết hạn.",
+                    VisibleText(await confirmed.Content.ReadAsStringAsync()),
+                    StringComparison.Ordinal);
+                Assert.Contains(
+                    "Liên kết không hợp lệ hoặc đã hết hạn.",
+                    VisibleText(await changed.Content.ReadAsStringAsync()),
+                    StringComparison.Ordinal);
+                Assert.Contains(
+                    "Liên kết không hợp lệ hoặc đã hết hạn.",
+                    VisibleText(await reset.Content.ReadAsStringAsync()),
+                    StringComparison.Ordinal);
+            });
+
+            var saved = await FindUserAsync(user.Id);
+            Assert.False(saved?.EmailConfirmed);
+            Assert.Equal(user.Email, saved?.Email, ignoreCase: true);
+            Assert.Equal("Đầu bếp", saved?.DisplayName);
+            Assert.True(await CheckPasswordAsync(user.Id, Password));
+        }
+
+        [Fact]
         public async Task DeleteAccount_removes_owned_data_and_keeps_other_users()
         {
             var owner = await CreateUserAsync("Chủ tài khoản");
             var other = await CreateUserAsync("Người khác");
+            await SetProfileAsync(
+                owner.Id, "Chủ tài khoản", "/img/owner-avatar.png");
+            await SetProfileAsync(
+                other.Id, "Người khác", "/img/other-avatar.png");
             var ownedRecipeId = await AddRecipeAsync(owner.Id, "Món của tôi");
             var otherRecipeId = await AddRecipeAsync(other.Id, "Món của bạn");
-            await AddInteractionAsync(owner.Id, other.Id, otherRecipeId);
+            await AddInteractionAsync(
+                owner.Id, other.Id, ownedRecipeId, otherRecipeId);
 
             using var client = _factory.CreateTestClient(owner.Id);
             var rejected = await PostAsync(
@@ -287,6 +428,41 @@ namespace CookShare.Tests.Integration
             Assert.False(await db.Follows.AnyAsync(follow =>
                 follow.FollowerId == owner.Id ||
                 follow.FollowingId == owner.Id));
+            Assert.False(await db.Favorites.AnyAsync(
+                favorite => favorite.UserId == owner.Id ||
+                    favorite.RecipeId == ownedRecipeId));
+            Assert.False(await db.RecipeRatings.AnyAsync(
+                rating => rating.UserId == owner.Id ||
+                    rating.RecipeId == ownedRecipeId));
+            Assert.True(await db.Favorites.AnyAsync(favorite =>
+                favorite.UserId == other.Id &&
+                favorite.RecipeId == otherRecipeId));
+            Assert.True(await db.RecipeRatings.AnyAsync(rating =>
+                rating.UserId == other.Id &&
+                rating.RecipeId == otherRecipeId &&
+                rating.Stars == 5));
+            await AssertProfileUnchangedAsync(
+                other.Id, "Người khác", "/img/other-avatar.png");
+            Assert.True(await CheckPasswordAsync(other.Id, Password));
+
+            using var anon = _factory.CreateTestClient();
+            var missing = await anon.GetAsync(
+                "/Profile?userId=" + Uri.EscapeDataString(owner.Id));
+            var profile = await anon.GetAsync(
+                "/Profile?userId=" + Uri.EscapeDataString(other.Id));
+            var profileText = VisibleText(
+                await profile.Content.ReadAsStringAsync());
+
+            Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, profile.StatusCode);
+            Assert.Contains(
+                "Người khác", profileText, StringComparison.Ordinal);
+            Assert.Contains(
+                "/img/other-avatar.png",
+                profileText,
+                StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                "Chủ tài khoản", profileText, StringComparison.Ordinal);
         }
 
         // Razor encodes characters outside Basic Latin as HTML entities.
@@ -424,7 +600,8 @@ namespace CookShare.Tests.Integration
         private async Task AddInteractionAsync(
             string ownerId,
             string otherId,
-            int recipeId)
+            int ownedRecipeId,
+            int otherRecipeId)
         {
             using var scope = _factory.Services.CreateScope();
             var db = scope.ServiceProvider
@@ -433,13 +610,46 @@ namespace CookShare.Tests.Integration
             db.RecipeLikes.Add(new RecipeLike
             {
                 UserId = ownerId,
-                RecipeId = recipeId
+                RecipeId = otherRecipeId
             });
             db.RecipeComments.Add(new RecipeComment
             {
                 UserId = ownerId,
-                RecipeId = recipeId,
+                RecipeId = otherRecipeId,
                 Content = "Ngon"
+            });
+            db.Favorites.Add(new Favorite
+            {
+                UserId = ownerId,
+                RecipeId = otherRecipeId
+            });
+            db.RecipeRatings.Add(new RecipeRating
+            {
+                UserId = ownerId,
+                RecipeId = otherRecipeId,
+                Stars = 4
+            });
+            db.Favorites.Add(new Favorite
+            {
+                UserId = otherId,
+                RecipeId = ownedRecipeId
+            });
+            db.RecipeRatings.Add(new RecipeRating
+            {
+                UserId = otherId,
+                RecipeId = ownedRecipeId,
+                Stars = 3
+            });
+            db.Favorites.Add(new Favorite
+            {
+                UserId = otherId,
+                RecipeId = otherRecipeId
+            });
+            db.RecipeRatings.Add(new RecipeRating
+            {
+                UserId = otherId,
+                RecipeId = otherRecipeId,
+                Stars = 5
             });
             db.Follows.Add(new Follow
             {
@@ -448,6 +658,81 @@ namespace CookShare.Tests.Integration
             });
 
             await db.SaveChangesAsync();
+        }
+
+        private async Task SetProfileAsync(
+            string userId,
+            string displayName,
+            string avatarUrl)
+        {
+            using var scope = _factory.Services.CreateScope();
+            var users = scope.ServiceProvider
+                .GetRequiredService<UserManager<ApplicationUser>>();
+            var user = await users.FindByIdAsync(userId);
+
+            Assert.NotNull(user);
+            user!.DisplayName = displayName;
+            user.AvatarUrl = avatarUrl;
+
+            var result = await users.UpdateAsync(user);
+            Assert.True(
+                result.Succeeded,
+                string.Join(
+                    "; ",
+                    result.Errors.Select(error => error.Description)));
+        }
+
+        private async Task AssertProfileUnchangedAsync(
+            string userId,
+            string displayName,
+            string avatarUrl)
+        {
+            var user = await FindUserAsync(userId);
+            Assert.Equal(displayName, user?.DisplayName);
+            Assert.Equal(avatarUrl, user?.AvatarUrl);
+        }
+
+        private async Task UsingTokenLifespanAsync(
+            TimeSpan lifespan,
+            Func<Task> action)
+        {
+            using var scope = _factory.Services.CreateScope();
+            var options = scope.ServiceProvider
+                .GetRequiredService<
+                    IOptions<DataProtectionTokenProviderOptions>>();
+            var original = options.Value.TokenLifespan;
+            options.Value.TokenLifespan = lifespan;
+
+            try
+            {
+                await action();
+            }
+            finally
+            {
+                options.Value.TokenLifespan = original;
+            }
+        }
+
+        private static string QueryValue(string url, string name)
+        {
+            var query = new Uri(url).Query.TrimStart('?');
+
+            foreach (var part in query.Split(
+                '&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var pair = part.Split('=', 2);
+                if (pair.Length == 2 &&
+                    string.Equals(
+                        Uri.UnescapeDataString(pair[0]),
+                        name,
+                        StringComparison.Ordinal))
+                {
+                    return Uri.UnescapeDataString(pair[1]);
+                }
+            }
+
+            throw new InvalidOperationException(
+                "Không tìm thấy " + name + ".");
         }
 
         private static async Task<string> GetTokenAsync(

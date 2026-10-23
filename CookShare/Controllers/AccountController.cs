@@ -198,42 +198,6 @@ namespace CookShare.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateDisplayName(
-            [Bind(Prefix = "DisplayNameForm")] DisplayNameInput model)
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null)
-            {
-                return RedirectToLogin();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                ViewData["ActiveForm"] = "display";
-                return View(
-                    "Settings",
-                    BuildSettings(user, displayName: model));
-            }
-
-            user.DisplayName = model.DisplayName.Trim();
-            var result = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded)
-            {
-                AddErrors(result);
-                ViewData["ActiveForm"] = "display";
-                return View(
-                    "Settings",
-                    BuildSettings(user, displayName: model));
-            }
-
-            TempData["StatusMessage"] = "Đã cập nhật tên hiển thị.";
-            return RedirectToAction(nameof(Settings));
-        }
-
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeEmail(
             [Bind(Prefix = "EmailForm")] ChangeEmailInput model)
         {
@@ -642,7 +606,6 @@ namespace CookShare.Controllers
 
         private static AccountSettingsViewModel BuildSettings(
             ApplicationUser user,
-            DisplayNameInput? displayName = null,
             ChangeEmailInput? email = null,
             ChangePasswordInput? password = null,
             DeleteAccountInput? delete = null)
@@ -653,10 +616,7 @@ namespace CookShare.Controllers
                 Email = user.Email ?? string.Empty,
                 EmailConfirmed = user.EmailConfirmed,
                 DisplayName = user.DisplayName ?? string.Empty,
-                DisplayNameForm = displayName ?? new DisplayNameInput
-                {
-                    DisplayName = user.DisplayName ?? string.Empty
-                },
+                AvatarUrl = user.AvatarUrl,
                 EmailForm = email ?? new ChangeEmailInput(),
                 PasswordForm = password ?? new ChangePasswordInput(),
                 DeleteForm = delete ?? new DeleteAccountInput()

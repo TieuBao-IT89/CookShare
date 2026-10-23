@@ -268,7 +268,7 @@ Các chức năng hỗ trợ:
 - Đăng xuất qua HTTP POST.
 - Ghi nhớ đăng nhập.
 - Bảo vệ chức năng yêu cầu xác thực: tạo công thức, công thức đã lưu và chỉnh sửa công thức; quyền truy cập chỉnh sửa được kiểm tra theo tác giả ở backend.
-- Cập nhật tên hiển thị, đổi email sau khi xác minh địa chỉ mới, đổi mật khẩu và xóa tài khoản tại `/Account/Settings`.
+- Đổi email sau khi xác minh địa chỉ mới, đổi mật khẩu và xóa tài khoản tại `/Account/Settings`. Tên hiển thị và ảnh đại diện được chỉnh tại `/Profile/Edit`.
 - Xác minh email, quên mật khẩu và đặt lại mật khẩu bằng token hết hạn sau 1 giờ.
 
 Thông tin tài khoản được lưu trong các bảng ASP.NET Core Identity trên PostgreSQL. Mật khẩu được xử lý bằng cơ chế Password Hashing của ASP.NET Core Identity, không lưu dưới dạng văn bản thuần.

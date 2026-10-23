@@ -12,22 +12,13 @@ namespace CookShare.ViewModels
 
         public string DisplayName { get; set; } = string.Empty;
 
-        public DisplayNameInput DisplayNameForm { get; set; } = new();
+        public string? AvatarUrl { get; set; }
 
         public ChangeEmailInput EmailForm { get; set; } = new();
 
         public ChangePasswordInput PasswordForm { get; set; } = new();
 
         public DeleteAccountInput DeleteForm { get; set; } = new();
-    }
-
-    public class DisplayNameInput
-    {
-        [Required(ErrorMessage = "Vui lòng nhập tên hiển thị.")]
-        [StringLength(
-            100,
-            ErrorMessage = "Tên hiển thị tối đa 100 ký tự.")]
-        public string DisplayName { get; set; } = string.Empty;
     }
 
     public class ChangeEmailInput
