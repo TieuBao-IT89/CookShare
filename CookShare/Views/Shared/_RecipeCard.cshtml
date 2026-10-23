@@ -1,0 +1,57 @@
+@model CookShare.Models.Recipe
+@using System.Security.Claims
+@using CookShare.Helpers
+@using CookShare.ViewModels
+@{
+  var authorName = Model.User?.DisplayName ?? Model.User?.UserName ?? "CookShare";
+  var ingredientsCount = Model.Ingredients.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
+  var isOwner = User.Identity?.IsAuthenticated == true && User.FindFirstValue(ClaimTypes.NameIdentifier) == Model.UserId;
+  var summaries = ViewData["RecipeLikeSummaries"] as IReadOnlyDictionary<int, RecipeLikeViewModel>;
+  var likeState = summaries != null && summaries.TryGetValue(Model.Id, out var summary) ? summary : null;
+  var savedCollection = ViewData["SavedCollection"] as bool? == true;
+}
+<article class="recipe-card" data-recipe-id="@Model.Id" data-saved-recipe-id="@(savedCollection ? Model.Id : (int?)null)">
+  <div class="recipe-image">
+    <a class="recipe-image-link" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id" aria-label="Xem công thức @Model.Name">
+      <img src="@RecipeImageReference.GetSource(Model.Image)" alt="@Model.Name" loading="lazy" decoding="async" width="640" height="480" />
+    </a>
+    <span class="recipe-category-badge">@Model.Category</span>
+    <partial name="_RecipeSaveButton" model="Model" />
+  </div>
+  <div class="recipe-card-body">
+    <div class="recipe-card-meta"><span class="card-category">@Model.Category</span><span>@ingredientsCount nguyên liệu</span></div>
+    <h3 class="recipe-card-title"><a asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id">@Model.Name</a></h3>
+    <p class="recipe-card-desc">@Model.Description</p>
+    <div class="recipe-card-author">
+      <span class="avatar-small">CS</span>
+      @if (!string.IsNullOrEmpty(Model.UserId))
+      {
+        <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.UserId">@authorName</a>
+      }
+      else
+      {
+        <span>@authorName</span>
+      }
+    </div>
+    <div class="recipe-card-footer">
+      <a class="recipe-link" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id">Xem công thức <svg class="icon"><use href="#i-arrow" /></svg></a>
+      @if (likeState != null)
+      {
+        <partial name="_RecipeLikeButton" model="likeState" />
+      }
+    </div>
+    @if (savedCollection)
+    {
+      <partial name="_RecipeSaveButton" model="Model" view-data='new ViewDataDictionary(ViewData) { ["SaveButtonClass"] = "saved-card-unsave-btn" }' />
+    }
+    @if (isOwner)
+    {
+      <div class="recipe-manage-actions">
+        <a class="btn-action-edit" asp-controller="Recipe" asp-action="Edit" asp-route-id="@Model.Id"><svg class="icon"><use href="#i-edit" /></svg> Chỉnh sửa</a>
+        <form asp-controller="Recipe" asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm-delete="Bạn có chắc muốn xóa công thức này không?">
+          <button type="submit" class="btn-action-delete"><svg class="icon"><use href="#i-trash" /></svg> Xóa</button>
+        </form>
+      </div>
+    }
+  </div>
+</article>

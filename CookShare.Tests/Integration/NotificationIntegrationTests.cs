@@ -21,7 +21,7 @@ namespace CookShare.Tests.Integration
             _factory = factory;
         }
 
-        [Fact]
+        [PostgresFact]
         public async Task Like_CreatesPrivateNotificationAndOwnerCanReadIt()
         {
             var recipeId = await SeedRecipeAsync(_factory.OwnerId);
@@ -129,7 +129,7 @@ namespace CookShare.Tests.Integration
             Assert.Equal(HttpStatusCode.NotFound, unauthorizedResponse.StatusCode);
         }
 
-        [Fact]
+        [PostgresFact]
         public async Task CommentNotification_OpensTheRenderedCommentAnchor()
         {
             var recipeId = await SeedRecipeAsync(_factory.OwnerId);
@@ -184,7 +184,7 @@ namespace CookShare.Tests.Integration
             Assert.Contains("Comment anchor test", html);
         }
 
-        [Fact]
+        [PostgresFact]
         public async Task Details_LoadsInteractionsWithoutCollectionJoinWarning()
         {
             var recipeId = await SeedRecipeAsync(_factory.OwnerId);

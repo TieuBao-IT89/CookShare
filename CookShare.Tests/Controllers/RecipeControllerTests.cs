@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CookShare.Tests.Controllers
 {
@@ -30,7 +31,7 @@ namespace CookShare.Tests.Controllers
             var controller = CreateController(db);
 
             var result = Assert.IsType<ViewResult>(await controller.Index());
-            var recipes = Assert.IsAssignableFrom<IEnumerable<Recipe>>(result.Model).ToList();
+            var recipes = Assert.IsType<RecipeIndexViewModel>(result.Model).Recipes;
 
             Assert.Equal(new[] { 2, 1 }, recipes.Select(recipe => recipe.Id));
             Assert.All(recipes, recipe => Assert.Equal(author.DisplayName, recipe.User?.DisplayName));
@@ -44,7 +45,50 @@ namespace CookShare.Tests.Controllers
 
             var result = Assert.IsType<ViewResult>(await controller.Index());
 
-            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<Recipe>>(result.Model));
+            Assert.Empty(Assert.IsType<RecipeIndexViewModel>(result.Model).Recipes);
+        }
+
+        [Fact]
+        public async Task Index_TiedPublicationDates_ShouldOrderByIdDescending()
+        {
+            var earlierId = NewRecipe(1);
+            var laterId = NewRecipe(2);
+            laterId.CreatedAt = earlierId.CreatedAt;
+            using var db = CreateDb(earlierId, laterId);
+            var controller = CreateController(db);
+
+            var result = Assert.IsType<ViewResult>(await controller.Index());
+
+            Assert.Equal(new[] { 2, 1 }, Assert.IsType<RecipeIndexViewModel>(result.Model).Recipes.Select(recipe => recipe.Id));
+        }
+
+        [Theory]
+        [InlineData("PHO", null, 1, 2)]
+        [InlineData(null, "món việt", 1, 3)]
+        [InlineData(" pho ", " Món Việt ", 1)]
+        [InlineData("missing", "Món Việt")]
+        public async Task Index_ShouldFilterServerSideAndPreserveTrimmedValues(
+            string? query, string? category, params int[] expectedIds)
+        {
+            var first = NewRecipe(1);
+            first.Name = "Pho bo";
+            var second = NewRecipe(2);
+            second.Name = "Pho chay";
+            second.Category = "Món chay";
+            var third = NewRecipe(3);
+            third.Name = "Bun bo";
+            first.CreatedAt = second.CreatedAt = third.CreatedAt;
+            using var db = CreateDb(first, second, third);
+            db.ChangeTracker.Clear();
+            var controller = CreateController(db);
+
+            var result = Assert.IsType<ViewResult>(await controller.Index(query, category));
+            var model = Assert.IsType<RecipeIndexViewModel>(result.Model);
+
+            Assert.Equal(expectedIds.OrderByDescending(id => id), model.Recipes.Select(recipe => recipe.Id));
+            Assert.Equal(query?.Trim() ?? string.Empty, model.Query);
+            Assert.Equal(category?.Trim() ?? string.Empty, model.Category);
+            Assert.Empty(db.ChangeTracker.Entries());
         }
 
         [Fact]
@@ -233,7 +277,7 @@ namespace CookShare.Tests.Controllers
         }
 
         [Theory]
-        [InlineData(nameof(RecipeController.Index), 0)]
+        [InlineData(nameof(RecipeController.Index), 2)]
         [InlineData(nameof(RecipeController.Details), 1)]
         [InlineData(nameof(RecipeController.Create), 0)]
         [InlineData(nameof(RecipeController.Edit), 1)]
@@ -294,12 +338,68 @@ namespace CookShare.Tests.Controllers
         }
 
         [Fact]
-        public void Saved_ShouldReturnView()
+        public async Task Create_SaveFailure_ShouldPreserveFormAndShowSafeError()
+        {
+            using var db = CreateFailingDb();
+            var controller = CreateController(db);
+            var model = NewForm();
+
+            var result = Assert.IsType<ViewResult>(await controller.Create(model));
+
+            Assert.Same(model, result.Model);
+            AssertSafeSaveError(controller);
+            Assert.Empty(await db.Recipes.ToListAsync());
+            Assert.Null(controller.TempData["Success"]);
+        }
+
+        [Fact]
+        public async Task Edit_SaveFailure_ShouldPreserveFormIdAndOriginalRecipe()
+        {
+            var recipe = NewRecipe(1);
+            string originalName = recipe.Name;
+            DateTime createdAt = recipe.CreatedAt;
+            using var db = CreateFailingDb(recipe);
+            var controller = CreateController(db);
+            var model = NewForm();
+
+            var result = Assert.IsType<ViewResult>(await controller.Edit(recipe.Id, model));
+
+            Assert.Same(model, result.Model);
+            Assert.Equal(recipe.Id, controller.ViewData["RecipeId"]);
+            AssertSafeSaveError(controller);
+            db.ChangeTracker.Clear();
+            var unchanged = await db.Recipes.SingleAsync();
+            Assert.Equal(originalName, unchanged.Name);
+            Assert.Equal("owner-id", unchanged.UserId);
+            Assert.Equal(createdAt, unchanged.CreatedAt);
+            Assert.Null(controller.TempData["Success"]);
+        }
+
+        [Fact]
+        public async Task Delete_SaveFailure_ShouldKeepRecipeAndShowSafeError()
+        {
+            using var db = CreateFailingDb(NewRecipe(1));
+            var controller = CreateController(db);
+
+            var result = Assert.IsType<RedirectToActionResult>(await controller.Delete(1));
+
+            Assert.Equal(nameof(RecipeController.Details), result.ActionName);
+            Assert.Equal(1, result.RouteValues!["id"]);
+            Assert.NotEmpty(Assert.IsType<string>(controller.TempData["Error"]));
+            Assert.DoesNotContain("sensitive", Assert.IsType<string>(controller.TempData["Error"]));
+            Assert.Null(controller.TempData["Success"]);
+            db.ChangeTracker.Clear();
+            Assert.Single(await db.Recipes.ToListAsync());
+        }
+
+        [Fact]
+        public async Task Saved_ShouldReturnView()
         {
             using var db = CreateDb();
             var controller = CreateController(db);
 
-            Assert.IsType<ViewResult>(controller.Saved());
+            var result = Assert.IsType<ViewResult>(await controller.Saved());
+            Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<Recipe>>(result.Model));
         }
 
         private static ApplicationDbContext CreateDb(params Recipe[] recipes)
@@ -311,6 +411,45 @@ namespace CookShare.Tests.Controllers
             db.Recipes.AddRange(recipes);
             db.SaveChanges();
             return db;
+        }
+
+        private static ApplicationDbContext CreateFailingDb(params Recipe[] recipes)
+        {
+            var interceptor = new FailingSaveInterceptor();
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .AddInterceptors(interceptor)
+                .Options;
+            var db = new ApplicationDbContext(options);
+            db.Recipes.AddRange(recipes);
+            db.SaveChanges();
+            interceptor.FailSave = true;
+            return db;
+        }
+
+        private static void AssertSafeSaveError(RecipeController controller)
+        {
+            string error = Assert.Single(controller.ModelState[string.Empty]!.Errors).ErrorMessage;
+            Assert.NotEmpty(error);
+            Assert.DoesNotContain("sensitive", error);
+        }
+
+        private sealed class FailingSaveInterceptor : SaveChangesInterceptor
+        {
+            public bool FailSave { get; set; }
+
+            public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
+                DbContextEventData eventData,
+                InterceptionResult<int> result,
+                CancellationToken cancellationToken = default)
+            {
+                if (FailSave)
+                {
+                    throw new DbUpdateException("sensitive database detail");
+                }
+
+                return base.SavingChangesAsync(eventData, result, cancellationToken);
+            }
         }
 
         private static RecipeController CreateController(ApplicationDbContext db, string? userId = "owner-id")

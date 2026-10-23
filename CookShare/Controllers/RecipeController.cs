@@ -1,4 +1,4 @@
-
+using System.Data.Common;
 using System.Security.Claims;
 using CookShare.Data;
 using CookShare.Models;
@@ -7,33 +7,60 @@ using CookShare.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CookShare.Controllers
 {
     public class RecipeController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private static readonly Action<ILogger, string, string, Exception?> _logSaveFailure =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Warning,
+                new EventId(1001, "RecipeSaveFailure"),
+                "Recipe {Operation} failed with {FailureType}.");
 
-        public RecipeController(ApplicationDbContext db)
+        private readonly ApplicationDbContext _db;
+        private readonly ILogger<RecipeController> _logger;
+
+        public RecipeController(ApplicationDbContext db, ILogger<RecipeController>? logger = null)
         {
             _db = db;
+            _logger = logger ?? NullLogger<RecipeController>.Instance;
         }
 
         // GET: /Recipe
         [HttpGet]
-        public async Task<IActionResult> Index()
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> Index(string? q = null, string? category = null)
         {
-            var recipes = await _db.Recipes
+            string query = q?.Trim() ?? string.Empty;
+            string selectedCategory = category?.Trim() ?? string.Empty;
+            IQueryable<Recipe> recipesQuery = _db.Recipes
                 .AsNoTracking()
                 .Include(r => r.User)
+                .FilterBySearchAndCategory(query, selectedCategory);
+
+            var recipes = await recipesQuery
                 .OrderByDescending(r => r.CreatedAt)
+                .ThenByDescending(r => r.Id)
                 .ToListAsync();
 
-            return View(recipes);
+            ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
+                _db, recipes.Select(recipe => recipe.Id), User.FindFirstValue(ClaimTypes.NameIdentifier));
+            ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(
+                _db, recipes.Select(recipe => recipe.Id), User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            return View(new RecipeIndexViewModel
+            {
+                Recipes = recipes,
+                Query = query,
+                Category = selectedCategory
+            });
         }
 
         // GET: /Recipe/Details/5
         [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Details(int id)
         {
             var recipe = await _db.Recipes
@@ -49,6 +76,16 @@ namespace CookShare.Controllers
             {
                 return NotFound();
             }
+
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(_db, new[] { recipe.Id }, userId);
+            ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(_db, new[] { recipe.Id }, userId);
+            ViewData["RecipeComments"] = new RecipeCommentsViewModel
+            {
+                RecipeId = recipe.Id,
+                Comments = await RecipeCommentQueries.LoadAsync(_db, recipe.Id, userId),
+                IsAuthenticated = User.Identity?.IsAuthenticated == true
+            };
 
             return View(recipe);
         }
@@ -202,13 +239,23 @@ namespace CookShare.Controllers
                 Ingredients = model.Ingredients.Trim(),
                 Instructions = model.Instructions.Trim(),
                 Category = model.Category.Trim(),
-                Image = model.Image,
+                Image = string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim(),
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow
             };
 
             _db.Recipes.Add(recipe);
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception exception) when (exception is DbUpdateException or DbException)
+            {
+                _logSaveFailure(_logger, "creation", exception.GetType().Name, null);
+                _db.Entry(recipe).State = EntityState.Detached;
+                ModelState.AddModelError(string.Empty, "Chưa thể lưu công thức. Vui lòng thử lại sau.");
+                return View(model);
+            }
 
             TempData["Success"] = "Đã tạo công thức thành công.";
 
@@ -290,9 +337,19 @@ namespace CookShare.Controllers
             recipe.Ingredients = model.Ingredients.Trim();
             recipe.Instructions = model.Instructions.Trim();
             recipe.Category = model.Category.Trim();
-            recipe.Image = model.Image;
+            recipe.Image = string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim();
 
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception exception) when (exception is DbUpdateException or DbException)
+            {
+                _logSaveFailure(_logger, "update", exception.GetType().Name, null);
+                _db.Entry(recipe).State = EntityState.Detached;
+                ModelState.AddModelError(string.Empty, "Chưa thể cập nhật công thức. Vui lòng thử lại sau.");
+                return View(model);
+            }
 
             TempData["Success"] = "Đã cập nhật công thức.";
 
@@ -324,19 +381,49 @@ namespace CookShare.Controllers
             }
 
             _db.Recipes.Remove(recipe);
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception exception) when (exception is DbUpdateException or DbException)
+            {
+                _logSaveFailure(_logger, "deletion", exception.GetType().Name, null);
+                _db.Entry(recipe).State = EntityState.Unchanged;
+                TempData["Error"] = "Chưa thể xóa công thức. Vui lòng thử lại sau.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
 
             TempData["Success"] = "Đã xóa công thức.";
 
             return RedirectToAction(nameof(Index));
         }
 
-        // Chức năng yêu thích sẽ hoàn thiện ở Issue tiếp theo
+        // GET: /Recipe/Saved
         [Authorize]
         [HttpGet]
-        public IActionResult Saved()
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> Saved()
         {
-            return View();
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge();
+            }
+
+            var recipes = await _db.Favorites
+                .AsNoTracking()
+                .Where(favorite => favorite.UserId == userId)
+                .OrderByDescending(favorite => favorite.CreatedAt)
+                .ThenByDescending(favorite => favorite.Id)
+                .Include(favorite => favorite.Recipe)
+                .ThenInclude(recipe => recipe.User)
+                .Select(favorite => favorite.Recipe)
+                .ToListAsync();
+
+            ViewData["SavedRecipeIds"] = recipes.Select(recipe => recipe.Id).ToHashSet();
+            ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
+                _db, recipes.Select(recipe => recipe.Id), userId);
+            return View(recipes);
         }
     }
 }

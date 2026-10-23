@@ -1,21 +1,34 @@
-@{ ViewData["Title"] = "Công thức đã lưu"; }
+@model IReadOnlyList<CookShare.Models.Recipe>
+@using System.Security.Claims
+@{
+  ViewData["Title"] = "Công thức đã lưu";
+  ViewData["SavedCollection"] = true;
+  var returnUrl = Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString;
+}
 @section Styles {
     <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-interactions.css" asp-append-version="true" />
 }
 <div class="saved-page-wrapper container">
-    <header class="page-intro saved-page-header"><div><span class="eyebrow"><svg class="icon"><use href="#i-bookmark" /></svg> GÓC NHỎ CỦA RIÊNG BẠN</span><h1>Để dành <em>món ngon.</em></h1><p>Những công thức bạn muốn thử, luôn ở đây chờ bạn vào bếp.</p></div><span class="count-badge"><span id="savedRecipeCount">0</span> công thức đã lưu</span></header>
-    <div class="saved-toolbar"><p>Hiển thị <strong id="savedRecipeCountInline">0</strong> công thức trong bộ sưu tập</p><a class="text-link" href="/Recipe">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div>
-    <div class="recipe-grid saved-recipe-grid" id="savedRecipeGrid"><partial name="_RecipeLoading" /></div>
-    <div class="saved-empty-state recipe-empty-container" id="savedEmptyState" style="display:none" role="status">
+    <header class="page-intro saved-page-header"><div><span class="eyebrow"><svg class="icon"><use href="#i-bookmark" /></svg> GÓC NHỎ CỦA RIÊNG BẠN</span><h1>Để dành <em>món ngon.</em></h1><p>Những công thức bạn muốn thử, luôn ở đây chờ bạn vào bếp.</p></div><span class="count-badge"><span id="savedRecipeCount" data-saved-count>@Model.Count</span> công thức đã lưu</span></header>
+    <div class="saved-toolbar"><p>Hiển thị <strong id="savedRecipeCountInline" data-saved-count>@Model.Count</strong> công thức trong bộ sưu tập</p><a class="text-link" asp-controller="Recipe" asp-action="Index">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div>
+    <div class="recipe-grid saved-recipe-grid" id="savedRecipeGrid" style="@(Model.Count == 0 ? "display:none" : null)"
+         data-state-url="@Url.Action("State", "RecipeFavorites")" data-saved-user-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)"
+         data-login-url="@Url.Action("Login", "Account", new { returnUrl })">
+      @foreach (var recipe in Model)
+      {
+        <partial name="_RecipeCard" model="recipe" />
+      }
+    </div>
+    <div class="saved-empty-state recipe-empty-container" id="savedEmptyState" style="display:@(Model.Count == 0 ? "flex" : "none")" role="status">
         <span class="state-icon"><svg class="icon"><use href="#i-bookmark" /></svg></span>
-        <span class="eyebrow">MỘT BỘ SƯU TẬP ĐANG CHỜ BẠN</span><h2>Giữ lại những món bạn yêu</h2><p>Nhấn nút lưu trên công thức yêu thích.<br />Lần tới vào bếp, bạn sẽ không cần tìm lại.</p><a class="btn" href="/Recipe">Tìm món ngon đầu tiên <svg class="icon"><use href="#i-arrow" /></svg></a>
+        <span class="eyebrow">MỘT BỘ SƯU TẬP ĐANG CHỜ BẠN</span><h2>Giữ lại những món bạn yêu</h2><p>Nhấn nút lưu trên công thức yêu thích.<br />Lần tới vào bếp, bạn sẽ không cần tìm lại.</p><a class="btn" asp-controller="Recipe" asp-action="Index">Tìm món ngon đầu tiên <svg class="icon"><use href="#i-arrow" /></svg></a>
     </div>
 </div>
 @section Scripts {
-    <script src="~/js/recipe.js" asp-append-version="true"></script>
-    <script src="~/js/recipe-likes.js" asp-append-version="true"></script>
     <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
-    <script src="~/js/recipe-ratings.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
 }
