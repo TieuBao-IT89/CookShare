@@ -12,6 +12,7 @@ Các thay đổi được thực hiện sau khi chốt phiên bản `v0.1.0` s�
 
 ### Added
 
+- Trang chi tiết có chế độ nấu từng bước. Các bước lấy từ nội dung công thức đang lưu, và vị trí bước được nhớ trong phiên làm việc.
 - Trang chủ xếp món nổi bật, món được yêu thích và món điểm cao từ lượt thích và đánh giá. Trang chi tiết gợi ý công thức cùng danh mục, không gợi ý chính món đang xem.
 - Thêm trang cài đặt tài khoản: xác minh email, đổi email, đổi mật khẩu, quên mật khẩu và xóa tài khoản kèm dữ liệu liên quan. Tên hiển thị và ảnh đại diện được chỉnh trên trang hồ sơ.
 - Thiết lập triển khai tự động lên Azure App Service (Staging) bằng GitHub Actions, kèm kiểm tra `/health` và phương án rollback.

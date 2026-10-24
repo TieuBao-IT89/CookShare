@@ -432,12 +432,37 @@ namespace CookShare.Tests.Integration
             Assert.Contains("/Profile?userId=" + _factory.OwnerId, details);
         }
 
+        [Fact]
+        public async Task Details_ShouldOfferCookingModeFromStoredInstructions()
+        {
+            var id = await SeedRecipeAsync(
+                "Cooking pho",
+                instructions: "Ninh xương.\nTrụng bánh.\nChan nước.");
+            using var client = _factory.CreateTestClient();
+
+            var html = await GetHtmlAsync(client, $"/Recipe/Details/{id}");
+            var steps = Regex.Matches(html, "data-cooking-step\"?>([^<]+)")
+                .Select(match => match.Groups[1].Value)
+                .ToArray();
+
+            Assert.Contains("Bắt đầu nấu", html);
+            Assert.Contains("data-cooking-prev", html);
+            Assert.Contains("data-cooking-next", html);
+            Assert.Contains("data-cooking-done", html);
+            Assert.Contains("data-cooking-exit", html);
+            Assert.Contains("1/3", html);
+            Assert.Equal(new[] { "Ninh xương.", "Trụng bánh.", "Chan nước." }, steps);
+            Assert.Equal(3, Regex.Matches(html, "class=\"step-text\"").Count);
+            Assert.Contains("Ninh xương.", html);
+        }
+
         private async Task<int> SeedRecipeAsync(
             string name,
             string category = "Món Việt",
             DateTime? createdAt = null,
             string? userId = null,
-            string? image = null)
+            string? image = null,
+            string? instructions = null)
         {
             using var scope = _factory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -447,7 +472,7 @@ namespace CookShare.Tests.Integration
                 Description = "Database recipe description",
                 Category = category,
                 Ingredients = "Fresh ingredients",
-                Instructions = "Preparation step one",
+                Instructions = instructions ?? "Preparation step one",
                 UserId = userId ?? _factory.OwnerId,
                 CreatedAt = createdAt ?? DateTime.UtcNow,
                 Image = image
