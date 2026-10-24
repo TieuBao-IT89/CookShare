@@ -117,14 +117,14 @@ Bằng chứng cục bộ (ignored, không đưa lên Git): `artifacts/issue101/
 
 ## File thêm hoặc sửa
 
-46 file so với develop, gồm 8 ảnh kế thừa PR #105:
+45 file so với develop, gồm 8 ảnh kế thừa PR #105:
 
 - Controller/DI/config: `CookShare/Controllers/AccountController.cs`, `CookShare/Program.cs`, `CookShare/CookShare.csproj`, `CookShare/appsettings.json`.
 - Identity/options/services: `CookShare/Identity/VietnameseIdentityErrorDescriber.cs`, `CookShare/Options/EmailOptions.cs`, `CookShare/Services/AccountDeletionService.cs`, `AccountEmailMessages.cs`, `IAccountEmailSender.cs`, `SmtpAccountEmailSender.cs`.
 - ViewModel/views: `CookShare/ViewModels/AccountSettingsViewModel.cs`; `CookShare/Views/Account/{Settings,ForgotPassword,ResetPassword,Notice,Login}.cshtml`; `CookShare/Views/Shared/{_Layout,_RecipeHeader}.cshtml`; `CookShare/wwwroot/css/style.css`.
 - Test infrastructure: `CookShare.Tests/CookShare.Tests.csproj`, `Integration/{CookShareWebApplicationFactory,AccountSettingsWebApplicationFactory,RecordingAccountEmailSender,RecipeFavoritesPostgresTests}.cs`.
 - Account tests: `CookShare.Tests/Integration/{AccountSettingsIntegrationTests,AccountSecurityIntegrationTests,AccountDeletionIntegrationTests,AccountProfileIntegrationTests,AccountSettingsBrowserTests,AccountSettingsBrowserPage}.cs`; `CookShare.Tests/Services/SmtpAccountEmailSenderTests.cs`; `CookShare.Tests/Frontend/Run-AccountSettingsBrowserTests.ps1`.
-- CI/tài liệu: `.github/workflows/dotnet-ci.yml`, `CHANGELOG.md`, `README.md`, `SECURITY.md`, `docs/ACCOUNT_SETTINGS.md`, `docs/ACCOUNT_SETTINGS_PR.md` và 8 ảnh gốc trong `docs/evidence/issue-101`.
+- CI/tài liệu: `.github/workflows/dotnet-ci.yml`, `CHANGELOG.md`, `README.md`, `SECURITY.md`, `docs/ACCOUNT_SETTINGS.md` và 8 ảnh gốc trong `docs/evidence/issue-101`.
 
 Không sửa ProfileController, ApplicationDbContext, entity, migration hoặc seeder của develop. Việc đổi CRLF sang LF tại working copy theo `.editorconfig` không tạo diff nội dung không liên quan.
 
@@ -132,4 +132,4 @@ Không sửa ProfileController, ApplicationDbContext, entity, migration hoặc s
 
 PR #105 vẫn tồn tại, đang closed/unmerged, head branch còn truy cập được. Ưu tiên contributor cập nhật nhánh gốc bằng bản tích hợp đã review rồi maintainer mở lại PR #105 để giữ thảo luận và attribution. Không tự push lên fork của contributor, mở lại PR hoặc merge.
 
-Nhánh local `feature/account-settings-completion` được chuẩn bị từ develop mới và merge toàn bộ lịch sử PR #105. Nếu dùng PR mới, push nhánh này vào fork của tài khoản hiện tại (`TQD-IT`, tạo fork nếu chưa có) sau khi được cho phép và tạo PR về `TieuBao-IT89/CookShare:develop`; không push trực tiếp main/develop. Chưa push, tạo/mở lại PR hoặc merge trên GitHub. Nội dung đề xuất: [ACCOUNT_SETTINGS_PR.md](ACCOUNT_SETTINGS_PR.md).
+Nhánh local `feature/account-settings-completion` được chuẩn bị từ develop mới và merge toàn bộ lịch sử PR #105. Nếu dùng PR mới, push nhánh này vào fork của tài khoản hiện tại (`TQD-IT`, tạo fork nếu chưa có) sau khi được cho phép và tạo PR về `TieuBao-IT89/CookShare:develop`; không push trực tiếp main/develop. Chưa push, tạo/mở lại PR hoặc merge trên GitHub.

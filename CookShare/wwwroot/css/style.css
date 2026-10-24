@@ -81,6 +81,7 @@ button:disabled { cursor: wait; opacity: .6; transform: none; }
 .logout-form { display: flex; align-items: center; margin: 0; flex-shrink: 0; }
 .logout-form button, .nav-actions > .btn { white-space: nowrap; }
 .account-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+.account-name:hover { text-decoration: underline; text-underline-offset: 3px; }
 .header-search { position: relative; width: 170px; }
 .header-search input { background: transparent; border: 0; border-bottom: 1px solid var(--line); width: 100%; padding: 10px 30px 10px 0; font-size: 11px; }
 .header-search button { position: absolute; top: 2px; right: 0; width: 32px; height: 36px; border: 0; background: transparent; }
@@ -358,6 +359,8 @@ button:disabled { cursor: wait; opacity: .6; transform: none; }
 .settings-page { padding-block: 40px 64px; }
 .settings-layout { display: grid; gap: 18px; max-width: 760px; margin: 0 auto; }
 .settings-card { min-width: 0; overflow-wrap: anywhere; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 28px 32px; }
+.settings-card-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.settings-home-link { margin-left: auto; flex-shrink: 0; white-space: nowrap; }
 .settings-card h1, .settings-card h2 { font-family: var(--font-display); font-weight: 600; }
 .settings-card h1 { font-size: 36px; margin: 8px 0; }
 .settings-card h2 { font-size: 24px; margin: 0 0 8px; }

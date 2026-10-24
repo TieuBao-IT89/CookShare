@@ -8,8 +8,12 @@
 <section class="settings-page">
     <div class="container settings-layout">
         <article class="settings-card">
-            <a class="back-link" asp-controller="Home" asp-action="Index">← Về trang chủ</a>
-            <span class="eyebrow">TÀI KHOẢN</span>
+            <div class="settings-card-heading">
+                <span class="eyebrow">TÀI KHOẢN</span>
+                <a class="btn btn-small settings-home-link" asp-controller="Home" asp-action="Index">
+                    <i class="icon fa-solid fa-arrow-left" aria-hidden="true"></i> Về trang chủ
+                </a>
+            </div>
             <h1>Cài đặt của bạn</h1>
             <p class="settings-note">
                 @Model.UserName
