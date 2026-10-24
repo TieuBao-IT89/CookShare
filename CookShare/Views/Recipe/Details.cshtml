@@ -71,6 +71,13 @@
             <p class="notice" role="status">@TempData["Success"]</p>
         }
 
+        <nav class="cs108-quick-nav"
+             aria-label="Nội dung công thức">
+            <a href="#ingredients">Nguyên liệu</a>
+            <a href="#instructions">Cách chế biến</a>
+            <a href="#comments">Bình luận</a>
+        </nav>
+
         <article class="details-hero-card cs108-recipe-hero" data-recipe-id="@Model.Id">
 
             <div class="cs108-hero-content">
@@ -166,13 +173,6 @@
                      fetchpriority="high" />
             </div>
         </article>
-
-        <nav class="cs108-quick-nav"
-             aria-label="Nội dung công thức">
-            <a href="#ingredients">Nguyên liệu</a>
-            <a href="#instructions">Cách chế biến</a>
-            <a href="#comments">Bình luận</a>
-        </nav>
 
         <div class="details-content-grid">
 

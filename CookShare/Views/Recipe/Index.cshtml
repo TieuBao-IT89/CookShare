@@ -14,7 +14,7 @@
   <div class="container recipe-grid-section">
     <header class="page-intro recipe-intro">
       <div><span class="eyebrow">CẢM HỨNG TỪ CỘNG ĐỒNG</span><h1>Khám phá <em>món ngon.</em></h1><p>Tìm công thức mới cho mỗi lần vào bếp.</p></div>
-      <a asp-controller="Recipe" asp-action="Create" class="btn">+ Chia sẻ công thức</a>
+      <a asp-controller="Recipe" asp-action="Create" class="btn btn-secondary">+ Chia sẻ công thức</a>
     </header>
     @if (TempData["Success"] != null)
     {
@@ -41,8 +41,8 @@
             }
           </select>
         </div>
+        <button type="submit" class="btn recipe-search-submit">Tìm công thức</button>
       </div>
-      <div class="recipe-results-bar"><p><strong>@Model.Recipes.Count</strong> công thức</p><button type="submit" class="btn btn-small">Tìm công thức</button></div>
     </form>
     <nav class="recipe-category-pills" aria-label="Danh mục công thức">
       <a class="category-pill @(string.IsNullOrEmpty(Model.Category) ? "active" : "")" asp-action="Index" asp-route-q="@Model.Query">Tất cả</a>
@@ -52,7 +52,8 @@
       }
     </nav>
     <div class="recipe-results-bar">
-      <p>@(hasFilters ? "Kết quả tìm kiếm của bạn" : "Những món ngon mới được chia sẻ")</p>
+      <h2 class="recipe-results-title" id="recipeResultsTitle">@(hasFilters ? "Kết quả tìm kiếm của bạn" : "Những món ngon mới được chia sẻ")</h2>
+      <p><strong>@Model.Recipes.Count</strong> công thức</p>
       @if (hasFilters)
       {
         <a class="text-link" asp-action="Index">Xóa bộ lọc</a>

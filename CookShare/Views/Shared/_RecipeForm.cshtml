@@ -75,10 +75,14 @@
 
                             <input asp-for="Name"
                                    class="form-input"
+                                   aria-required="true"
+                                   aria-describedby="NameValidation"
+                                   aria-invalid="@(ViewData.ModelState[nameof(Model.Name)]?.Errors.Count > 0 ? "true" : null)"
                                    maxlength="200"
                                    placeholder="Ví dụ: Phở bò Hà Nội" />
 
                             <span asp-validation-for="Name"
+                                  id="NameValidation"
                                   class="text-danger"></span>
                         </div>
 
@@ -87,11 +91,12 @@
                                 Danh mục <span class="cs108-required">*</span>
                             </label>
 
-                            <select asp-for="Category" class="form-select">
+                            <select asp-for="Category" class="form-select" aria-required="true" aria-describedby="CategoryValidation" aria-invalid="@(ViewData.ModelState[nameof(Model.Category)]?.Errors.Count > 0 ? "true" : null)">
                                 <partial name="_CategoryOptions" />
                             </select>
 
                             <span asp-validation-for="Category"
+                                  id="CategoryValidation"
                                   class="text-danger"></span>
                         </div>
 
@@ -101,11 +106,15 @@
                             </label>
 
                             <textarea asp-for="Description"
+                                      aria-required="true"
+                                      aria-describedby="DescriptionValidation"
+                                      aria-invalid="@(ViewData.ModelState[nameof(Model.Description)]?.Errors.Count > 0 ? "true" : null)"
                                       class="form-textarea"
                                       rows="5"
                                       placeholder="Điều gì khiến món ăn này trở nên đặc biệt?"></textarea>
 
                             <span asp-validation-for="Description"
+                                  id="DescriptionValidation"
                                   class="text-danger"></span>
                         </div>
                     </section>
@@ -133,15 +142,19 @@
 
                             <input asp-for="Image"
                                    id="cs108ImageInput"
+                                   aria-describedby="ImageHelp ImageValidation cs108ImageStatus"
+                                   aria-invalid="@(ViewData.ModelState[nameof(Model.Image)]?.Errors.Count > 0 ? "true" : null)"
                                    class="form-input"
                                    placeholder="/img/recipe-placeholder.svg" />
                             <span asp-validation-for="Image"
+                                  id="ImageValidation"
                                   class="text-danger"></span>
 
-                            <p class="cs108-field-help">
+                            <p class="cs108-field-help" id="ImageHelp">
                                 Dán liên kết ảnh HTTPS hoặc đường dẫn ảnh nội bộ.
                                 Hình ảnh sẽ hiển thị phía trên.
                             </p>
+                            <p id="cs108ImageStatus" class="cs108-preview-status" role="status" aria-live="polite"></p>
                         </div>
                     </section>
 
@@ -165,14 +178,18 @@
                             </label>
 
                             <textarea asp-for="Ingredients"
+                                      aria-required="true"
+                                      aria-describedby="IngredientsHelp IngredientsValidation"
+                                      aria-invalid="@(ViewData.ModelState[nameof(Model.Ingredients)]?.Errors.Count > 0 ? "true" : null)"
                                       class="form-textarea cs108-ingredients-input"
                                       rows="9"
                                       placeholder="500g thịt bò&#10;300g bánh phở&#10;2 củ hành tím&#10;Muối, đường, nước mắm"></textarea>
 
                             <span asp-validation-for="Ingredients"
+                                  id="IngredientsValidation"
                                   class="text-danger"></span>
 
-                            <p class="cs108-field-help">
+                            <p class="cs108-field-help" id="IngredientsHelp">
                                 Nhập mỗi nguyên liệu trên một dòng.
                             </p>
                         </div>
@@ -194,14 +211,18 @@
                             </label>
 
                             <textarea asp-for="Instructions"
+                                      aria-required="true"
+                                      aria-describedby="InstructionsHelp InstructionsValidation"
+                                      aria-invalid="@(ViewData.ModelState[nameof(Model.Instructions)]?.Errors.Count > 0 ? "true" : null)"
                                       class="form-textarea cs108-instructions-input"
                                       rows="12"
                                       placeholder="Bước 1: Chuẩn bị nguyên liệu&#10;Bước 2: Sơ chế&#10;Bước 3: Chế biến món ăn"></textarea>
 
                             <span asp-validation-for="Instructions"
+                                  id="InstructionsValidation"
                                   class="text-danger"></span>
 
-                            <p class="cs108-field-help">
+                            <p class="cs108-field-help" id="InstructionsHelp">
                                 Viết mỗi bước trên một dòng để công thức
                                 dễ theo dõi hơn.
                             </p>
