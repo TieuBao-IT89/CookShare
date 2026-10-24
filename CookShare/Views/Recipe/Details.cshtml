@@ -53,6 +53,9 @@
     <link rel="stylesheet"
           href="~/css/issue108.css"
           asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/cooking-mode.css"
+          asp-append-version="true" />
 }
 
 <div class="recipe-page-wrapper cs108">
@@ -155,6 +158,12 @@
                     <a href="#comments" class="btn btn-secondary">
                         Bình luận (<span data-db-comment-count>@(recipeComments?.Comments.Count ?? Model.Comments.Count)</span>)
                     </a>
+                    @if (instructions.Length > 0)
+                    {
+                        <button type="button" class="btn" data-cooking-start>
+                            Bắt đầu nấu
+                        </button>
+                    }
                 </div>
             </div>
 
@@ -317,4 +326,29 @@
     <script src="~/js/recipe-ratings.js" asp-append-version="true"></script>
     <script src="~/js/issue108.js"
             asp-append-version="true"></script>
+    <script src="~/js/cooking-mode.js"
+            asp-append-version="true"></script>
+}
+
+@if (instructions.Length > 0)
+{
+    <dialog class="cooking-mode" data-cooking-mode data-recipe-id="@Model.Id" aria-labelledby="cookingModeTitle">
+        <p class="eyebrow">ĐANG NẤU</p>
+        <p class="cooking-mode-progress" data-cooking-progress>1/@instructions.Length</p>
+        <h2 id="cookingModeTitle" data-cooking-step-label>Bước 1</h2>
+        <p class="cooking-mode-text" data-cooking-step-text>@instructions[0]</p>
+        <p class="cooking-mode-complete" data-cooking-complete hidden>Đã hoàn thành công thức.</p>
+        <ol class="cooking-mode-steps" aria-hidden="true">
+            @for (int i = 0; i < instructions.Length; i++)
+            {
+                <li data-cooking-step>@instructions[i]</li>
+            }
+        </ol>
+        <div class="cooking-mode-nav">
+            <button type="button" class="btn btn-secondary" data-cooking-prev disabled>Bước trước</button>
+            <button type="button" class="btn btn-secondary" data-cooking-next disabled="@(instructions.Length == 1)">Bước sau</button>
+            <button type="button" class="btn" data-cooking-done aria-pressed="false">Đánh dấu xong</button>
+            <button type="button" class="btn btn-secondary" data-cooking-exit>Thoát</button>
+        </div>
+    </dialog>
 }
