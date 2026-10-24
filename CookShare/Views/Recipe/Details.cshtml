@@ -295,7 +295,9 @@
                           asp-action="Delete"
                           asp-route-id="@Model.Id"
                           method="post"
-                          data-confirm-delete="Bạn có chắc muốn xóa công thức này không?">
+                          data-confirm-delete="@(string.IsNullOrWhiteSpace(Model.Name) ? "Bạn có chắc chắn muốn xóa vĩnh viễn công thức này không?" : $"Bạn có chắc chắn muốn xóa vĩnh viễn công thức: {Model.Name} không?")"
+                          data-confirm-confirm-label="Xóa công thức"
+                          data-confirm-cancel-label="Giữ lại">
 
                         @Html.AntiForgeryToken()
 
