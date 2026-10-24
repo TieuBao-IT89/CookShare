@@ -1,0 +1,22 @@
+{
+  "checks": 16,
+  "passed": [
+    "cookie login succeeds on isolated fixture",
+    "all six recipe form fields have labels and valid hint/error associations",
+    "pristine recipe form hides the empty validation summary",
+    "all mobile recipe fields use at least16px text",
+    "server validation renders associated error state and retains input",
+    "native Create posts and displays the recipe",
+    "native form round trip preserves Vietnamese and newlines",
+    "native Edit saves the changed name",
+    "delete confirmation focuses the safe Cancel action",
+    "cancel leaves the recipe intact",
+    "confirmed native Delete removes only the created test recipe",
+    "notification primary actions meet44px target",
+    "Unread filter hides read cards",
+    "native MarkAsRead persists and empty unread status is accessible",
+    "native notification Open follows its existing destination",
+    "native flows have no JavaScript errors"
+  ],
+  "browserErrors": 0
+}

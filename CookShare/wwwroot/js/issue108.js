@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. Recipe Form: Image URL preview
     const imageInput = root.querySelector("#cs108ImageInput");
     const imagePreview = root.querySelector("#cs108PreviewImage");
+    const imageStatus = root.querySelector("#cs108ImageStatus");
 
     if (imageInput && imagePreview) {
         const fallback = imagePreview.dataset.fallback;
@@ -82,10 +83,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
         function updateImagePreview() {
             const source = resolveImageSource(imageInput.value);
+            const hasValue = imageInput.value.trim().length > 0;
+            function status(message, error = false) {
+                if (!imageStatus) return;
+                imageStatus.textContent = message;
+                imageStatus.classList.toggle("is-error", error);
+            }
+            status(source ? "Đang tải ảnh xem trước…" : hasValue ? "Đường dẫn ảnh chưa hợp lệ. Vui lòng kiểm tra lại." : "", !source && hasValue);
+
+            imagePreview.onload = () => {
+                if (source) status("Ảnh đã sẵn sàng để xem trước.");
+            };
 
             imagePreview.onerror = () => {
                 imagePreview.onerror = null;
+                imagePreview.onload = null;
                 imagePreview.src = fallback;
+                status("Không tải được ảnh. Kiểm tra đường dẫn hoặc chọn ảnh khác; nội dung đã nhập vẫn được giữ lại.", true);
             };
 
             imagePreview.src = source || fallback;

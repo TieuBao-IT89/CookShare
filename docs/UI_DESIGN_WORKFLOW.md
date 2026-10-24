@@ -52,9 +52,10 @@ Nguồn token chính là `CookShare/wwwroot/css/style.css`:
 | Vai trò | Token hiện có |
 | --- | --- |
 | Forest green | `--primary: #245c43`, `--primary-dark: #173f2e` |
-| Chữ/nội dung phụ | `--ink: #243b30`, `--muted: #69736b` |
+| Chữ/nội dung phụ | `--ink: #243b30`, `--muted: #606b62` (contrast refinement #120) |
 | Nền và surface | `--paper: #faf9f5`, `--white: #fff`, `--light: #edf3eb` |
-| Accent và lỗi | `--accent: #be6d45`, `--danger: #b33939` |
+| Accent và lỗi | `--accent: #be6d45` cho trang trí, `--accent-ink: #985130` cho chữ, `--danger: #b33939` |
+| Chữ chức năng nhỏ | `--text-small: 12px` cho metadata và thao tác đã audit |
 | Typography | `--font`: Be Vietnam Pro; `--font-display`: Playfair Display |
 | Spacing | `--space-1`…`--space-8` (4, 8, 12, 16, 24, 32, 48, 64px) |
 | Hình khối/chuyển động | `--radius-sm`, `--radius`, `--radius-lg`, `--shadow-sm`, `--shadow`, `--transition` |

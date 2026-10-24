@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CookShare UI refinement regression</title>
+<link rel="stylesheet" href="../../CookShare/wwwroot/css/style.css">
+<link rel="stylesheet" href="../../CookShare/wwwroot/css/issue108.css">
+<link rel="stylesheet" href="../../CookShare/wwwroot/css/home-feed.css">
+<style>main { padding:16px; } #cs108PreviewImage { width:100px; height:70px; object-fit:cover; } .notification-list { margin-block:16px; } #results { white-space:pre-wrap; overflow-wrap:anywhere; }</style>
+<main class="cs108">
+    <label for="cs108ImageInput">Đường dẫn ảnh</label>
+    <input id="cs108ImageInput" class="form-input" aria-describedby="cs108ImageStatus" placeholder="Ảnh món ăn">
+    <img id="cs108PreviewImage" src="../../CookShare/wwwroot/img/recipe-placeholder.svg" data-fallback="/CookShare/wwwroot/img/recipe-placeholder.svg" alt="Xem trước">
+    <p id="cs108ImageStatus" class="cs108-preview-status" role="status" aria-live="polite"></p>
+    <div role="group" aria-label="Lọc thông báo">
+        <button data-notification-filter="all" class="cs108-filter active" aria-pressed="true">Tất cả</button>
+        <button data-notification-filter="unread" class="cs108-filter" aria-pressed="false">Chưa đọc</button>
+    </div>
+    <p id="cs108NoUnread" hidden role="status">Bạn đã đọc tất cả thông báo.</p>
+    <ul class="notification-list">
+        <li data-notification-read="true">Thông báo đã đọc</li>
+        <li data-notification-read="false">Thông báo chưa đọc</li>
+    </ul>
+    <label><input type="checkbox" class="cs108-ingredient-check">Gạo</label>
+    <label><input type="checkbox" class="cs108-ingredient-check">Nước</label>
+    <p id="cs108IngredientProgress" aria-live="polite"></p>
+    <div class="home-feed"><nav class="feed-category-chips"><a href="#test">Món Việt</a></nav><div class="feed-post"><div class="feed-post-actions"><button class="feed-action">Bình luận</button></div></div></div>
+    <pre id="results">RUNNING</pre>
+</main>
+<script>
+const browserErrors=[];
+addEventListener('error',event=>{if(event.error)browserErrors.push(event.message);});
+addEventListener('unhandledrejection',event=>browserErrors.push(String(event.reason)));
+</script>
+<script src="../../CookShare/wwwroot/js/issue108.js"></script>
+<script>
+addEventListener('DOMContentLoaded',async()=>{
+    const checks=[];
+    const assert=(condition,name)=>{if(!condition)throw Error(name);checks.push('PASS '+name);};
+    const input=document.getElementById('cs108ImageInput'), image=document.getElementById('cs108PreviewImage'), status=document.getElementById('cs108ImageStatus');
+    const change=value=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));};
+    const until=async test=>{for(let i=0;i<70;i++){if(test())return;await new Promise(resolve=>setTimeout(resolve,40));}throw Error('Timed out waiting for image state');};
+    try {
+        assert(status.textContent===''&&!status.classList.contains('is-error'),'empty image starts quietly with the default preview');
+        change('/CookShare/wwwroot/img/recipes/pho.webp');
+        assert(status.textContent.includes('Đang tải'),'valid image exposes loading feedback');
+        await until(()=>status.textContent.includes('sẵn sàng'));
+        assert(image.naturalWidth>0&&!status.classList.contains('is-error'),'loaded local image confirms preview success');
+        change('javascript:alert(1)');
+        assert(status.classList.contains('is-error')&&status.textContent.includes('chưa hợp lệ'),'unsafe image reference gives a visible error');
+        assert(input.value==='javascript:alert(1)'&&image.getAttribute('src')===image.dataset.fallback,'invalid preview preserves input and uses fallback without executing it');
+        change('/CookShare/wwwroot/img/missing-ui-refinement.webp');
+        await until(()=>status.classList.contains('is-error'));
+        assert(status.textContent.includes('Không tải được ảnh')&&image.getAttribute('src')===image.dataset.fallback,'failed image explains recovery and restores fallback');
+        assert(input.value.endsWith('missing-ui-refinement.webp'),'image failure does not discard the entered reference');
+        change('/CookShare/wwwroot/img/recipes/salad.webp');
+        await until(()=>status.textContent.includes('sẵn sàng'));
+        assert(!status.classList.contains('is-error'),'a corrected image clears the previous failure');
+        change('');
+        await until(()=>image.complete);
+        assert(status.textContent===''&&image.getAttribute('src')===image.dataset.fallback,'clearing image resets preview without an error');
+
+        const filters=[...document.querySelectorAll('[data-notification-filter]')], rows=[...document.querySelectorAll('[data-notification-read]')];
+        filters[1].click();
+        assert(rows[0].hidden&&!rows[1].hidden,'Unread filter preserves only unread rows');
+        assert(filters[1].getAttribute('aria-pressed')==='true'&&filters[0].getAttribute('aria-pressed')==='false','filter selection remains accessible');
+        filters[0].click();
+        assert(rows.every(row=>!row.hidden),'All filter restores existing notifications');
+        rows[1].dataset.notificationRead='true';filters[1].click();
+        assert(!document.getElementById('cs108NoUnread').hidden,'zero unread items exposes the existing empty status');
+
+        const ingredients=[...document.querySelectorAll('.cs108-ingredient-check')];
+        ingredients[0].click();
+        assert(document.getElementById('cs108IngredientProgress').textContent.includes('1/2'),'ingredient checkbox still updates cooking progress');
+        ingredients[0].click();
+        assert(document.getElementById('cs108IngredientProgress').textContent.includes('0/2'),'unchecking an ingredient restores progress');
+        assert(document.querySelector('.feed-category-chips a').getBoundingClientRect().height>=44,'feed category target is at least 44px');
+        assert(parseFloat(getComputedStyle(document.querySelector('.feed-action')).fontSize)>=12,'social action text stays readable');
+        assert(innerWidth>700||parseFloat(getComputedStyle(input).fontSize)>=16,'mobile form input text is at least 16px');
+        assert(document.documentElement.scrollWidth<=innerWidth,'refined controls do not cause page overflow');
+        assert(browserErrors.length===0,'production interactions raise no JavaScript errors');
+        document.body.dataset.testStatus='passed';
+        document.getElementById('results').textContent=checks.join('\n')+'\nCOMPLETE '+checks.length+' passed';
+    }catch(error){document.body.dataset.testStatus='failed';document.getElementById('results').textContent=checks.join('\n')+'\nFAIL '+error.message;}
+    parent.postMessage({type:'ui-refinement-test-result',status:document.body.dataset.testStatus,output:document.getElementById('results').textContent},'*');
+});
+</script>
+</html>

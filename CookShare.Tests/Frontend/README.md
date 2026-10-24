@@ -1,5 +1,16 @@
 # Saved Recipes browser checks
 
+## UI audit refinements (#120)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-UiRefinementBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-UiRefinementBrowserTests.ps1 -Viewport Mobile
+```
+
+The harness runs production `issue108.js`, shared styles and feed styles with controlled image responses. Its 20 checks cover empty/loading/successful image previews, unsafe URLs, broken-image feedback/fallback, input preservation and recovery; notification All/Unread filters and accessible empty feedback; ingredient check/uncheck progress; and the targeted text/control sizes, mobile inputs and overflow. Mobile uses a 360px iframe. Python and Chrome/Edge are required; no database, CDN or npm install is needed. Results are written under ignored `artifacts/issue120/`.
+
+Run the Home Feed harness below for pagination and social regression coverage. See the [audit](../../docs/UI_AUDIT_120.md) and [Before/After evidence](../../docs/ui/issue120/README.md) for native application forms, notification persistence, responsive screenshots and verification limits.
+
 ## Creator Profile
 
 ```powershell
