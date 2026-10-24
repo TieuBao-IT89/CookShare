@@ -1,11 +1,19 @@
 @model CookShare.ViewModels.ProfileViewModel
+@using CookShare.Helpers
 
 @{
     ViewData["Title"] = $"Trang cá nhân - {Model.DisplayName}";
 
-    var avatar = string.IsNullOrWhiteSpace(Model.AvatarUrl)
+    var avatar = string.IsNullOrWhiteSpace(Model.AvatarUrl) || !RecipeImageReference.IsValid(Model.AvatarUrl)
         ? Url.Content("~/img/recipes/profile-avatar.webp")
-        : Model.AvatarUrl;
+        : RecipeImageReference.GetSource(Model.AvatarUrl);
+    var cover = string.IsNullOrWhiteSpace(Model.CoverImageUrl) || !RecipeImageReference.IsValid(Model.CoverImageUrl)
+        ? null
+        : RecipeImageReference.GetSource(Model.CoverImageUrl);
+    var avatarFallback = Url.Content("~/img/recipes/profile-avatar.webp");
+    var pickerRecipes = Model.FeaturedRecipes
+        .Concat(Model.Recipes.Where(recipe => Model.FeaturedRecipes.All(pinned => pinned.Id != recipe.Id)))
+        .ToList();
 }
 
 @section Styles {
@@ -23,16 +31,22 @@
     <link rel="stylesheet"
           href="~/css/edit-profile.css"
           asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/creator-profile.css" asp-append-version="true" />
 }
 
 <section class="profile-page">
     <div class="container">
 
-        <div class="profile-cover">
-            <span>the joy of home cooking.</span>
-            <svg class="icon">
-                <use href="#i-leaf" />
-            </svg>
+        <div class="profile-cover @(cover == null ? "is-fallback" : "")" id="profileCover">
+            @if (cover != null)
+            {
+                <img class="profile-cover-image" src="@cover" alt="" data-cover-image />
+            }
+            <span class="profile-cover-fallback">the joy of home cooking.</span>
+            @if (Model.IsOwner)
+            {
+                <a class="profile-cover-edit" asp-action="Edit">Đổi ảnh bìa</a>
+            }
         </div>
 
         <header class="profile-header">
@@ -41,7 +55,8 @@
                  src="@avatar"
                  alt="Ảnh đại diện @Model.DisplayName"
                  width="120"
-                 height="120" />
+                 height="120"
+                 data-avatar-fallback="@avatarFallback" />
 
             <div class="profile-main">
 
@@ -61,7 +76,20 @@
                     @("@" + Model.UserName)
                 </p>
 
-                <p class="profile-description">
+                @if (string.IsNullOrWhiteSpace(Model.Bio))
+                {
+                    <p class="profile-bio is-placeholder">
+                        @(Model.IsOwner
+                            ? "Hãy chia sẻ một chút về căn bếp của bạn."
+                            : "Người dùng này chưa viết tiểu sử.")
+                    </p>
+                }
+                else
+                {
+                    <p class="profile-bio">@Model.Bio</p>
+                }
+
+                <p class="profile-joined">
                     Thành viên CookShare từ
                     @Model.JoinedAt.ToString("dd/MM/yyyy")
                 </p>
@@ -88,6 +116,7 @@
                 </div>
             </div>
 
+            <div class="profile-actions">
             @if (Model.IsOwner)
             {
                 <a asp-controller="Profile"
@@ -99,22 +128,34 @@
                 <a asp-controller="Recipe"
                    asp-action="Create"
                    class="btn">
-                    + Chia sẻ món mới
+                    Chia sẻ món mới
                 </a>
+
+                <button type="button" class="btn btn-secondary" data-open-highlights>
+                    Quản lý công thức nổi bật
+                </button>
             }
-            else if (User.Identity?.IsAuthenticated == true)
+            else
             {
-                <form asp-controller="Profile"
-                      asp-action="@(Model.IsFollowing ? "Unfollow" : "Follow")"
-                      method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="userId" value="@Model.UserId" />
-                    <button type="submit"
-                            class="btn-follow-action @(Model.IsFollowing ? "is-following" : "")">
-                        @(Model.IsFollowing ? "Bỏ theo dõi" : "Theo dõi")
-                    </button>
-                </form>
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    <form asp-controller="Profile"
+                          asp-action="@(Model.IsFollowing ? "Unfollow" : "Follow")"
+                          method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId" value="@Model.UserId" />
+                        <button type="submit"
+                                class="btn-follow-action @(Model.IsFollowing ? "is-following" : "")">
+                            @(Model.IsFollowing ? "Bỏ theo dõi" : "Theo dõi")
+                        </button>
+                    </form>
+                }
+
+                <a class="btn btn-secondary" href="#recipes">Xem công thức</a>
+                <a class="btn btn-secondary" href="#followers">Người theo dõi</a>
+                <a class="btn btn-secondary" href="#following">Đang theo dõi</a>
             }
+            </div>
 
         </header>
 
@@ -124,11 +165,53 @@
                 @TempData["Success"]
             </p>
         }
+        @if (TempData["Error"] != null)
+        {
+            <p class="notice error" role="alert">
+                @TempData["Error"]
+            </p>
+        }
+
+        @if (Model.IsOwner || Model.FeaturedRecipes.Count > 0)
+        {
+            <section id="highlights" class="creator-highlights" aria-labelledby="highlightHeading">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">CÔNG THỨC TIÊU BIỂU</span>
+                        <h2 id="highlightHeading">Công thức nổi bật</h2>
+                    </div>
+                    @if (Model.IsOwner)
+                    {
+                        <button type="button" class="text-link" data-open-highlights>Quản lý công thức nổi bật</button>
+                    }
+                </div>
+                @if (Model.FeaturedRecipes.Count == 0)
+                {
+                    <p class="discovery-empty" id="highlightEmpty">Chọn công thức nổi bật để giới thiệu căn bếp của bạn.</p>
+                }
+                else
+                {
+                    <div class="recipe-grid featured-grid">
+                        @foreach (var recipe in Model.FeaturedRecipes)
+                        {
+                            <div class="featured-recipe">
+                                <span class="featured-badge">Nổi bật</span>
+                                <partial name="_RecipeCard" model="recipe" />
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+        }
 
         <nav class="profile-tabs"
              aria-label="Nội dung trang cá nhân">
 
-            <div class="profile-tab-list">
+            <div class="profile-tab-list" role="tablist">
+                @if (Model.IsOwner || Model.FeaturedRecipes.Count > 0)
+                {
+                    <a class="profile-tab" href="#highlights">Nổi bật</a>
+                }
                 <a class="profile-tab active"
                    href="#recipes">
                     Góc công thức
@@ -270,6 +353,57 @@
             </section>
         }
 
+        @if (Model.IsOwner)
+        {
+            <dialog class="highlight-dialog" id="highlightDialog" aria-labelledby="highlightDialogTitle">
+                <form asp-action="Highlights" method="post" id="highlightForm">
+                    @Html.AntiForgeryToken()
+                    <div class="highlight-dialog-header">
+                        <h2 id="highlightDialogTitle">Quản lý công thức nổi bật</h2>
+                        <p>Ghim tối đa 3 món do bạn đăng. Thứ tự trong danh sách là thứ tự hiển thị.</p>
+                    </div>
+                    <p class="highlight-count" id="highlightCount" aria-live="polite">@Model.FeaturedRecipes.Count/3</p>
+                    <p class="highlight-form-error" id="highlightFormError" role="alert" hidden></p>
+                    @if (Model.Recipes.Count == 0)
+                    {
+                        <p>Bạn chưa có công thức để ghim.</p>
+                    }
+                    else
+                    {
+                        <ul class="highlight-picker" id="highlightPicker">
+                            @foreach (var recipe in pickerRecipes)
+                            {
+                                var pinned = Model.FeaturedRecipes.Any(item => item.Id == recipe.Id);
+                                <li data-recipe-id="@recipe.Id">
+                                    <label>
+                                        <input type="checkbox" data-highlight-choice @(pinned ? "checked" : null) />
+                                        <span>
+                                            <strong>@recipe.Name</strong>
+                                            <small>@recipe.Category</small>
+                                        </span>
+                                    </label>
+                                    <span class="highlight-order">
+                                        <button type="button" data-move="up">Lên</button>
+                                        <button type="button" data-move="down">Xuống</button>
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    <div id="highlightInputs">
+                        @foreach (var recipe in Model.FeaturedRecipes)
+                        {
+                            <input type="hidden" name="recipeIds" value="@recipe.Id" />
+                        }
+                    </div>
+                    <div class="highlight-dialog-actions">
+                        <button type="button" class="btn btn-secondary" data-highlight-cancel>Hủy</button>
+                        <button type="submit" class="btn">Lưu</button>
+                    </div>
+                </form>
+            </dialog>
+        }
+
     </div>
 </section>
 
@@ -277,4 +411,5 @@
     <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
     <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
     <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
+    <script src="~/js/creator-profile.js" asp-append-version="true"></script>
 }

@@ -12,6 +12,7 @@ Các thay đổi được thực hiện sau khi chốt phiên bản `v0.1.0` s�
 
 ### Added
 
+- Trang cá nhân có tiểu sử, ảnh bìa và tối đa 3 công thức nổi bật do chính chủ tài khoản ghim.
 - Trang chủ xếp món nổi bật, món được yêu thích và món điểm cao từ lượt thích và đánh giá. Trang chi tiết gợi ý công thức cùng danh mục, không gợi ý chính món đang xem.
 - Thiết lập triển khai tự động lên Azure App Service (Staging) bằng GitHub Actions, kèm kiểm tra `/health` và phương án rollback.
 

@@ -49,5 +49,7 @@ namespace CookShare.Models
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 
         public ICollection<RecipeRating> Ratings { get; set; } = new List<RecipeRating>();
+
+        public ICollection<FeaturedRecipe> FeaturedRecipes { get; set; } = new List<FeaturedRecipe>();
     }
 }

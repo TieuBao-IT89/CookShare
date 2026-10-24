@@ -13,6 +13,10 @@ namespace CookShare.ViewModels
 
         public string? AvatarUrl { get; set; }
 
+        public string? CoverImageUrl { get; set; }
+
+        public string? Bio { get; set; }
+
         public DateTime JoinedAt { get; set; }
 
         public int RecipeCount { get; set; }
@@ -24,6 +28,8 @@ namespace CookShare.ViewModels
         public bool IsOwner { get; set; }
 
         public bool IsFollowing { get; set; }
+
+        public List<Recipe> FeaturedRecipes { get; set; } = new();
 
         public List<Recipe> Recipes { get; set; } = new();
 

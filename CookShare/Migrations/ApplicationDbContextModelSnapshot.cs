@@ -50,6 +50,41 @@ namespace CookShare.Migrations
                     b.ToTable("Favorites");
                 });
 
+            modelBuilder.Entity("CookShare.Models.FeaturedRecipe", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId", "RecipeId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "SortOrder")
+                        .IsUnique();
+
+                    b.ToTable("FeaturedRecipes", t =>
+                        {
+                            t.HasCheckConstraint("CK_FeaturedRecipes_SortOrder", "\"SortOrder\" >= 0 AND \"SortOrder\" <= 2");
+                        });
+                });
+
             modelBuilder.Entity("CookShare.Models.Follow", b =>
                 {
                     b.Property<int>("Id")
@@ -94,9 +129,17 @@ namespace CookShare.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("Bio")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -526,6 +569,25 @@ namespace CookShare.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CookShare.Models.FeaturedRecipe", b =>
+                {
+                    b.HasOne("CookShare.Models.Recipe", "Recipe")
+                        .WithMany("FeaturedRecipes")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CookShare.Models.Identity.ApplicationUser", "User")
+                        .WithMany("FeaturedRecipes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CookShare.Models.Follow", b =>
                 {
                     b.HasOne("CookShare.Models.Identity.ApplicationUser", "Follower")
@@ -694,6 +756,8 @@ namespace CookShare.Migrations
 
             modelBuilder.Entity("CookShare.Models.Identity.ApplicationUser", b =>
                 {
+                    b.Navigation("FeaturedRecipes");
+
                     b.Navigation("Recipes");
                 });
 
@@ -702,6 +766,8 @@ namespace CookShare.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Favorites");
+
+                    b.Navigation("FeaturedRecipes");
 
                     b.Navigation("Likes");
 

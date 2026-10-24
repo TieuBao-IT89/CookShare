@@ -16,5 +16,15 @@ namespace CookShare.ViewModels
             500,
             ErrorMessage = "Đường dẫn ảnh không được quá 500 ký tự.")]
         public string? AvatarUrl { get; set; }
+
+        [StringLength(
+            500,
+            ErrorMessage = "Đường dẫn ảnh bìa không được quá 500 ký tự.")]
+        [Display(Name = "Ảnh bìa")]
+        public string? CoverImageUrl { get; set; }
+
+        [StringLength(300, ErrorMessage = "Tiểu sử không được quá 300 ký tự.")]
+        [Display(Name = "Tiểu sử")]
+        public string? Bio { get; set; }
     }
 }

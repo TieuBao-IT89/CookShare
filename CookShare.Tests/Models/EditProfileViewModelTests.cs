@@ -52,6 +52,20 @@ namespace CookShare.Tests.Models
         }
 
         [Fact]
+        public void BioWithinLimit_ShouldPassValidation()
+        {
+            var model = new EditProfileViewModel
+            {
+                DisplayName = "Test User",
+                Bio = new string('ă', 300) + "\nDòng hai"
+            };
+
+            Assert.False(IsValid(model));
+            model.Bio = new string('ă', 300);
+            Assert.True(IsValid(model));
+        }
+
+        [Fact]
         public void TooLongAvatarUrl_ShouldFailValidation()
         {
             var model = new EditProfileViewModel

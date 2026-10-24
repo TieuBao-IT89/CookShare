@@ -35,6 +35,9 @@ namespace CookShare.Data
         public DbSet<Notification> Notifications
             => Set<Notification>();
 
+        public DbSet<FeaturedRecipe> FeaturedRecipes
+            => Set<FeaturedRecipe>();
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
@@ -83,6 +86,40 @@ namespace CookShare.Data
 
                 entity.Property(u => u.AvatarUrl)
                     .HasMaxLength(500);
+
+                entity.Property(u => u.CoverImageUrl)
+                    .HasMaxLength(500);
+
+                entity.Property(u => u.Bio)
+                    .HasMaxLength(300);
+            });
+
+            modelBuilder.Entity<FeaturedRecipe>(entity =>
+            {
+                entity.HasKey(item => item.Id);
+
+                entity.Property(item => item.UserId)
+                    .HasMaxLength(450);
+
+                entity.HasIndex(item => new { item.UserId, item.RecipeId })
+                    .IsUnique();
+
+                entity.HasIndex(item => new { item.UserId, item.SortOrder })
+                    .IsUnique();
+
+                entity.ToTable(table => table.HasCheckConstraint(
+                    "CK_FeaturedRecipes_SortOrder",
+                    "\"SortOrder\" >= 0 AND \"SortOrder\" <= 2"));
+
+                entity.HasOne(item => item.User)
+                    .WithMany(user => user.FeaturedRecipes)
+                    .HasForeignKey(item => item.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(item => item.Recipe)
+                    .WithMany(recipe => recipe.FeaturedRecipes)
+                    .HasForeignKey(item => item.RecipeId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Notification

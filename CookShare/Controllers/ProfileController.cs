@@ -1,6 +1,7 @@
 
 using System.Security.Claims;
 using CookShare.Data;
+using CookShare.Helpers;
 using CookShare.Models;
 using CookShare.Models.Identity;
 using CookShare.Services;
@@ -108,6 +109,16 @@ namespace CookShare.Controllers
                 })
                 .ToListAsync();
 
+            var featuredPins = await _db.FeaturedRecipes
+                .AsNoTracking()
+                .Where(pin => pin.UserId == profileUser.Id)
+                .OrderBy(pin => pin.SortOrder)
+                .ThenBy(pin => pin.Id)
+                .Include(pin => pin.Recipe)
+                    .ThenInclude(recipe => recipe.User)
+                .ToListAsync();
+            var featured = featuredPins.Select(pin => pin.Recipe).ToList();
+
             var favorites = isOwner
                 ? await _db.Favorites
                     .AsNoTracking()
@@ -129,24 +140,31 @@ namespace CookShare.Controllers
                     ?? profileUser.UserName
                     ?? "CookShare User",
                 AvatarUrl = profileUser.AvatarUrl,
+                CoverImageUrl = profileUser.CoverImageUrl,
+                Bio = profileUser.Bio,
                 JoinedAt = profileUser.CreatedAt,
                 IsOwner = isOwner,
                 IsFollowing = isFollowing,
                 RecipeCount = recipes.Count,
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
+                FeaturedRecipes = featured,
                 Recipes = recipes,
                 Followers = followers,
                 Following = following,
                 Favorites = favorites
             };
 
+            var displayedIds = featured
+                .Concat(recipes)
+                .Concat(favorites)
+                .Select(recipe => recipe.Id);
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
-                _db, recipes.Concat(favorites).Select(recipe => recipe.Id), currentUserId);
+                _db, displayedIds, currentUserId);
             ViewData["RecipeRatingSummaries"] = await RecipeRatingQueries.LoadAsync(
-                _db, recipes.Concat(favorites).Select(recipe => recipe.Id), currentUserId);
+                _db, displayedIds, currentUserId);
             ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(
-                _db, recipes.Concat(favorites).Select(recipe => recipe.Id), currentUserId);
+                _db, displayedIds, currentUserId);
 
             return View(model);
         }
@@ -241,7 +259,9 @@ namespace CookShare.Controllers
             {
                 DisplayName =
                     user.DisplayName ?? user.UserName ?? "",
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
+                CoverImageUrl = user.CoverImageUrl,
+                Bio = user.Bio
             };
 
             return View(model);
@@ -294,12 +314,39 @@ namespace CookShare.Controllers
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(model.CoverImageUrl)
+                && !RecipeImageReference.IsValid(model.CoverImageUrl))
+            {
+                ModelState.AddModelError(
+                    nameof(model.CoverImageUrl),
+                    "Ảnh bìa phải là đường dẫn nội bộ hoặc URL HTTP/HTTPS hợp lệ.");
+
+                return View(model);
+            }
+
+            var bio = string.IsNullOrWhiteSpace(model.Bio)
+                ? null
+                : model.Bio.Replace("\r\n", "\n", StringComparison.Ordinal).Trim();
+            if (bio != null && (bio.Contains('<', StringComparison.Ordinal) || bio.Contains('>', StringComparison.Ordinal)))
+            {
+                ModelState.AddModelError(
+                    nameof(model.Bio),
+                    "Tiểu sử chỉ nhận văn bản thường, không chứa HTML.");
+
+                return View(model);
+            }
+
             user.DisplayName = model.DisplayName.Trim();
 
             user.AvatarUrl =
                 string.IsNullOrWhiteSpace(model.AvatarUrl)
                     ? null
                     : model.AvatarUrl.Trim();
+            user.CoverImageUrl =
+                string.IsNullOrWhiteSpace(model.CoverImageUrl)
+                    ? null
+                    : model.CoverImageUrl.Trim();
+            user.Bio = bio;
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -318,6 +365,64 @@ namespace CookShare.Controllers
             TempData["Success"] =
                 "Đã cập nhật thông tin cá nhân.";
 
+            return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Highlights(int[]? recipeIds)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge();
+            }
+
+            int[] ids = recipeIds ?? Array.Empty<int>();
+            if (ids.Length > 3)
+            {
+                TempData["Error"] = "Chỉ được ghim tối đa 3 công thức.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (ids.Distinct().Count() != ids.Length)
+            {
+                TempData["Error"] = "Không thể ghim trùng một công thức.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (ids.Length > 0)
+            {
+                int ownedCount = await _db.Recipes.CountAsync(recipe =>
+                    ids.Contains(recipe.Id) && recipe.UserId == userId);
+                if (ownedCount != ids.Length)
+                {
+                    TempData["Error"] = "Chỉ được ghim công thức do chính bạn đăng.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            List<FeaturedRecipe> existing = await _db.FeaturedRecipes
+                .Where(pin => pin.UserId == userId)
+                .ToListAsync();
+            _db.FeaturedRecipes.RemoveRange(existing);
+            await _db.SaveChangesAsync();
+
+            for (int index = 0; index < ids.Length; index++)
+            {
+                _db.FeaturedRecipes.Add(new FeaturedRecipe
+                {
+                    UserId = userId,
+                    RecipeId = ids[index],
+                    SortOrder = index
+                });
+            }
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = ids.Length == 0
+                ? "Đã bỏ hết công thức nổi bật."
+                : "Đã cập nhật công thức nổi bật.";
             return RedirectToAction(nameof(Index));
         }
     }

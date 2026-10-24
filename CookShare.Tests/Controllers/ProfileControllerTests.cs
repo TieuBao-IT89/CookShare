@@ -196,6 +196,152 @@ namespace CookShare.Tests.Controllers
         }
 
         [Fact]
+        public async Task Edit_ShouldSaveBioAndCoverWithoutChangingIdentityOrOtherUsers()
+        {
+            using var services = CreateServices(NewUser("owner"), NewUser("other"));
+            var controller = CreateController(services, "owner");
+            var model = new EditProfileViewModel
+            {
+                DisplayName = "Chủ bếp",
+                AvatarUrl = "/img/owner.png",
+                CoverImageUrl = " https://images.example/cover.jpg ",
+                Bio = "  Yêu bếp.\nMỗi món là một câu chuyện.  "
+            };
+
+            Assert.IsType<RedirectToActionResult>(await controller.Edit(model));
+            var db = services.GetRequiredService<ApplicationDbContext>();
+            db.ChangeTracker.Clear();
+            var updated = await db.Users.SingleAsync(user => user.Id == "owner");
+            var other = await db.Users.SingleAsync(user => user.Id == "other");
+
+            Assert.Equal("Chủ bếp", updated.DisplayName);
+            Assert.Equal("https://images.example/cover.jpg", updated.CoverImageUrl);
+            Assert.Equal("Yêu bếp.\nMỗi món là một câu chuyện.", updated.Bio);
+            Assert.Equal("owner", updated.UserName);
+            Assert.Equal("owner@example.com", updated.Email);
+            Assert.Null(other.Bio);
+            Assert.Null(other.CoverImageUrl);
+        }
+
+        [Theory]
+        [InlineData("javascript:alert(1)")]
+        [InlineData("http://user:secret@example.com/cover.jpg")]
+        public async Task Edit_InvalidCover_ShouldKeepExistingProfile(string cover)
+        {
+            using var services = CreateServices(NewUser("owner"));
+            var controller = CreateController(services, "owner");
+            var model = new EditProfileViewModel
+            {
+                DisplayName = "New name",
+                CoverImageUrl = cover,
+                Bio = "Tiểu sử mới"
+            };
+
+            var result = Assert.IsType<ViewResult>(await controller.Edit(model));
+
+            Assert.Same(model, result.Model);
+            Assert.Contains(nameof(model.CoverImageUrl), controller.ModelState.Keys);
+            var db = services.GetRequiredService<ApplicationDbContext>();
+            db.ChangeTracker.Clear();
+            var user = await db.Users.SingleAsync();
+            Assert.Equal("Display owner", user.DisplayName);
+            Assert.Null(user.Bio);
+        }
+
+        [Fact]
+        public async Task Edit_UnsafeBio_ShouldKeepExistingProfile()
+        {
+            using var services = CreateServices(NewUser("owner"));
+            var controller = CreateController(services, "owner");
+            var model = new EditProfileViewModel
+            {
+                DisplayName = "New name",
+                Bio = "<script>alert(1)</script>"
+            };
+
+            Assert.IsType<ViewResult>(await controller.Edit(model));
+            var db = services.GetRequiredService<ApplicationDbContext>();
+            db.ChangeTracker.Clear();
+            Assert.Null((await db.Users.SingleAsync()).Bio);
+        }
+
+        [Fact]
+        public async Task Index_WithoutBioOrCover_ShouldStillRenderProfile()
+        {
+            using var services = CreateServices(NewUser("owner"));
+            var controller = CreateController(services, "owner");
+
+            var result = Assert.IsType<ViewResult>(await controller.Index(null));
+            var model = Assert.IsType<ProfileViewModel>(result.Model);
+
+            Assert.Null(model.Bio);
+            Assert.Null(model.CoverImageUrl);
+            Assert.Empty(model.FeaturedRecipes);
+        }
+
+        [Fact]
+        public async Task Highlights_ShouldSaveOwnedRecipesInRequestedOrder()
+        {
+            using var services = CreateServices(NewUser("owner"), NewUser("other"));
+            var db = services.GetRequiredService<ApplicationDbContext>();
+            db.Recipes.AddRange(NewRecipe(1, "owner"), NewRecipe(2, "owner"), NewRecipe(3, "owner"), NewRecipe(4, "other"));
+            await db.SaveChangesAsync();
+            var controller = CreateController(services, "owner");
+
+            Assert.IsType<RedirectToActionResult>(await controller.Highlights(new[] { 3, 1 }));
+            db.ChangeTracker.Clear();
+            var pins = await db.FeaturedRecipes.OrderBy(pin => pin.SortOrder).ToListAsync();
+
+            Assert.Equal(new[] { 3, 1 }, pins.Select(pin => pin.RecipeId));
+            Assert.Equal(new[] { 0, 1 }, pins.Select(pin => pin.SortOrder));
+            Assert.All(pins, pin => Assert.Equal("owner", pin.UserId));
+
+            var result = Assert.IsType<ViewResult>(await controller.Index(null));
+            var model = Assert.IsType<ProfileViewModel>(result.Model);
+            Assert.Equal(new[] { 3, 1 }, model.FeaturedRecipes.Select(recipe => recipe.Id));
+        }
+
+        [Fact]
+        public async Task Highlights_InvalidSelection_ShouldNotReplaceExistingPins()
+        {
+            using var services = CreateServices(NewUser("owner"), NewUser("other"));
+            var db = services.GetRequiredService<ApplicationDbContext>();
+            db.Recipes.AddRange(NewRecipe(1, "owner"), NewRecipe(2, "owner"), NewRecipe(3, "owner"), NewRecipe(4, "owner"), NewRecipe(5, "other"));
+            db.FeaturedRecipes.Add(new FeaturedRecipe { UserId = "owner", RecipeId = 1, SortOrder = 0 });
+            await db.SaveChangesAsync();
+            var controller = CreateController(services, "owner");
+
+            Assert.IsType<RedirectToActionResult>(await controller.Highlights(new[] { 1, 2, 3, 4 }));
+            Assert.Equal("Chỉ được ghim tối đa 3 công thức.", controller.TempData["Error"]);
+            Assert.IsType<RedirectToActionResult>(await controller.Highlights(new[] { 1, 1 }));
+            Assert.Equal("Không thể ghim trùng một công thức.", controller.TempData["Error"]);
+            Assert.IsType<RedirectToActionResult>(await controller.Highlights(new[] { 5 }));
+            Assert.Equal("Chỉ được ghim công thức do chính bạn đăng.", controller.TempData["Error"]);
+            db.ChangeTracker.Clear();
+            var pin = Assert.Single(await db.FeaturedRecipes.ToListAsync());
+
+            Assert.Equal(1, pin.RecipeId);
+        }
+
+        [Fact]
+        public void FeaturedRecipe_ShouldCascadeWhenRecipeOrUserIsDeleted()
+        {
+            using var services = CreateServices();
+            var db = services.GetRequiredService<ApplicationDbContext>();
+            var entity = db.Model.FindEntityType(typeof(FeaturedRecipe));
+            Assert.NotNull(entity);
+            var recipeDelete = entity!.GetForeignKeys()
+                .Single(key => key.PrincipalEntityType.ClrType == typeof(Recipe))
+                .DeleteBehavior;
+            var userDelete = entity.GetForeignKeys()
+                .Single(key => key.PrincipalEntityType.ClrType == typeof(ApplicationUser))
+                .DeleteBehavior;
+
+            Assert.Equal(DeleteBehavior.Cascade, recipeDelete);
+            Assert.Equal(DeleteBehavior.Cascade, userDelete);
+        }
+
+        [Fact]
         public void EditActions_ShouldRequireAuthorizationAndCorrectHttpVerbs()
         {
             var controllerType = typeof(ProfileController);
@@ -209,6 +355,11 @@ namespace CookShare.Tests.Controllers
             Assert.NotNull(post.GetCustomAttribute<ValidateAntiForgeryTokenAttribute>());
             Assert.Null(get.GetCustomAttribute<AllowAnonymousAttribute>());
             Assert.Null(post.GetCustomAttribute<AllowAnonymousAttribute>());
+
+            var highlights = controllerType.GetMethod(nameof(ProfileController.Highlights))!;
+            Assert.NotNull(highlights.GetCustomAttribute<AuthorizeAttribute>());
+            Assert.NotNull(highlights.GetCustomAttribute<HttpPostAttribute>());
+            Assert.NotNull(highlights.GetCustomAttribute<ValidateAntiForgeryTokenAttribute>());
         }
 
         private static ServiceProvider CreateServices(params ApplicationUser[] users)

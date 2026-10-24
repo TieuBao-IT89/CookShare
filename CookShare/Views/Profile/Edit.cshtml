@@ -9,6 +9,7 @@
     <link rel="stylesheet"
           href="~/css/edit-profile.css"
           asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/creator-profile.css" asp-append-version="true" />
 }
 
 <section class="auth-page container">
@@ -67,17 +68,40 @@
 
                     <input asp-for="AvatarUrl"
                            class="form-input"
+                           id="avatarUrlInput"
                            placeholder="/img/recipes/profile-avatar.webp" />
+
+                    <img class="profile-preview-avatar" id="avatarPreview" alt="Xem trước ảnh đại diện" width="96" height="96" />
 
                     <span asp-validation-for="AvatarUrl"
                           class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-full">
-                    Lưu thay đổi
-                </button>
+                <div class="form-field-group">
+                    <label asp-for="CoverImageUrl" class="form-label">Đường dẫn ảnh bìa</label>
+                    <input asp-for="CoverImageUrl" class="form-input" id="coverUrlInput" placeholder="https://images.example/cover.jpg" />
+                    <img class="profile-preview-cover" id="coverPreview" alt="Xem trước ảnh bìa" />
+                    <span asp-validation-for="CoverImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="form-field-group">
+                    <label asp-for="Bio" class="form-label">Tiểu sử</label>
+                    <textarea asp-for="Bio" class="form-input" id="profileBio" maxlength="300" rows="4"
+                              placeholder="Yêu thích nấu ăn và khám phá những món ngon Việt Nam."></textarea>
+                    <span class="profile-char-count" id="profileBioCount" aria-live="polite">0 / 300</span>
+                    <span asp-validation-for="Bio" class="text-danger"></span>
+                </div>
+
+                <div class="profile-edit-actions">
+                    <a class="btn btn-secondary" asp-action="Index">Hủy</a>
+                    <button type="submit" class="btn">Lưu thay đổi</button>
+                </div>
             </form>
 
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script src="~/js/creator-profile.js" asp-append-version="true"></script>
+}
