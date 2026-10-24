@@ -54,7 +54,10 @@
     {
       <div class="recipe-manage-actions">
         <a class="btn-action-edit" asp-controller="Recipe" asp-action="Edit" asp-route-id="@Model.Id"><svg class="icon"><use href="#i-edit" /></svg> Chỉnh sửa</a>
-        <form asp-controller="Recipe" asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm-delete="Bạn có chắc muốn xóa công thức này không?">
+        <form asp-controller="Recipe" asp-action="Delete" asp-route-id="@Model.Id" method="post"
+              data-confirm-delete="@(string.IsNullOrWhiteSpace(Model.Name) ? "Bạn có chắc chắn muốn xóa vĩnh viễn công thức này không?" : $"Bạn có chắc chắn muốn xóa vĩnh viễn công thức: {Model.Name} không?")"
+              data-confirm-confirm-label="Xóa công thức"
+              data-confirm-cancel-label="Giữ lại">
           <button type="submit" class="btn-action-delete"><svg class="icon"><use href="#i-trash" /></svg> Xóa</button>
         </form>
       </div>

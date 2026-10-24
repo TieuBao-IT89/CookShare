@@ -9,7 +9,10 @@
             if (confirming) return;
             confirming = true;
             try {
-                const confirmed = await window.CookShareUI.confirmDelete(form.dataset.confirmDelete);
+                const confirmed = await window.CookShareUI.confirmDelete(form.dataset.confirmDelete, {
+                    confirmLabel: form.dataset.confirmConfirmLabel,
+                    cancelLabel: form.dataset.confirmCancelLabel
+                });
                 if (confirmed) form.submit();
             } finally {
                 confirming = false;

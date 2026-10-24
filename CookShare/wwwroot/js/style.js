@@ -39,11 +39,16 @@
         try { sessionStorage.setItem('cookshare_ui_flash', message); }
         catch { toast(message); }
     }
-    function confirmDelete(message) {
+    function confirmDelete(message, options = {}) {
         const dialog = document.getElementById('confirmDialog');
         if (!dialog || typeof dialog.showModal !== 'function') return Promise.resolve(confirm(message));
         if (dialog.open) return Promise.resolve(false);
-        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmMessage').textContent =
+            message || 'Bạn có chắc chắn muốn tiếp tục thao tác này không?';
+        document.getElementById('confirmCancel').textContent =
+            options.cancelLabel || 'Giữ lại';
+        document.getElementById('confirmAction').textContent =
+            options.confirmLabel || 'Xóa công thức';
         dialog.returnValue = '';
         return new Promise(resolve => {
             dialog.addEventListener('close', () => resolve(dialog.returnValue === 'confirm'), { once: true });
