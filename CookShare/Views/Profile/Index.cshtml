@@ -1,280 +1,133 @@
 @model CookShare.ViewModels.ProfileViewModel
-
+@using CookShare.Helpers
 @{
-    ViewData["Title"] = $"Trang cá nhân - {Model.DisplayName}";
-
-    var avatar = string.IsNullOrWhiteSpace(Model.AvatarUrl)
-        ? Url.Content("~/img/recipes/profile-avatar.webp")
-        : Model.AvatarUrl;
+    ViewData["Title"] = $"Căn bếp của {Model.DisplayName}";
+    var avatar = ProfileContent.ImageSource(Model.AvatarUrl) ?? ProfileContent.DefaultAvatar;
+    var cover = ProfileContent.ImageSource(Model.CoverImageUrl);
+    var profileUrl = Url.Action("Index", "Profile", new { userId = Model.UserId });
 }
-
 @section Styles {
+    <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/recipe-interactions.css" asp-append-version="true" />
-    <link rel="stylesheet"
-          href="~/css/recipe.css"
-          asp-append-version="true" />
-
-    <link rel="stylesheet"
-          href="~/css/user-follow.css"
-          asp-append-version="true" />
-
-    <link rel="stylesheet"
-          href="~/css/edit-profile.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/creator-profile.css" asp-append-version="true" />
 }
-
-<section class="profile-page">
-    <div class="container">
-
-        <div class="profile-cover">
-            <span>the joy of home cooking.</span>
-            <svg class="icon">
-                <use href="#i-leaf" />
-            </svg>
-        </div>
-
-        <header class="profile-header">
-
-            <img class="profile-avatar"
-                 src="@avatar"
-                 alt="Ảnh đại diện @Model.DisplayName"
-                 width="120"
-                 height="120" />
-
-            <div class="profile-main">
-
-                <span class="eyebrow">
-                    MỘT NGƯỜI BẠN YÊU BẾP
-                </span>
-
-                <div class="profile-name-row">
-                    <h1>
-                        <span class="profile-name">
-                            @Model.DisplayName
-                        </span>
-                    </h1>
-                </div>
-
-                <p class="profile-username">
-                    @("@" + Model.UserName)
-                </p>
-
-                <p class="profile-description">
-                    Thành viên CookShare từ
-                    @Model.JoinedAt.ToString("dd/MM/yyyy")
-                </p>
-
-                <div class="profile-stats">
-
-                    <span class="stat">
-                        <strong>@Model.FollowersCount</strong>
-                        người theo dõi
-                    </span>
-
-                    <span class="stat">
-                        <strong>@Model.FollowingCount</strong>
-                        đang theo dõi
-                    </span>
-
-                    <span class="stat">
-                        <strong id="profileRecipeCount">
-                            @Model.RecipeCount
-                        </strong>
-                        công thức
-                    </span>
-
-                </div>
-            </div>
-
-            @if (Model.IsOwner)
-            {
-                <a asp-controller="Profile"
-                   asp-action="Edit"
-                   class="btn btn-secondary">
-                    Chỉnh sửa hồ sơ
-                </a>
-
-                <a asp-controller="Recipe"
-                   asp-action="Create"
-                   class="btn">
-                    + Chia sẻ món mới
-                </a>
-            }
-            else if (User.Identity?.IsAuthenticated == true)
-            {
-                <form asp-controller="Profile"
-                      asp-action="@(Model.IsFollowing ? "Unfollow" : "Follow")"
-                      method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="userId" value="@Model.UserId" />
-                    <button type="submit"
-                            class="btn-follow-action @(Model.IsFollowing ? "is-following" : "")">
-                        @(Model.IsFollowing ? "Bỏ theo dõi" : "Theo dõi")
-                    </button>
-                </form>
-            }
-
-        </header>
-
-        @if (TempData["Success"] != null)
-        {
-            <p class="notice" role="status">
-                @TempData["Success"]
-            </p>
-        }
-
-        <nav class="profile-tabs"
-             aria-label="Nội dung trang cá nhân">
-
-            <div class="profile-tab-list">
-                <a class="profile-tab active"
-                   href="#recipes">
-                    Góc công thức
-                </a>
-
-                <a class="profile-tab"
-                   href="#followers">
-                    Người theo dõi
-                </a>
-
-                <a class="profile-tab"
-                   href="#following">
-                    Đang theo dõi
-                </a>
-
+<section class="creator-profile" data-creator-profile>
+    <div class="container creator-shell">
+        <nav class="creator-breadcrumb" aria-label="Đường dẫn"><a asp-controller="Home" asp-action="Index">Bảng tin</a><i class="fa-solid fa-angle-right" aria-hidden="true"></i><span>Căn bếp cá nhân</span></nav>
+        <article class="creator-hero">
+            <div class="creator-cover">
+                <div class="creator-cover-art" aria-hidden="true"><i class="fa-solid fa-leaf"></i><i class="fa-solid fa-utensils"></i></div>
+                @if (cover != null)
+                {
+                    <img class="creator-cover-image" src="@cover" alt="" width="1200" height="400" data-profile-image />
+                }
+                <div class="creator-cover-overlay"></div>
+                <span class="creator-cover-caption">a little love, a little flavour.</span>
                 @if (Model.IsOwner)
                 {
-                    <a class="profile-tab"
-                       href="#favorites">
-                        Đã lưu
-                    </a>
+                    <a class="creator-cover-edit" href="@Url.Action("Edit", "Profile")#CoverImageUrl"><i class="fa-solid fa-camera" aria-hidden="true"></i><span>Đổi ảnh bìa</span></a>
                 }
             </div>
-        </nav>
-
-        <section id="recipes">
-            <div class="section-heading profile-section-heading">
-                <div>
-                    <span class="eyebrow">
-                        MÓN NGON TỪ CĂN BẾP NHỎ
-                    </span>
-
-                    <h2>Góc công thức</h2>
-
-                    <p>
-                        Những công thức được chia sẻ bởi
-                        @Model.DisplayName.
-                    </p>
+            <header class="creator-header">
+                <div class="creator-heading-row">
+                    <div class="creator-identity">
+                        <img class="creator-avatar" src="@avatar" alt="Ảnh đại diện @Model.DisplayName" width="132" height="132" data-profile-image data-image-fallback="@ProfileContent.DefaultAvatar" />
+                        <div class="creator-name-stack"><span class="eyebrow">MỘT CĂN BẾP, MỘT CÂU CHUYỆN</span><h1 class="creator-name">@Model.DisplayName</h1><p class="creator-username">@("@" + Model.UserName)</p></div>
+                    </div>
+                    <div class="creator-actions">
+                        @if (Model.IsOwner)
+                        {
+                            <a class="btn btn-secondary btn-small" asp-controller="Profile" asp-action="Edit"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>Chỉnh sửa hồ sơ</a>
+                            <a class="btn btn-small" asp-controller="Recipe" asp-action="Create"><i class="fa-solid fa-plus" aria-hidden="true"></i>Chia sẻ món mới</a>
+                        }
+                        else if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-controller="Profile" asp-action="@(Model.IsFollowing ? "Unfollow" : "Follow")" method="post">
+                                <input type="hidden" name="userId" value="@Model.UserId" />
+                                <button class="btn btn-small @(Model.IsFollowing ? "btn-secondary" : "")" type="submit"><i class="fa-solid @(Model.IsFollowing ? "fa-user-check" : "fa-user-plus")" aria-hidden="true"></i>@(Model.IsFollowing ? "Bỏ theo dõi" : "Theo dõi")</button>
+                            </form>
+                            <a class="btn btn-secondary btn-small" href="#recipes"><i class="fa-solid fa-utensils" aria-hidden="true"></i>Xem công thức</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-small" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@profileUrl"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Theo dõi căn bếp</a>
+                            <a class="btn btn-secondary btn-small" href="#recipes">Xem công thức</a>
+                        }
+                    </div>
                 </div>
-            </div>
-
-            @if (Model.Recipes.Count == 0)
-            {
-                <div class="recipe-empty-container">
-                    <h3>Chưa có công thức nào</h3>
-                    <p>
-                        Những món ngon được chia sẻ sẽ xuất hiện ở đây.
-                    </p>
+                <div class="creator-about">
+                    <p class="creator-bio @(string.IsNullOrWhiteSpace(Model.Bio) ? "is-placeholder" : "")">@(string.IsNullOrWhiteSpace(Model.Bio) ? Model.IsOwner ? "Kể một chút về bạn, món ăn bạn yêu và câu chuyện trong căn bếp này." : "Mỗi món ngon là một câu chuyện. Căn bếp này đang chờ thêm những sẻ chia." : Model.Bio)</p>
+                    <span class="creator-joined"><i class="fa-regular fa-calendar" aria-hidden="true"></i>Tham gia <time datetime="@Model.JoinedAt.ToString("yyyy-MM-dd")">@Model.JoinedAt.ToString("dd/MM/yyyy")</time></span>
                 </div>
-            }
-            else
-            {
-                <div class="recipe-grid profile-recipe-grid">
+                <nav class="creator-stats" aria-label="Thống kê căn bếp">
+                    <a href="#recipes"><strong id="profileRecipeCount">@Model.RecipeCount</strong><span>công thức</span></a>
+                    <a href="#followers"><strong>@Model.FollowersCount</strong><span>người theo dõi</span></a>
+                    <a href="#following"><strong>@Model.FollowingCount</strong><span>đang theo dõi</span></a>
+                </nav>
+            </header>
+        </article>
+        @if (TempData["Success"] != null) { <p class="notice creator-notice" role="status">@TempData["Success"]</p> }
 
-                    @foreach (var recipe in Model.Recipes)
-                    {
-                        <partial name="_RecipeCard" model="recipe" />
-                    }
-
-                </div>
-            }
-        </section>
-
-        <section id="followers"
-                 class="profile-connections-section">
-            <h2>Người theo dõi (@Model.FollowersCount)</h2>
-
-            @if (Model.Followers.Count == 0)
-            {
-                <p>Chưa có người theo dõi.</p>
-            }
-            else
-            {
-                <div class="profile-user-list">
-                    @foreach (var follower in Model.Followers)
-                    {
-                        <div class="user-card">
-                            <div class="user-card-info">
-                                <h3>
-                                    <a asp-controller="Profile"
-                                       asp-action="Index"
-                                       asp-route-userId="@follower.UserId">
-                                        @follower.DisplayName
-                                    </a>
-                                </h3>
-
-                                <p>@("@" + follower.UserName)</p>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-        </section>
-
-        <section id="following"
-                 class="profile-connections-section">
-            <h2>Đang theo dõi (@Model.FollowingCount)</h2>
-
-            @if (Model.Following.Count == 0)
-            {
-                <p>Chưa theo dõi ai.</p>
-            }
-            else
-            {
-                <div class="profile-user-list">
-                    @foreach (var following in Model.Following)
-                    {
-                        <div class="user-card">
-                            <div class="user-card-info">
-                                <h3>
-                                    <a asp-controller="Profile"
-                                       asp-action="Index"
-                                       asp-route-userId="@following.UserId">
-                                        @following.DisplayName
-                                    </a>
-                                </h3>
-
-                                <p>@("@" + following.UserName)</p>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-        </section>
-
-        @if (Model.IsOwner)
+        @if (Model.FeaturedRecipes.Count > 0 || Model.IsOwner)
         {
-            <section id="favorites">
-                <h2>Công thức đã lưu (<span data-saved-count>@Model.Favorites.Count</span>)</h2>
-                <p id="profileFavoriteEmptyState" style="@(Model.Favorites.Count == 0 ? null : "display:none")">Bạn chưa lưu công thức nào.</p>
-                <div class="recipe-grid" id="profileFavoriteGrid" style="@(Model.Favorites.Count == 0 ? "display:none" : null)"
-                     data-state-url="@Url.Action("State", "RecipeFavorites")" data-saved-user-id="@Model.UserId"
-                     data-login-url="@Url.Action("Login", "Account", new { returnUrl = Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString })">
-                    @foreach (var recipe in Model.Favorites)
-                    {
-                        <partial name="_RecipeCard" model="recipe" view-data='new ViewDataDictionary(ViewData) { ["SavedCollection"] = true }' />
-                    }
+            <section class="creator-highlights" aria-labelledby="creatorHighlightsTitle">
+                <div class="creator-section-heading"><div><span class="eyebrow">HƯƠNG VỊ ĐÁNG NHỚ</span><h2 id="creatorHighlightsTitle">Những món ngon <em>đại diện cho mình.</em></h2></div>
+                    @if (Model.IsOwner) { <a class="text-link" asp-controller="ProfileHighlights" asp-action="Index"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i>Quản lý công thức nổi bật</a> }
                 </div>
+                @if (Model.FeaturedRecipes.Count > 0)
+                {
+                    <div class="creator-highlights-grid">
+                        @foreach (var recipe in Model.FeaturedRecipes) { <partial name="_CreatorHighlightCard" model="recipe" /> }
+                    </div>
+                }
+                else
+                {
+                    <div class="creator-empty creator-highlight-empty"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i><div><h3>Chọn những món làm nên dấu ấn của bạn</h3><p>Giới thiệu tối đa 3 công thức do bạn chia sẻ, theo thứ tự bạn thích.</p></div><a class="btn btn-secondary btn-small" asp-controller="ProfileHighlights" asp-action="Index">Chọn công thức nổi bật</a></div>
+                }
             </section>
         }
 
+        <nav class="creator-tabs" aria-label="Nội dung trang cá nhân" data-profile-tabs>
+            <a class="is-active" id="creatorTab_recipes" href="#recipes">Góc công thức <span>@Model.RecipeCount</span></a>
+            <a id="creatorTab_followers" href="#followers">Người theo dõi <span>@Model.FollowersCount</span></a>
+            <a id="creatorTab_following" href="#following">Đang theo dõi <span>@Model.FollowingCount</span></a>
+            @if (Model.IsOwner) { <a id="creatorTab_favorites" href="#favorites">Đã lưu <span data-saved-count>@Model.Favorites.Count</span></a> }
+        </nav>
+        <section id="recipes" class="creator-panel" data-profile-panel aria-labelledby="creatorRecipesTitle">
+            <div class="creator-section-heading"><div><span class="eyebrow">TỪ CĂN BẾP NÀY</span><h2 id="creatorRecipesTitle">Góc công thức</h2></div><span class="creator-section-meta">@Model.RecipeCount công thức đã chia sẻ</span></div>
+            @if (Model.Recipes.Count == 0)
+            {
+                <div class="creator-empty"><i class="fa-solid fa-utensils" aria-hidden="true"></i><h3>Câu chuyện căn bếp đang bắt đầu</h3><p>@(Model.IsOwner ? "Chia sẻ món đầu tiên để mọi người cùng vào bếp với bạn." : "Những món ngon sẽ xuất hiện khi chủ căn bếp chia sẻ công thức đầu tiên.")</p>@if (Model.IsOwner) { <a class="btn btn-small" asp-controller="Recipe" asp-action="Create">Chia sẻ công thức đầu tiên</a> }</div>
+            }
+            else { <div class="recipe-grid" id="profileRecipeGrid">@foreach (var recipe in Model.Recipes) { <partial name="_RecipeCard" model="recipe" /> }</div> }
+        </section>
+        <section id="followers" class="creator-panel profile-connections-section" data-profile-panel aria-labelledby="creatorFollowersTitle">
+            <div class="creator-section-heading"><div><span class="eyebrow">CÙNG NHAU YÊU BẾP</span><h2 id="creatorFollowersTitle">Người theo dõi (@Model.FollowersCount)</h2></div></div>
+            @if (Model.Followers.Count == 0) { <div class="creator-empty"><i class="fa-solid fa-users" aria-hidden="true"></i><p>Chưa có người theo dõi. Mỗi công thức mới là một cơ hội để kết nối.</p></div> }
+            else { <partial name="_CreatorConnections" model="Model.Followers" /> }
+        </section>
+        <section id="following" class="creator-panel profile-connections-section" data-profile-panel aria-labelledby="creatorFollowingTitle">
+            <div class="creator-section-heading"><div><span class="eyebrow">NHỮNG NGƯỜI BẠN YÊU BẾP</span><h2 id="creatorFollowingTitle">Đang theo dõi (@Model.FollowingCount)</h2></div></div>
+            @if (Model.Following.Count == 0) { <div class="creator-empty"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><p>Chưa theo dõi ai. Khám phá một căn bếp mới để thêm cảm hứng mỗi ngày.</p><a class="text-link" asp-controller="Home" asp-action="Index">Khám phá cộng đồng<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div> }
+            else { <partial name="_CreatorConnections" model="Model.Following" /> }
+        </section>
+        @if (Model.IsOwner)
+        {
+            <section id="favorites" class="creator-panel" data-profile-panel aria-labelledby="creatorFavoritesTitle">
+                <div class="creator-section-heading"><div><span class="eyebrow">GÓC RIÊNG CỦA BẠN</span><h2 id="creatorFavoritesTitle">Công thức đã lưu (<span data-saved-count>@Model.Favorites.Count</span>)</h2></div><span class="creator-section-meta"><i class="fa-solid fa-lock" aria-hidden="true"></i>Chỉ mình bạn</span></div>
+                <p class="creator-empty" id="profileFavoriteEmptyState" hidden="@(Model.Favorites.Count > 0)">Bạn chưa lưu công thức nào.</p>
+                <div class="recipe-grid" id="profileFavoriteGrid" hidden="@(Model.Favorites.Count == 0)" data-state-url="@Url.Action("State", "RecipeFavorites")" data-saved-user-id="@Model.UserId" data-login-url="@Url.Action("Login", "Account", new { returnUrl = profileUrl })">
+                    @foreach (var recipe in Model.Favorites) { <partial name="_RecipeCard" model="recipe" view-data='new ViewDataDictionary(ViewData) { ["SavedCollection"] = true }' /> }
+                </div>
+            </section>
+        }
     </div>
 </section>
-
 @section Scripts {
     <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
     <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
     <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
+    <script src="~/js/creator-profile.js" asp-append-version="true"></script>
 }

@@ -1,6 +1,8 @@
 
+using System.Data.Common;
 using System.Security.Claims;
 using CookShare.Data;
+using CookShare.Helpers;
 using CookShare.Models;
 using CookShare.Models.Identity;
 using CookShare.Services;
@@ -9,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CookShare.Controllers
 {
@@ -16,13 +19,17 @@ namespace CookShare.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<ProfileController> _logger;
+        private static readonly Action<ILogger, string, Exception?> _logFailure =
+            LoggerMessage.Define<string>(LogLevel.Warning, new EventId(1117, "ProfileUpdateFailure"), "Profile update failed with {FailureType}.");
 
         public ProfileController(
             ApplicationDbContext db,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager, ILogger<ProfileController>? logger = null)
         {
             _db = db;
             _userManager = userManager;
+            _logger = logger ?? NullLogger<ProfileController>.Instance;
         }
 
         // GET: /Profile
@@ -120,6 +127,10 @@ namespace CookShare.Controllers
                     .ToListAsync()
                 : new List<CookShare.Models.Recipe>();
 
+            var featuredIds = await _db.ProfileFeaturedRecipes.AsNoTracking()
+                .Where(pin => pin.UserId == profileUser.Id && pin.Recipe.UserId == profileUser.Id)
+                .OrderBy(pin => pin.DisplayOrder).Select(pin => pin.RecipeId).ToListAsync();
+            var byId = recipes.ToDictionary(recipe => recipe.Id);
             var model = new ProfileViewModel
             {
                 UserId = profileUser.Id,
@@ -129,6 +140,9 @@ namespace CookShare.Controllers
                     ?? profileUser.UserName
                     ?? "CookShare User",
                 AvatarUrl = profileUser.AvatarUrl,
+                CoverImageUrl = profileUser.CoverImageUrl,
+                Bio = profileUser.Bio,
+                FeaturedRecipes = featuredIds.Where(byId.ContainsKey).Select(id => byId[id]).ToList(),
                 JoinedAt = profileUser.CreatedAt,
                 IsOwner = isOwner,
                 IsFollowing = isFollowing,
@@ -241,7 +255,9 @@ namespace CookShare.Controllers
             {
                 DisplayName =
                     user.DisplayName ?? user.UserName ?? "",
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
+                CoverImageUrl = user.CoverImageUrl,
+                Bio = user.Bio
             };
 
             return View(model);
@@ -266,52 +282,33 @@ namespace CookShare.Controllers
                 return Challenge();
             }
 
-            if (!string.IsNullOrWhiteSpace(model.AvatarUrl))
+            if (!ProfileContent.IsValidImage(model.AvatarUrl))
+                ModelState.AddModelError(nameof(model.AvatarUrl), "Ảnh đại diện phải là đường dẫn nội bộ hoặc URL HTTPS hợp lệ, tối đa 500 ký tự.");
+            if (!ProfileContent.IsValidImage(model.CoverImageUrl))
+                ModelState.AddModelError(nameof(model.CoverImageUrl), "Ảnh bìa phải là đường dẫn nội bộ hoặc URL HTTPS hợp lệ, tối đa 500 ký tự.");
+            if (model.Bio?.Length > ProfileContent.BioMaxLength)
+                ModelState.AddModelError(nameof(model.Bio), "Tiểu sử không được quá 300 ký tự.");
+            if (!ProfileContent.IsPlainBio(model.Bio))
+                ModelState.AddModelError(nameof(model.Bio), "Tiểu sử chỉ hỗ trợ văn bản thuần, không chứa thẻ HTML.");
+            if (!ModelState.IsValid) return View(model);
+
+            user.DisplayName = model.DisplayName.Trim();
+            user.AvatarUrl = string.IsNullOrWhiteSpace(model.AvatarUrl) ? null : model.AvatarUrl.Trim();
+            user.CoverImageUrl = string.IsNullOrWhiteSpace(model.CoverImageUrl) ? null : model.CoverImageUrl.Trim();
+            user.Bio = string.IsNullOrWhiteSpace(model.Bio) ? null : model.Bio.Trim();
+            try
             {
-                var avatar = model.AvatarUrl.Trim();
-
-                var isLocal = avatar.StartsWith('/')
-                    && !avatar.StartsWith(
-                        "//", StringComparison.Ordinal)
-                    && !avatar.StartsWith(
-                        "/\\", StringComparison.Ordinal)
-                    && !avatar.Contains('\\');
-
-                var isHttps = Uri.TryCreate(
-                    avatar,
-                    UriKind.Absolute,
-                    out var uri)
-                    && uri.Scheme == Uri.UriSchemeHttps
-                    && string.IsNullOrEmpty(uri.UserInfo);
-
-                if (!isLocal && !isHttps)
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
                 {
-                    ModelState.AddModelError(
-                        nameof(model.AvatarUrl),
-                        "Ảnh đại diện phải là đường dẫn nội bộ hoặc URL HTTPS hợp lệ.");
-
+                    foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error.Description);
                     return View(model);
                 }
             }
-
-            user.DisplayName = model.DisplayName.Trim();
-
-            user.AvatarUrl =
-                string.IsNullOrWhiteSpace(model.AvatarUrl)
-                    ? null
-                    : model.AvatarUrl.Trim();
-
-            var result = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded)
+            catch (Exception exception) when (exception is DbUpdateException or DbException)
             {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        error.Description);
-                }
-
+                _logFailure(_logger, exception.GetType().Name, null);
+                ModelState.AddModelError(string.Empty, "Chưa thể lưu hồ sơ. Nội dung bạn nhập được giữ lại; vui lòng thử lại sau.");
                 return View(model);
             }
 

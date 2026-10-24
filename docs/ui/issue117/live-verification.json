@@ -1,0 +1,30 @@
+{
+  "checks": 24,
+  "passed": [
+    "public profile has three real pins and no Favorites",
+    "cover and stored biography render on the public profile",
+    "example-public-desktop has no overflow",
+    "example-highlights-desktop has no overflow",
+    "real cookie login succeeds",
+    "owner sees edit/highlight actions and private Favorites tab",
+    "example-owner-desktop has no overflow",
+    "live profile tabs activate the selected section",
+    "live move controls swap the selected recipes",
+    "example-manager-desktop has no overflow",
+    "native highlight form persists the reordered list",
+    "native unpin form persists without changing recipes",
+    "live biography counter matches entered Vietnamese text",
+    "example-editor-desktop has no overflow",
+    "native Edit Profile form persists the biography",
+    "a missing cover image shows fallback and error feedback",
+    "example-owner-tablet has no overflow",
+    "example-manager-tablet has no overflow",
+    "example-editor-tablet has no overflow",
+    "example-owner-mobile has no overflow",
+    "example-manager-mobile has no overflow",
+    "example-editor-mobile has no overflow",
+    "reduced motion disables entrance animation",
+    "no JavaScript errors on the live creator pages"
+  ],
+  "browserErrors": 0
+}

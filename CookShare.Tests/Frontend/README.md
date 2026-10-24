@@ -1,5 +1,16 @@
 # Saved Recipes browser checks
 
+## Creator Profile
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-CreatorProfileBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-CreatorProfileBrowserTests.ps1 -Viewport Mobile
+```
+
+The creator harness runs production `creator-profile.js` and CSS in an isolated browser, without an application database or CDN dependency. Its 32 checks cover keyboard tabs/ARIA, safe Bio/name previews, the 300-character counter, image validation/fallback/stale loads, highlight counts/selection/order/unpin, native save and CSRF fields, initialization twice, and overflow. Mobile uses a real 360px iframe. Python and Chrome/Edge are required; supply `-BrowserPath` if needed. Results are written under ignored `artifacts/issue117/`.
+
+See [CREATOR_PROFILE.md](../../docs/CREATOR_PROFILE.md) for native application form flows, ownership tests and PostgreSQL migration/concurrency checks, and [UI evidence](../../docs/ui/issue117/README.md) for the full-page 360px/768px/1440px review.
+
 ## Persistent Recipe Ratings
 
 ```powershell

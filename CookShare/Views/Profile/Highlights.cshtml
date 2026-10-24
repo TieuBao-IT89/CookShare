@@ -1,0 +1,38 @@
+@model CookShare.ViewModels.ProfileHighlightsViewModel
+@{
+    ViewData["Title"] = "Chọn công thức nổi bật";
+    var selectedCount = Model.RecipeIds.Where(id => id > 0).Distinct().Count();
+}
+@section Styles { <link rel="stylesheet" href="~/css/creator-profile.css" asp-append-version="true" /> }
+<section class="creator-manager container" data-highlight-manager>
+    <a class="text-link" asp-controller="Profile" asp-action="Index"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>Quay lại căn bếp</a>
+    <div class="creator-edit-heading"><span class="eyebrow">NHỮNG MÓN NGON LÀM NÊN DẤU ẤN</span><h1>Chọn công thức <em>nổi bật.</em></h1><p>Giới thiệu tối đa 3 món do chính bạn chia sẻ. Thứ tự bên dưới cũng là thứ tự trên hồ sơ.</p></div>
+    <form asp-controller="ProfileHighlights" asp-action="Save" method="post">
+        <div asp-validation-summary="All" class="notice error" role="alert"></div>
+        <div class="creator-manager-toolbar"><span><i class="fa-solid fa-thumbtack" aria-hidden="true"></i>Đã chọn <strong data-highlight-count>@selectedCount/3</strong> công thức</span><a class="text-link" asp-controller="Recipe" asp-action="Create">Chia sẻ món mới<i class="fa-solid fa-plus" aria-hidden="true"></i></a></div>
+        @if (Model.AvailableRecipes.Count == 0 && selectedCount == 0)
+        {
+            <div class="creator-empty"><i class="fa-solid fa-utensils" aria-hidden="true"></i><h2>Bắt đầu bằng một món ngon của bạn</h2><p>Sau khi chia sẻ công thức, bạn có thể chọn món ấy làm điểm nhấn cho căn bếp.</p><a class="btn btn-small" asp-controller="Recipe" asp-action="Create">Chia sẻ công thức đầu tiên</a></div>
+        }
+        <div class="creator-slots">
+            @for (var position = 0; position < 3; position++)
+            {
+                var selectedId = Model.RecipeIds.ElementAtOrDefault(position);
+                var selectedRecipe = Model.AvailableRecipes.FirstOrDefault(recipe => recipe.Id == selectedId);
+                <div class="creator-slot" data-highlight-slot>
+                    <div class="creator-slot-heading"><label for="highlightSlot_@position"><span>@(position + 1)</span>Vị trí @(position + 1)</label><div class="creator-slot-moves" hidden data-highlight-moves><button type="button" data-highlight-move="-1" aria-label="Di chuyển món ở vị trí @(position + 1) lên trên" disabled="@(position == 0)"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button><button type="button" data-highlight-move="1" aria-label="Di chuyển món ở vị trí @(position + 1) xuống dưới" disabled="@(position == 2)"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button></div></div>
+                    <select id="highlightSlot_@position" name="RecipeIds" class="form-select" data-highlight-select>
+                        <option value="0">Chưa chọn · bỏ ghim vị trí này</option>
+                        @foreach (var recipe in Model.AvailableRecipes) { <option value="@recipe.Id" selected="@(recipe.Id == selectedId)">@recipe.Name</option> }
+                        @if (selectedId != 0 && selectedRecipe == null) { <option value="@selectedId" selected>Công thức #@selectedId · hiện không khả dụng</option> }
+                    </select>
+                    <div class="creator-slot-preview" data-highlight-preview>@if (selectedRecipe != null) { <partial name="_CreatorHighlightCard" model="selectedRecipe" /> } else { <div class="creator-slot-empty"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Chọn một món ngon để xem trước</span></div> }</div>
+                </div>
+            }
+        </div>
+        <p class="creator-manager-status" data-highlight-status role="status" aria-live="polite"></p>
+        <div class="creator-form-actions"><button class="btn" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i>Lưu công thức nổi bật</button><a class="btn btn-secondary" asp-controller="Profile" asp-action="Index">Hủy</a></div>
+    </form>
+    @foreach (var recipe in Model.AvailableRecipes) { <template data-highlight-template="@recipe.Id"><partial name="_CreatorHighlightCard" model="recipe" /></template> }
+</section>
+@section Scripts { <script src="~/js/creator-profile.js" asp-append-version="true"></script> }

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Creator profile browser checks</title>
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/style.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/creator-profile.css">
+</head>
+<body>
+  <section class="creator-profile" data-creator-profile><div class="container">
+    <article class="creator-hero"><div class="creator-cover"><div class="creator-cover-art">Căn bếp</div><img id="brokenCover" data-profile-image src="../../CookShare/wwwroot/img/recipes/pho.webp" alt=""></div><header class="creator-header"><h1 class="creator-name">Căn bếp Việt</h1><p class="creator-bio">Yêu bếp, yêu những món ngon.</p><a id="statFollowers" href="#followers">Người theo dõi</a></header></article>
+    <nav class="creator-tabs" data-profile-tabs><a id="creatorTab_recipes" href="#recipes">Công thức</a><a id="creatorTab_followers" href="#followers">Người theo dõi</a><a id="creatorTab_following" href="#following">Đang theo dõi</a><a id="creatorTab_favorites" href="#favorites">Đã lưu</a></nav>
+    <section id="recipes" data-profile-panel><h2>Công thức</h2></section><section id="followers" data-profile-panel><h2>Người theo dõi</h2></section><section id="following" data-profile-panel><h2>Đang theo dõi</h2></section><section id="favorites" data-profile-panel><h2>Riêng tư</h2></section>
+  </div></section>
+  <section class="creator-edit-page container"><div class="creator-edit-layout" data-profile-editor>
+    <form class="creator-edit-form"><fieldset class="creator-fieldset"><legend>Thông tin</legend><label for="testName">Tên</label><input id="testName" class="form-input" data-profile-name-input value="Căn bếp Việt"><label for="testBio">Bio</label><textarea id="testBio" class="form-textarea" data-profile-bio-input maxlength="300">Yêu bếp</textarea><span data-bio-counter></span><label for="testAvatar">Avatar</label><input id="testAvatar" class="form-input" data-avatar-input><p data-avatar-status></p><label for="testCover">Cover</label><input id="testCover" class="form-input" data-cover-input><p data-cover-status></p></fieldset></form>
+    <aside class="creator-edit-preview"><div class="creator-preview-card"><div class="creator-preview-cover"><img data-cover-preview alt="" hidden></div><div class="creator-preview-copy"><img class="creator-preview-avatar" data-avatar-preview src="../../CookShare/wwwroot/img/recipes/profile-avatar.webp" alt=""><h2 data-profile-name-preview></h2><p class="creator-bio" data-profile-bio-preview></p></div></div></aside>
+  </div></section>
+  <section class="creator-manager container" data-highlight-manager><form><input name="__RequestVerificationToken" value="test-token" type="hidden"><span data-highlight-count></span><div class="creator-slots" id="slots"></div><p data-highlight-status role="status"></p><button class="btn" type="submit">Lưu</button></form><div id="templates"></div></section>
+  <img id="fallbackAvatar" src="../../CookShare/wwwroot/img/recipes/profile-avatar.webp" alt="" data-profile-image data-image-fallback="/img/recipes/profile-avatar.webp" hidden>
+  <pre id="results">RUNNING</pre>
+  <script>
+    window.errors=[]; window.storageTouches=0; window.fetches=0; window.imageLoads=[];
+    Object.defineProperty(window,'localStorage',{get(){storageTouches++;throw Error('Profile must use server data');}});
+    window.addEventListener('error',event=>{if(event.message)errors.push(event.message);});
+    window.addEventListener('unhandledrejection',event=>errors.push(String(event.reason)));
+    window.fetch=()=>{fetches++;throw Error('No data should be written before form submission');};
+    window.Image=class{set src(value){this.source=value;imageLoads.push(this);}};
+    document.getElementById('slots').innerHTML=[0,1,2].map(index=>`<div class="creator-slot" data-highlight-slot><div class="creator-slot-heading"><label for="slot${index}">Vị trí ${index+1}</label><div data-highlight-moves hidden><button type="button" data-highlight-move="-1" ${index===0?'disabled':''}>Lên</button><button type="button" data-highlight-move="1" ${index===2?'disabled':''}>Xuống</button></div></div><select class="form-select" id="slot${index}" name="RecipeIds" data-highlight-select><option value="0">Bỏ ghim</option>${[1,2,3].map(id=>`<option value="${id}" ${id===index+1&&index<2?'selected':''}>Công thức ${id}</option>`).join('')}</select><div data-highlight-preview></div></div>`).join('');
+    document.getElementById('templates').innerHTML=[1,2,3].map(id=>`<template data-highlight-template="${id}"><a class="creator-highlight-card" data-recipe-id="${id}" href="/Recipe/Details/${id}"><div class="creator-highlight-copy"><h3>Công thức ${id}</h3></div></a></template>`).join('');
+  </script>
+  <script src="../../CookShare/wwwroot/js/creator-profile.js"></script>
+  <script>
+    (async()=>{
+      const results=[]; const assert=(value,name)=>{if(!value)throw Error(name);results.push('PASS '+name);};
+      const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+      const input=(element,value)=>{element.value=value;element.dispatchEvent(new Event('input',{bubbles:true}));};
+      const change=(element,value)=>{element.value=value;element.dispatchEvent(new Event('change',{bubbles:true}));};
+      try{
+        if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
+        const tabs=[...document.querySelectorAll('[data-profile-tabs] a')];
+        assert(tabs[0].getAttribute('aria-selected')==='true'&&!document.getElementById('recipes').hidden&&document.getElementById('followers').hidden,'tabs enhance existing sections and select recipes initially');
+        assert(tabs.every(tab=>tab.getAttribute('role')==='tab'&&document.getElementById(tab.getAttribute('aria-controls'))),'tabs expose valid accessible panel associations');
+        tabs[0].focus();tabs[0].dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));
+        assert(document.activeElement===tabs[1]&&!document.getElementById('followers').hidden&&tabs[1].tabIndex===0,'arrow keys move focus and activate the next tab');
+        tabs[1].dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}));
+        assert(document.activeElement===tabs[3]&&!document.getElementById('favorites').hidden,'End opens the last available tab');
+        tabs[3].dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true}));
+        assert(document.activeElement===tabs[0]&&!document.getElementById('recipes').hidden,'Home returns to the first tab');
+        document.getElementById('statFollowers').click();
+        assert(!document.getElementById('followers').hidden&&location.hash==='#followers','statistics links open the requested section');
+        history.replaceState(null,'','#following');dispatchEvent(new HashChangeEvent('hashchange'));
+        assert(!document.getElementById('following').hidden,'direct hash navigation activates a valid panel');
+        const bio=document.querySelector('[data-profile-bio-input]');
+        input(bio,'Yêu bếp Việt\nMỗi ngày một món ngon');
+        assert(document.querySelector('[data-bio-counter]').textContent===bio.value.length+'/300'&&document.querySelector('[data-profile-bio-preview]').textContent===bio.value,'Vietnamese biography and line breaks update preview and character count');
+        input(bio,'a'.repeat(300));
+        assert(document.querySelector('[data-bio-counter]').textContent==='300/300'&&bio.maxLength===300,'bio exposes the 300-character limit without truncating saved input');
+        const unsafe='<img src=x onerror="window.xss=true">';input(bio,unsafe);
+        assert(document.querySelector('[data-profile-bio-preview]').textContent===unsafe&&!document.querySelector('[data-profile-bio-preview] img')&&!window.xss,'biography preview treats markup as text');
+        const badName='<'+'script>unsafe</'+'script>';
+        input(document.querySelector('[data-profile-name-input]'),badName);
+        assert(document.querySelector('[data-profile-name-preview]').textContent===badName,'display name preview also uses text');
+        const cover=document.querySelector('[data-cover-input]');
+        const preview=document.querySelector('[data-cover-preview]');
+        input(cover,'/CookShare/wwwroot/img/recipes/pho.webp');await delay(220);
+        assert(document.querySelector('[data-cover-status]').textContent.includes('Đang tải'),'cover preview exposes a loading state');
+        imageLoads.at(-1).onload();
+        assert(!preview.hidden&&preview.getAttribute('src')==='/CookShare/wwwroot/img/recipes/pho.webp','a loaded cover replaces the default background');
+        input(cover,'/CookShare/wwwroot/img/recipes/salad.webp');await delay(220);const stale=imageLoads.at(-1);
+        input(cover,'/CookShare/wwwroot/img/recipes/tiramisu.webp');await delay(220);const current=imageLoads.at(-1);
+        stale.onload();
+        assert(preview.getAttribute('src')==='/CookShare/wwwroot/img/recipes/pho.webp','a stale image load cannot overwrite a newer choice');
+        current.onerror();
+        assert(preview.hidden&&document.querySelector('[data-cover-status]').classList.contains('is-error'),'broken cover URLs restore the default with feedback');
+        const loads=imageLoads.length;
+        for(const value of ['javascript:alert(1)','http://example.com/a','//example.com/a','/img/%2e%2e/private','https://name:pass@example.com/a']){input(cover,value);await delay(200);}
+        assert(imageLoads.length===loads&&preview.hidden,'unsafe image protocols, credentials and traversal never reach the image loader');
+        input(cover,'https://example.invalid/cover.webp');await delay(220);
+        assert(imageLoads.at(-1).source==='https://example.invalid/cover.webp','HTTPS image sources are accepted for preview');
+        input(cover,'');await delay(220);
+        assert(preview.hidden&&!document.querySelector('[data-cover-status]').classList.contains('is-error'),'clearing cover selects the default background');
+        const avatar=document.querySelector('[data-avatar-input]');input(avatar,'data:image/svg+xml,<svg/>');await delay(220);
+        assert(document.querySelector('[data-avatar-preview]').getAttribute('src')==='/img/recipes/profile-avatar.webp','unsafe avatars use the bundled fallback');
+        const fallback=document.getElementById('fallbackAvatar');fallback.dispatchEvent(new Event('error'));
+        assert(fallback.getAttribute('src')==='/img/recipes/profile-avatar.webp','profile image errors apply the fallback once');
+        fallback.dispatchEvent(new Event('error'));assert(fallback.hidden,'a broken fallback cannot create an error loop');
+        document.getElementById('brokenCover').dispatchEvent(new Event('error'));
+        assert(document.getElementById('brokenCover').hidden,'cover load failure reveals the decorative background');
+        const slots=[...document.querySelectorAll('[data-highlight-slot]')];const selects=slots.map(slot=>slot.querySelector('select'));
+        assert(document.querySelector('[data-highlight-count]').textContent==='2/3'&&slots[0].classList.contains('is-selected'),'highlight count and selected states reflect server choices');
+        assert([...selects[1].options].find(option=>option.value==='1').disabled,'already selected recipes are unavailable in other slots');
+        slots[1].querySelector('[data-highlight-move="-1"]').click();
+        assert(selects.map(select=>select.value).join(',')==='2,1,0'&&document.activeElement===selects[0],'move buttons swap positions and preserve keyboard focus');
+        assert(slots[0].querySelector('[data-recipe-id]').dataset.recipeId==='2','highlight previews follow the new order');
+        change(selects[1],'0');assert(document.querySelector('[data-highlight-count]').textContent==='1/3'&&!slots[1].querySelector('[data-recipe-id]'),'unpin removes the preview and updates the count');
+        change(selects[2],'3');assert(slots[2].querySelector('[data-recipe-id]').dataset.recipeId==='3','newly selected recipe shows its real server template');
+        assert(document.querySelector('input[name="__RequestVerificationToken"]').value==='test-token'&&fetches===0,'selection changes keep CSRF intact and write nothing before Save');
+        const duplicate=document.createElement('script');duplicate.src='../../CookShare/wwwroot/js/creator-profile.js';await new Promise(resolve=>{duplicate.onload=resolve;document.body.append(duplicate);});
+        slots[1].querySelector('[data-highlight-move="-1"]').click();
+        assert(selects.map(select=>select.value).join(',')==='0,2,3','loading the module twice does not duplicate event handlers');
+        assert(document.documentElement.scrollWidth<=innerWidth,'profile, editor and manager have no horizontal overflow');
+        assert(storageTouches===0&&errors.length===0,'profile enhancements never read localStorage or raise browser errors');
+        document.body.dataset.testStatus='passed';
+      }catch(error){results.push('FAIL '+error.message);document.body.dataset.testStatus='failed';}
+      document.getElementById('results').textContent=results.join('\n')+'\nCOMPLETE '+results.filter(line=>line.startsWith('PASS')).length+' passed';
+      if(parent!==window)parent.postMessage({type:'creator-test-result',status:document.body.dataset.testStatus,output:document.getElementById('results').textContent},location.origin);
+    })();
+  </script>
+</body>
+</html>
