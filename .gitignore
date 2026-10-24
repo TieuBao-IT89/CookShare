@@ -50,3 +50,11 @@ coverage.xml
 # NuGet packages
 *.nupkg
 *.snupkg
+
+# Project-local design tools (installed from tools/design-skills/lock.json)
+/.cursor/skills/design-taste-frontend/
+/.cursor/skills/impeccable/
+/.cursor/agents/impeccable-*.md
+/.taste-skill/
+/.impeccable/
+node_modules/
