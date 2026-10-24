@@ -39,6 +39,8 @@
         || !RecipeImageReference.IsValid(Model.User?.AvatarUrl)
         ? Url.Content("~/img/recipes/profile-avatar.webp")
         : RecipeImageReference.GetSource(Model.User!.AvatarUrl);
+
+    var shareUrl = Url.Action("Details", "Recipe", new { id = Model.Id }, Context.Request.Scheme);
 }
 
 @section Styles {
@@ -52,6 +54,9 @@
     <link rel="stylesheet" href="~/css/recipe-ratings.css" asp-append-version="true" />
     <link rel="stylesheet"
           href="~/css/issue108.css"
+          asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/recipe-share.css"
           asp-append-version="true" />
 }
 
@@ -155,6 +160,27 @@
                     <a href="#comments" class="btn btn-secondary">
                         Bình luận (<span data-db-comment-count>@(recipeComments?.Comments.Count ?? Model.Comments.Count)</span>)
                     </a>
+                </div>
+
+                <div class="recipe-share-actions"
+                     data-recipe-share
+                     data-share-url="@shareUrl"
+                     data-share-title="@Model.Name"
+                     data-share-success="Đã sao chép liên kết công thức."
+                     data-share-failure="Không sao chép được liên kết. Hãy chọn liên kết bên dưới.">
+                    <button type="button" class="btn btn-secondary" data-recipe-share-native>
+                        <i class="icon fa-solid fa-share-nodes" aria-hidden="true"></i>
+                        Chia sẻ
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-recipe-copy-link>
+                        <i class="icon fa-solid fa-link" aria-hidden="true"></i>
+                        Sao chép liên kết
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-recipe-print>
+                        <i class="icon fa-solid fa-print" aria-hidden="true"></i>
+                        In công thức
+                    </button>
+                    <p id="recipeShareStatus" class="recipe-share-status" role="status" hidden></p>
                 </div>
             </div>
 
@@ -317,4 +343,16 @@
     <script src="~/js/recipe-ratings.js" asp-append-version="true"></script>
     <script src="~/js/issue108.js"
             asp-append-version="true"></script>
+    <script src="~/js/recipe-share.js"
+            asp-append-version="true"></script>
 }
+
+<dialog class="recipe-share-dialog" data-recipe-share-dialog aria-labelledby="recipeShareDialogTitle">
+    <form method="dialog">
+        <h2 id="recipeShareDialogTitle">Sao chép liên kết công thức</h2>
+        <p>Liên kết này mở đúng công thức đang lưu trên CookShare.</p>
+        <label for="recipeShareLink">Liên kết</label>
+        <input id="recipeShareLink" type="url" readonly value="@shareUrl" />
+        <button class="btn btn-secondary" value="cancel">Đóng</button>
+    </form>
+</dialog>

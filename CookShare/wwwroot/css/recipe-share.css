@@ -1,0 +1,93 @@
+.recipe-share-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.recipe-share-status {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.recipe-share-status.error {
+    color: var(--danger);
+}
+
+.recipe-share-dialog {
+    width: min(420px, calc(100% - 32px));
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 28px;
+    color: var(--ink);
+}
+
+.recipe-share-dialog::backdrop {
+    background: #173f2e66;
+}
+
+.recipe-share-dialog h2 {
+    margin: 0 0 8px;
+    font-family: var(--font-display);
+    font-size: 25px;
+}
+
+.recipe-share-dialog p,
+.recipe-share-dialog label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.recipe-share-dialog input {
+    width: 100%;
+    margin: 9px 0 20px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+@media print {
+    .site-header,
+    .footer,
+    .skip-link,
+    .recipe-breadcrumb,
+    .cs108-quick-nav,
+    .details-actions,
+    .recipe-share-actions,
+    .recipe-share-dialog,
+    .recipe-rating-section,
+    .cs108-author-row,
+    .cs108-recipe-summary,
+    .details-cover-image,
+    .cs108-comments,
+    .related-section,
+    .details-footer-nav,
+    .ingredient-progress,
+    .cs108-ingredient-check,
+    #uiToast,
+    #confirmDialog,
+    noscript {
+        display: none !important;
+    }
+
+    body,
+    .recipe-page-wrapper {
+        background: #fff !important;
+    }
+
+    .details-hero-card,
+    .ingredients-card,
+    .instructions-card {
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+}

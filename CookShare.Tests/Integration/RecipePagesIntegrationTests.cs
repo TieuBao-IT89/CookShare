@@ -432,6 +432,35 @@ namespace CookShare.Tests.Integration
             Assert.Contains("/Profile?userId=" + _factory.OwnerId, details);
         }
 
+        [Fact]
+        public async Task Details_ShouldShareTheStoredRecipeLinkAndHideActionsWhenPrinting()
+        {
+            var id = await SeedRecipeAsync("Shared pho");
+            using var client = _factory.CreateTestClient();
+
+            var html = await GetHtmlAsync(client, $"/Recipe/Details/{id}");
+            var stylesheet = await GetHtmlAsync(client, "/css/recipe-share.css");
+            var share = Regex.Match(html, "data-recipe-share\\b[^>]*data-share-url=\"([^\"]+)\"", RegexOptions.IgnoreCase);
+
+            Assert.True(share.Success);
+            Assert.EndsWith($"/Recipe/Details/{id}", share.Groups[1].Value);
+            Assert.DoesNotContain("?", share.Groups[1].Value);
+            Assert.Contains("data-recipe-share-native", html);
+            Assert.Contains("data-recipe-copy-link", html);
+            Assert.Contains("data-recipe-print", html);
+            Assert.Contains("Đã sao chép liên kết công thức.", html);
+            Assert.Contains("Shared pho", html);
+            Assert.Contains("Fresh ingredients", html);
+            Assert.Contains("Preparation step one", html);
+            Assert.DoesNotContain("localStorage", html);
+            Assert.Contains("@media print", stylesheet);
+            Assert.Contains(".site-header", stylesheet);
+            Assert.Contains(".footer", stylesheet);
+            Assert.Contains(".details-actions", stylesheet);
+            Assert.Contains(".recipe-share-actions", stylesheet);
+            Assert.Contains(".cs108-quick-nav", stylesheet);
+        }
+
         private async Task<int> SeedRecipeAsync(
             string name,
             string category = "Món Việt",
