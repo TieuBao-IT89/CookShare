@@ -22,7 +22,17 @@
     <a class="skip-link" href="#main-content">Chuyển đến nội dung</a>
     <partial name="_Icons" />
     <partial name="_RecipeHeader" />
-    <main id="main-content" tabindex="-1">@RenderBody()</main>
+    <main id="main-content" tabindex="-1">
+        @if (TempData["StatusMessage"] is string statusMessage)
+        {
+            <div class="notice container status-banner" role="status">@statusMessage</div>
+        }
+        @if (TempData["ErrorMessage"] is string errorMessage)
+        {
+            <div class="notice container status-banner text-danger" role="alert">@errorMessage</div>
+        }
+        @RenderBody()
+    </main>
     <footer class="footer">
         <div class="container footer-content">
             <div class="footer-brand">

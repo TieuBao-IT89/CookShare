@@ -26,11 +26,11 @@ jobs:
         env:
           POSTGRES_USER: cookshare_test
           POSTGRES_PASSWORD: cookshare_test
-          POSTGRES_DB: cookshare_test
+          POSTGRES_DB: cookshare_test_ci
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U cookshare_test -d cookshare_test"
+          --health-cmd "pg_isready -U cookshare_test -d cookshare_test_ci"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -55,7 +55,7 @@ jobs:
         env:
           # Local service only. The test fixture applies migrations before tests.
           COOKSHARE_RUN_POSTGRES_TESTS: "1"
-          COOKSHARE_TEST_CONNECTION: "Host=localhost;Port=5432;Database=cookshare_test;Username=cookshare_test;Password=cookshare_test;SSL Mode=Disable"
+          COOKSHARE_TEST_CONNECTION: "Host=localhost;Port=5432;Database=cookshare_test_ci;Username=cookshare_test;Password=cookshare_test;SSL Mode=Disable"
 
       # Issue #32 - Code Quality
       - name: Check code formatting

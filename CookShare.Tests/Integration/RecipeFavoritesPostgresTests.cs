@@ -5,6 +5,7 @@ using CookShare.Data;
 using CookShare.Models;
 using CookShare.Models.Identity;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -15,14 +16,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace CookShare.Tests.Integration
 {
+    [Collection(PostgreSqlIntegrationCollection.Name)]
     public sealed class RecipeFavoritesPostgresTests
     {
-        // Explicit opt-in only: provision the existing migrations separately in a disposable
-        // database named cookshare_test_*. This suite never migrates or resets any database.
+        // Explicit opt-in only: the collection fixture prepares the disposable cookshare_test_*
+        // database before this test. The restart hosts never migrate or reset the schema.
         [DisposableFavoritesPostgresFact]
         public async Task ConcurrentMutations_ShouldRespectUniqueIndexAndSurviveWebHostRestart()
         {
@@ -152,8 +155,14 @@ namespace CookShare.Tests.Integration
             protected override void ConfigureWebHost(IWebHostBuilder builder)
             {
                 builder.UseEnvironment("Testing");
+                builder.ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                });
                 builder.ConfigureTestServices(services =>
                 {
+                    services.AddDataProtection().UseEphemeralDataProtectionProvider();
                     services.RemoveAll<ApplicationDbContext>();
                     services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
                     services.RemoveAll<DbContextOptions>();

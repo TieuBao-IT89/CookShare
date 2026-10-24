@@ -31,7 +31,7 @@
                 {
                     <a asp-controller="Profile" asp-action="Index">Trang cá nhân</a>
                     <a asp-controller="Notifications" asp-action="Index">Thông báo</a>
-                    <span class="login account-name">@User.Identity?.Name</span>
+                    <a class="login account-name" asp-controller="Account" asp-action="Settings" title="Cài đặt tài khoản">@User.Identity?.Name</a>
                     <form class="logout-form" asp-controller="Account" asp-action="Logout" method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit">Đăng xuất</button>
@@ -54,7 +54,7 @@
             {
                 @await Component.InvokeAsync("NotificationBadge")
                 <a class="icon-button profile-link" asp-controller="Profile" asp-action="Index" aria-label="Trang cá nhân"><i class="icon fa-regular fa-user" aria-hidden="true"></i></a>
-                <span class="login account-name">@User.Identity?.Name</span>
+                <a class="login account-name" asp-controller="Account" asp-action="Settings" title="Cài đặt tài khoản">@User.Identity?.Name</a>
                 <form class="logout-form" asp-controller="Account" asp-action="Logout" method="post">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-small">Đăng xuất</button>
