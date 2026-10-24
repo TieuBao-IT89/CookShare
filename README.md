@@ -251,6 +251,10 @@ Trang chủ có bảng tin Mới nhất và [Đang theo dõi](docs/HOME_FEED.md)
 
 [Đánh giá 1–5 sao](docs/RECIPE_RATINGS.md) được lưu theo tài khoản trong PostgreSQL. Người dùng có thể cập nhật đánh giá; điểm trung bình và tổng số lượt hiển thị trên thẻ công thức, trang chi tiết và bảng tin. Tác giả không thể tự đánh giá công thức của mình.
 
+### Hồ sơ người sáng tạo
+
+[Creator Profile](docs/CREATOR_PROFILE.md) hỗ trợ Bio, ảnh bìa có preview và ghim tối đa 3 công thức do chính tài khoản đăng. Có quản lý thứ tự, tab điều hướng bàn phím và giao diện responsive; dữ liệu được lưu trong PostgreSQL.
+
 ## 8. Hướng dẫn chạy dự án (Getting Started)
 
 Sau khi lấy mã mới hoặc chuyển nhánh, áp dụng các migration còn thiếu vào database Development đã cấu hình trước khi mở website:

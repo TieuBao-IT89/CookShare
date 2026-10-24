@@ -35,10 +35,28 @@ namespace CookShare.Data
         public DbSet<Notification> Notifications
             => Set<Notification>();
 
+        public DbSet<ProfileFeaturedRecipe> ProfileFeaturedRecipes => Set<ProfileFeaturedRecipe>();
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.Property(user => user.Bio).HasMaxLength(300);
+                entity.Property(user => user.CoverImageUrl).HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<ProfileFeaturedRecipe>(entity =>
+            {
+                entity.HasKey(pin => new { pin.UserId, pin.RecipeId });
+                entity.HasIndex(pin => new { pin.UserId, pin.DisplayOrder }).IsUnique();
+                entity.HasOne(pin => pin.User).WithMany().HasForeignKey(pin => pin.UserId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(pin => pin.Recipe).WithMany().HasForeignKey(pin => pin.RecipeId).OnDelete(DeleteBehavior.Cascade);
+                // Three unique, bounded slots enforce the limit even for concurrent requests.
+                entity.ToTable(table => table.HasCheckConstraint("CK_ProfileFeaturedRecipes_DisplayOrder", "\"DisplayOrder\" BETWEEN 1 AND 3"));
+            });
 
             // Recipe
             modelBuilder.Entity<Recipe>(entity =>
