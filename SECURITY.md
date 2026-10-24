@@ -166,7 +166,36 @@ Nhóm CookShare khuyến khích:
 - Sử dụng Unit Tests và GitHub Actions CI.
 - Áp dụng nguyên tắc phân quyền tối thiểu.
 
-## 8. Liên hệ và hỗ trợ (Contact)
+## 8. Quản lý tài khoản (Account Management)
+
+Người dùng đã đăng nhập quản lý tài khoản của chính mình tại `/Account/Settings`. Mỗi thao tác ghi dữ liệu dùng Authentication và Anti-Forgery. Người dùng không cập nhật được tài khoản của người khác.
+
+- Tên hiển thị và ảnh đại diện được chỉnh tại `/Profile/Edit`. Trang cài đặt tài khoản chỉ đọc hai trường này.
+- Đổi email yêu cầu mật khẩu hiện tại. Địa chỉ cũ được giữ cho đến khi địa chỉ mới mở liên kết xác nhận. Đổi email và đổi mật khẩu giữ nguyên hồ sơ.
+- Đổi mật khẩu yêu cầu mật khẩu hiện tại. Security stamp được cập nhật và phiên đăng nhập được làm mới.
+- Các phiên khác bị vô hiệu khi Identity kiểm tra lại security stamp (mặc định tối đa khoảng 30 phút); đặt lại mật khẩu không tự đăng nhập và không tự xác minh email.
+- Email xác minh và liên kết đặt lại mật khẩu hết hạn sau 1 giờ.
+- Trang quên mật khẩu luôn trả cùng một thông báo, dù email có tài khoản hay không. Trang đó không hiển thị email, token hoặc mật khẩu.
+- Token và mật khẩu không được ghi vào log hoặc thông báo thành công.
+
+Dịch vụ email đọc cấu hình `Email`. `Email__SmtpPassword` và `Email__SmtpUser` được đặt bằng biến môi trường hoặc .NET User Secrets. Liên kết được tạo từ `Email__PublicBaseUrl` tin cậy, không lấy domain từ request. HTTPS bắt buộc ngoài Development/Testing. SMTP yêu cầu STARTTLS hoặc implicit TLS, có thời gian chờ giới hạn, không ghi credential hoặc nội dung email vào log.
+
+Khi người dùng xác nhận xóa tài khoản bằng mật khẩu hiện tại, CookShare xóa theo thứ tự:
+
+1. Lượt thích, bình luận, đánh giá, công thức đã lưu và thông báo của người đó.
+2. Quan hệ theo dõi mà người đó là người theo dõi hoặc người được theo dõi.
+3. Công thức do người đó đăng, cùng tương tác của người khác trên những công thức này.
+4. Bản ghi ASP.NET Core Identity của tài khoản, gồm tên hiển thị và ảnh đại diện.
+
+Hồ sơ, công thức và tương tác của các tài khoản khác được giữ nguyên. Tương tác của họ trên công thức của tài khoản bị xóa đi cùng những công thức đó.
+
+Ghim công thức trên hồ sơ được xóa nếu thuộc tài khoản này hoặc tham chiếu công thức bị xóa. Bio và ảnh bìa đi cùng bản ghi Identity. Thông báo bị xóa nếu tài khoản là người thực hiện, người nhận hoặc thông báo tham chiếu công thức bị xóa. Thông báo giữa những người dùng khác chỉ tham chiếu bình luận bị xóa được giữ, với `CommentId = null`, theo FK `SetNull` sẵn có.
+
+Toàn bộ quá trình nằm trong một transaction. Nếu Identity từ chối xóa, các bước xóa phụ thuộc được rollback. Các FK `Restrict`, `Cascade` và `SetNull` hiện có được giữ nguyên; không tạo migration cho tính năng này. Sau khi xóa thành công, phiên hiện tại được đăng xuất.
+
+Chỉ chạy kiểm thử ghi/xóa trên database cô lập. Không dùng chuỗi kết nối Neon chung cho bộ test. Chi tiết chính sách từng bảng và cách chạy: [docs/ACCOUNT_SETTINGS.md](docs/ACCOUNT_SETTINGS.md).
+
+## 9. Liên hệ và hỗ trợ (Contact)
 
 - Repository: https://github.com/TieuBao-IT89/CookShare
 - Security: https://github.com/TieuBao-IT89/CookShare/security

@@ -352,3 +352,22 @@ button:disabled { cursor: wait; opacity: .6; transform: none; }
 @media (max-width: 519px) { .recipe-grid { grid-template-columns: 1fr; gap: 22px; } .recipe-card-title { font-size: 17px; } .recipe-image { aspect-ratio: 4/3; } }
 @media (max-width: 359px) { .container, .recipe-container { width: calc(100% - 28px); } .hero h1 { font-size: 31px; } .hero-community { gap: 8px; } .hero-community > .icon { display: none; } .hero-recipe-note { right: 10px; } .hero-recipe-note > .icon { display: none; } .auth-form-area { padding-inline: 18px; } .auth-shell .form-row { grid-template-columns: 1fr; gap: 0; } .profile-tabs { gap: 14px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+.text-danger, .field-validation-error, .validation-summary-errors { color: var(--danger); }
+.validation-summary-errors ul { margin: 8px 0 16px; padding-left: 18px; }
+.field-validation-error { display: block; font-size: 11px; margin-top: 6px; }
+.settings-page { padding-block: 40px 64px; }
+.settings-layout { display: grid; gap: 18px; max-width: 760px; margin: 0 auto; }
+.settings-card { min-width: 0; overflow-wrap: anywhere; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 28px 32px; }
+.settings-card h1, .settings-card h2 { font-family: var(--font-display); font-weight: 600; }
+.settings-card h1 { font-size: 36px; margin: 8px 0; }
+.settings-card h2 { font-size: 24px; margin: 0 0 8px; }
+.settings-note, .settings-card > p { color: var(--muted); font-size: 12px; }
+.settings-inline { margin: 0 0 18px; }
+.settings-danger { border-color: #efc8c4; }
+.settings-danger .checkbox-label { margin-bottom: 16px; }
+.status-banner { margin: 20px auto; }
+@media (max-width: 719px) {
+    .settings-page { padding-block: 24px 40px; }
+    .settings-card { padding: 22px 18px; }
+    .settings-card h1 { font-size: 30px; }
+}
