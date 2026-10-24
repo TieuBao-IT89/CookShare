@@ -34,6 +34,10 @@ git --version
 dotnet --version
 ```
 
+### Công cụ UI/UX tùy chọn
+
+Contributor làm frontend có thể cài Taste Skill và Impeccable trong project theo [UI Design Workflow](docs/UI_DESIGN_WORKFLOW.md). Quy trình cố định phiên bản, giữ hooks tắt, bảo toàn cấu hình Cursor và yêu cầu audit trước khi sửa giao diện. Các công cụ này không cần thiết để build/chạy CookShare.
+
 ## 3. Fork và Clone Repository
 
 ### Bước 1. Fork repository
