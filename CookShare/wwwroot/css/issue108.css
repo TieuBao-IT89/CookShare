@@ -406,6 +406,29 @@
 .cs108-preview-status:empty { display: none; }
 .cs108-preview-status.is-error { color: var(--danger); }
 
+.cs108-image-picker { position: relative; }
+.cs108-file-input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.cs108-image-picker-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 14px 18px;
+    border: 1px solid var(--cs108-border);
+    border-radius: 14px;
+    background: #fbfcfa;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--cs108-motion), background var(--cs108-motion), box-shadow var(--cs108-motion);
+}
+.cs108-image-picker:hover .cs108-image-picker-button { background: var(--cs108-sage); border-color: var(--primary); }
+.cs108-image-picker:focus-within .cs108-image-picker-button { outline: 3px solid var(--primary); outline-offset: 3px; }
+.cs108-file-input[aria-invalid="true"] + .cs108-image-picker-button { border-color: var(--danger); }
+.cs108-preview-status { overflow-wrap: anywhere; }
+
 .cs108-image-preview {
     overflow: hidden;
     margin-bottom: 22px;

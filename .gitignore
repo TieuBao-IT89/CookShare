@@ -4,6 +4,7 @@ obj/
 Debug/
 Release/
 artifacts/
+CookShare/App_Data/recipe-images/
 
 # Visual Studio
 .vs/

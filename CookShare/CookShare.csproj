@@ -14,6 +14,8 @@
   <ItemGroup>
     <Folder Include="wwwroot\img\" />
     <Content Update="Data\Seeds\sample-recipes.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Remove="App_Data/recipe-images/**" />
+    <None Remove="App_Data/recipe-images/**" />
   </ItemGroup>
 
   <ItemGroup>
