@@ -243,6 +243,8 @@ dotnet test CookShare.sln
 
 Xem [hướng dẫn Recipe Seeding](docs/RECIPE_SEEDING.md) để thêm 30 công thức mẫu cho các tài khoản kiểm thử hoặc import từ TheMealDB. Công cụ hỗ trợ Dry Run, chống trùng và chỉ chạy bằng lệnh riêng trong Development/Testing.
 
+Khi tạo hoặc chỉnh sửa công thức, người dùng có thể chọn ảnh JPEG, PNG hoặc WebP tối đa 5 MiB. Ảnh được lưu ngoài `wwwroot`, mặc định tại `CookShare/App_Data/recipe-images`, và không được đưa vào gói publish. Có thể đặt biến môi trường `RecipeImages__StoragePath` để dùng thư mục lưu trữ riêng; trên Azure App Service, mặc định dùng thư mục bền vững `HOME/data/CookShare/recipe-images` để ảnh được giữ qua các lần triển khai.
+
 ### Bảng tin công thức
 
 Trang chủ có bảng tin Mới nhất và [Đang theo dõi](docs/HOME_FEED.md), hỗ trợ cuộn tải thêm, Like/Lưu, bình luận ngay trên bài và chia sẻ liên kết. Bảng tin Đang theo dõi lấy dữ liệu từ PostgreSQL theo tài khoản đăng nhập.
