@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using CookShare.Helpers;
+using CookShare.Models;
 using CookShare.Validation;
 
 namespace CookShare.ViewModels
@@ -21,6 +22,19 @@ namespace CookShare.ViewModels
         [Required(ErrorMessage = "Vui lòng nhập cách chế biến.")]
         [StringLength(20000, ErrorMessage = "Cách chế biến không được vượt quá 20000 ký tự.")]
         public string Instructions { get; set; } = string.Empty;
+
+
+        [Range(1, 1440, ErrorMessage = "Thời gian chuẩn bị phải từ 1 đến 1440 phút.")]
+        [Display(Name = "Thời gian chuẩn bị (phút)")]
+        public int? PreparationTimeMinutes { get; set; }
+
+        [Range(1, 1440, ErrorMessage = "Thời gian nấu phải từ 1 đến 1440 phút.")]
+        [Display(Name = "Thời gian nấu (phút)")]
+        public int? CookingTimeMinutes { get; set; }
+
+        [EnumDataType(typeof(RecipeDifficulty), ErrorMessage = "Vui lòng chọn độ khó hợp lệ.")]
+        [Display(Name = "Độ khó")]
+        public RecipeDifficulty? Difficulty { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn danh mục.")]
         [StringLength(100)]

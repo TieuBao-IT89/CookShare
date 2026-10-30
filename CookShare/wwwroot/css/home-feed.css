@@ -79,10 +79,12 @@
 .feed-post-category { align-self: start; padding: 4px 9px; border-radius: 20px; color: var(--primary); background: var(--primary-light); font-size: var(--text-small); white-space: nowrap; }
 .feed-post-copy { padding: 17px 22px 19px; overflow-wrap: anywhere; }
 .feed-post-copy h2 { margin: 0 0 10px; font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -.035em; }
-.feed-post-copy p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.85; white-space: pre-line; }
-.feed-story { margin-top: 5px; font-size: 11px; }
-.feed-story summary { cursor: pointer; color: var(--primary); font-weight: 600; }
-.feed-story[open] p { padding-top: 8px; }
+.feed-post-copy p, .feed-post-description { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.85; white-space: normal; }
+.feed-post-recipe-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.feed-post-recipe-meta > span { display: inline-flex; align-items: center; min-height: 30px; padding: 5px 10px; border-radius: 20px; background: var(--primary-light); color: var(--primary); font-size: var(--text-small); font-weight: 600; }
+.feed-story-more { display: inline; padding: 0; border: 0; background: none; color: var(--primary); font: inherit; font-size: var(--text-small); font-weight: 600; cursor: pointer; }
+.feed-story-rest { display: inline; }
+.feed-story-rest[hidden] { display: none; }
 .feed-post-image { display: block; position: relative; background: #edf0e7; overflow: hidden; }
 .feed-post-image > img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; transition: transform 450ms ease; }
 .feed-post-image:hover > img { transform: scale(1.02); }

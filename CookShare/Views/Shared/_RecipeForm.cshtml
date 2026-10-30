@@ -101,6 +101,55 @@
                         </div>
 
                         <div class="form-field-group">
+                            <label asp-for="PreparationTimeMinutes" class="form-label"></label>
+                            <input asp-for="PreparationTimeMinutes"
+                                   class="form-input"
+                                   type="number"
+                                   min="1"
+                                   max="1440"
+                                   step="1"
+                                   aria-describedby="PreparationTimeHelp PreparationTimeValidation" />
+                            <span asp-validation-for="PreparationTimeMinutes"
+                                  id="PreparationTimeValidation"
+                                  class="text-danger"></span>
+                            <p class="cs108-field-help" id="PreparationTimeHelp">
+                                Không bắt buộc; để trống nếu chưa biết.
+                            </p>
+                        </div>
+
+                        <div class="form-field-group">
+                            <label asp-for="CookingTimeMinutes" class="form-label"></label>
+                            <input asp-for="CookingTimeMinutes"
+                                   class="form-input"
+                                   type="number"
+                                   min="1"
+                                   max="1440"
+                                   step="1"
+                                   aria-describedby="CookingTimeHelp CookingTimeValidation" />
+                            <span asp-validation-for="CookingTimeMinutes"
+                                  id="CookingTimeValidation"
+                                  class="text-danger"></span>
+                            <p class="cs108-field-help" id="CookingTimeHelp">
+                                Thời gian nấu trực tiếp; không bắt buộc.
+                            </p>
+                        </div>
+
+                        <div class="form-field-group">
+                            <label asp-for="Difficulty" class="form-label"></label>
+                            <select asp-for="Difficulty"
+                                    asp-items="Html.GetEnumSelectList<CookShare.Models.RecipeDifficulty>()"
+                                    class="form-select"
+                                    aria-describedby="DifficultyHelp DifficultyValidation">
+                                <option value="">Chưa chọn</option>
+                            </select>
+                            <span asp-validation-for="Difficulty"
+                                  id="DifficultyValidation"
+                                  class="text-danger"></span>
+                            <p class="cs108-field-help" id="DifficultyHelp">
+                                Chọn mức độ phù hợp với kinh nghiệm cần có.
+                            </p>
+                        </div>
+                        <div class="form-field-group">
                             <label asp-for="Description" class="form-label">
                                 Mô tả món ăn <span class="cs108-required">*</span>
                             </label>

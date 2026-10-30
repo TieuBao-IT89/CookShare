@@ -154,6 +154,18 @@
                         </svg>
                         @instructions.Length bước chế biến
                     </span>
+                    @if (Model.PreparationTimeMinutes.HasValue)
+                    {
+                        <span>Chuẩn bị @Model.PreparationTimeMinutes phút</span>
+                    }
+                    @if (Model.CookingTimeMinutes.HasValue)
+                    {
+                        <span>Nấu @Model.CookingTimeMinutes phút</span>
+                    }
+                    @if (Model.Difficulty.HasValue)
+                    {
+                        <span>Độ khó: @Model.Difficulty.Value.GetDisplayName()</span>
+                    }
                 </div>
 
                 <div class="details-actions cs108-social-actions">

@@ -78,14 +78,30 @@ namespace CookShare.Data
                 entity.Property(r => r.ExternalId).HasMaxLength(128);
                 entity.Property(r => r.SourceUrl).HasMaxLength(2000);
 
+                entity.Property(r => r.Difficulty)
+                    .HasConversion<string>()
+                    .HasMaxLength(16);
+
                 entity.HasIndex(r => new { r.Source, r.ExternalId })
                     .IsUnique()
                     .HasFilter("\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL");
 
-                entity.ToTable(table => table.HasCheckConstraint(
-                    "CK_Recipes_SourceIdentity",
-                    "(\"Source\" IS NULL AND \"ExternalId\" IS NULL) OR " +
-                    "(\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL)"));
+                entity.ToTable(table =>
+                {
+                    table.HasCheckConstraint(
+                        "CK_Recipes_SourceIdentity",
+                        "(\"Source\" IS NULL AND \"ExternalId\" IS NULL) OR " +
+                        "(\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL)");
+                    table.HasCheckConstraint(
+                        "CK_Recipes_PreparationTimeMinutes",
+                        "\"PreparationTimeMinutes\" IS NULL OR \"PreparationTimeMinutes\" BETWEEN 1 AND 1440");
+                    table.HasCheckConstraint(
+                        "CK_Recipes_CookingTimeMinutes",
+                        "\"CookingTimeMinutes\" IS NULL OR \"CookingTimeMinutes\" BETWEEN 1 AND 1440");
+                    table.HasCheckConstraint(
+                        "CK_Recipes_Difficulty",
+                        "\"Difficulty\" IS NULL OR \"Difficulty\" IN ('Easy', 'Medium', 'Hard')");
+                });
 
                 entity.HasOne(r => r.User)
                     .WithMany(u => u.Recipes)

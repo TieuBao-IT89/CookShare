@@ -1,3 +1,5 @@
+using CookShare.Models;
+
 namespace CookShare.ViewModels
 {
     public sealed class FeedRecipeViewModel
@@ -7,6 +9,9 @@ namespace CookShare.ViewModels
         public string Description { get; set; } = string.Empty;
         public string? Image { get; set; }
         public string Category { get; set; } = string.Empty;
+        public int? PreparationTimeMinutes { get; set; }
+        public int? CookingTimeMinutes { get; set; }
+        public RecipeDifficulty? Difficulty { get; set; }
         public DateTime CreatedAt { get; set; }
         public string? AuthorId { get; set; }
         public string AuthorName { get; set; } = string.Empty;

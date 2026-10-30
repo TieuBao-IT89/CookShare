@@ -69,6 +69,14 @@
         if (document.readyState === "loading") await new Promise(resolve => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
         assert(!root.querySelector("[data-feed-share]").hidden, "share action is progressively enhanced");
         assert(!root.querySelector("[data-feed-auto-control]").hidden, "automatic loading is offered when observer is available");
+        const story = document.createElement("div");
+        story.className = "feed-post-description";
+        story.innerHTML = 'Phần trước<button type="button" data-feed-read-more aria-expanded="false" aria-controls="feedStoryRest_test"><span aria-hidden="true">… </span>Đọc thêm câu chuyện</button><span class="feed-story-rest" id="feedStoryRest_test" hidden> phần sau vẫn cùng đoạn văn.</span>';
+        cards()[0].querySelector(".feed-post-copy").append(story);
+        const readMore = story.querySelector("[data-feed-read-more]");
+        readMore.click();
+        assert(readMore.hidden && readMore.getAttribute("aria-expanded") === "true", "read-more label disappears after expansion");
+        assert(!story.querySelector(".feed-story-rest").hidden && getComputedStyle(story.querySelector(".feed-story-rest")).display === "inline", "expanded description continues inline in the same paragraph");
         let release;
         replies.push(() => new Promise(resolve => { release = resolve; }));
         more.click(); more.click(); await tick();
