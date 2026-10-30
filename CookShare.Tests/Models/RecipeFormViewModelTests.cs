@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using CookShare.Models;
 using CookShare.ViewModels;
 
 namespace CookShare.Tests.Models
@@ -9,6 +10,32 @@ namespace CookShare.Tests.Models
         public void ValidRecipe_ShouldPassValidation()
         {
             Assert.Empty(Validate(CreateValidModel()));
+        }
+
+        [Theory]
+        [InlineData(nameof(RecipeFormViewModel.PreparationTimeMinutes), 0)]
+        [InlineData(nameof(RecipeFormViewModel.PreparationTimeMinutes), 1441)]
+        [InlineData(nameof(RecipeFormViewModel.CookingTimeMinutes), 0)]
+        [InlineData(nameof(RecipeFormViewModel.CookingTimeMinutes), 1441)]
+        public void InvalidRecipeTime_ShouldFailValidation(string propertyName, int minutes)
+        {
+            var model = CreateValidModel();
+            typeof(RecipeFormViewModel).GetProperty(propertyName)!.SetValue(model, minutes);
+
+            Assert.Contains(
+                Validate(model),
+                error => error.MemberNames.Contains(propertyName));
+        }
+
+        [Fact]
+        public void UnknownDifficultyValue_ShouldFailValidation()
+        {
+            var model = CreateValidModel();
+            model.Difficulty = (RecipeDifficulty)99;
+
+            Assert.Contains(
+                Validate(model),
+                error => error.MemberNames.Contains(nameof(model.Difficulty)));
         }
 
         [Theory]

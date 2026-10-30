@@ -62,6 +62,53 @@ namespace CookShare.Tests.Controllers
             Assert.Equal(new[] { 2, 1 }, Assert.IsType<RecipeIndexViewModel>(result.Model).Recipes.Select(recipe => recipe.Id));
         }
 
+        [Fact]
+        public async Task Index_ShouldFilterByDifficultyAndMaximumTotalTime()
+        {
+            var quickEasy = NewRecipe(1);
+            quickEasy.PreparationTimeMinutes = 15;
+            quickEasy.CookingTimeMinutes = 20;
+            quickEasy.Difficulty = RecipeDifficulty.Easy;
+
+            var tooLong = NewRecipe(2);
+            tooLong.PreparationTimeMinutes = 30;
+            tooLong.CookingTimeMinutes = 30;
+            tooLong.Difficulty = RecipeDifficulty.Easy;
+
+            var harder = NewRecipe(3);
+            harder.PreparationTimeMinutes = 10;
+            harder.CookingTimeMinutes = 10;
+            harder.Difficulty = RecipeDifficulty.Hard;
+
+            var unknownTime = NewRecipe(4);
+            unknownTime.Difficulty = RecipeDifficulty.Easy;
+
+            using var db = CreateDb(quickEasy, tooLong, harder, unknownTime);
+            var controller = CreateController(db);
+
+            var result = Assert.IsType<ViewResult>(await controller.Index(
+                difficulty: RecipeDifficulty.Easy,
+                maxTotalMinutes: 45));
+            var model = Assert.IsType<RecipeIndexViewModel>(result.Model);
+
+            Assert.Equal(new[] { quickEasy.Id }, model.Recipes.Select(recipe => recipe.Id));
+            Assert.Equal(RecipeDifficulty.Easy, model.Difficulty);
+            Assert.Equal(45, model.MaxTotalMinutes);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(2881)]
+        public async Task Index_InvalidMaximumTotalTime_ShouldReturnBadRequest(int maxTotalMinutes)
+        {
+            using var db = CreateDb();
+            var controller = CreateController(db);
+
+            var result = await controller.Index(maxTotalMinutes: maxTotalMinutes);
+
+            Assert.IsType<BadRequestResult>(result);
+        }
+
         [Theory]
         [InlineData("PHO", null, 1, 2)]
         [InlineData(null, "món việt", 1, 3)]
@@ -277,7 +324,7 @@ namespace CookShare.Tests.Controllers
         }
 
         [Theory]
-        [InlineData(nameof(RecipeController.Index), 2)]
+        [InlineData(nameof(RecipeController.Index), 4)]
         [InlineData(nameof(RecipeController.Details), 1)]
         [InlineData(nameof(RecipeController.Create), 0)]
         [InlineData(nameof(RecipeController.Edit), 1)]
@@ -487,6 +534,9 @@ namespace CookShare.Tests.Controllers
             Description = "  Updated description  ",
             Ingredients = "  Updated ingredients  ",
             Instructions = "  Updated instructions  ",
+            PreparationTimeMinutes = 15,
+            CookingTimeMinutes = 25,
+            Difficulty = RecipeDifficulty.Medium,
             Image = "/img/recipes/salad.webp"
         };
 
@@ -497,6 +547,9 @@ namespace CookShare.Tests.Controllers
             Assert.Equal(model.Description.Trim(), recipe.Description);
             Assert.Equal(model.Ingredients.Trim(), recipe.Ingredients);
             Assert.Equal(model.Instructions.Trim(), recipe.Instructions);
+            Assert.Equal(model.PreparationTimeMinutes, recipe.PreparationTimeMinutes);
+            Assert.Equal(model.CookingTimeMinutes, recipe.CookingTimeMinutes);
+            Assert.Equal(model.Difficulty, recipe.Difficulty);
             Assert.Equal(model.Image, recipe.Image);
         }
 

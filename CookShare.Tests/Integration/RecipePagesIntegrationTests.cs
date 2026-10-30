@@ -111,6 +111,92 @@ namespace CookShare.Tests.Integration
         }
 
         [Fact]
+        public async Task RecipeCardsAndExplore_ShouldShowAndFilterCookingMetadata()
+        {
+            var quick = await SeedRecipeAsync("Quick easy recipe");
+            var slow = await SeedRecipeAsync("Slow easy recipe");
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var quickRecipe = await db.Recipes.SingleAsync(item => item.Id == quick);
+                quickRecipe.PreparationTimeMinutes = 15;
+                quickRecipe.CookingTimeMinutes = 20;
+                quickRecipe.Difficulty = RecipeDifficulty.Easy;
+
+                var slowRecipe = await db.Recipes.SingleAsync(item => item.Id == slow);
+                slowRecipe.PreparationTimeMinutes = 40;
+                slowRecipe.CookingTimeMinutes = 40;
+                slowRecipe.Difficulty = RecipeDifficulty.Easy;
+                await db.SaveChangesAsync();
+            }
+
+            using var client = _factory.CreateTestClient();
+            var explore = await GetHtmlAsync(client, "/Recipe?difficulty=1&maxTotalMinutes=45");
+
+            Assert.Equal(new[] { quick }, GetCardIds(explore));
+            Assert.Contains("Chuẩn bị 15 phút", explore);
+            Assert.Contains("Nấu 20 phút", explore);
+            Assert.Contains("Độ khó: Dễ", explore);
+            Assert.DoesNotContain("Slow easy recipe", explore);
+
+            var details = await GetHtmlAsync(client, $"/Recipe/Details/{quick}");
+            Assert.Contains("Chuẩn bị 15 phút", details);
+            Assert.Contains("Nấu 20 phút", details);
+            Assert.Contains("Độ khó: Dễ", details);
+        }
+
+        [Fact]
+        public async Task HomeFeed_ShouldShowCookingMetadataWhenRecipeHasIt()
+        {
+            var id = await SeedRecipeAsync("Feed metadata recipe");
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var recipe = await db.Recipes.SingleAsync(item => item.Id == id);
+                recipe.PreparationTimeMinutes = 12;
+                recipe.CookingTimeMinutes = 18;
+                recipe.Difficulty = RecipeDifficulty.Medium;
+                await db.SaveChangesAsync();
+            }
+
+            using var client = _factory.CreateTestClient();
+            var html = await GetHtmlAsync(client, "/");
+
+            Assert.Contains("Chuẩn bị 12 phút", html);
+            Assert.Contains("Nấu 18 phút", html);
+            Assert.Contains("Độ khó: Trung bình", html);
+        }
+
+        [Fact]
+        public async Task HomeFeed_LongDescription_ShouldExpandInlineWithoutReadMoreLabel()
+        {
+            string description = new string('A', 205)
+                + " phần tiếp theo của câu chuyện vẫn nối liền với nội dung trước đó.\nGà sau khi được sơ chế, ướp gia vị.";
+            var id = await SeedRecipeAsync("Long description recipe");
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var recipe = await db.Recipes.SingleAsync(item => item.Id == id);
+                recipe.Description = description;
+                await db.SaveChangesAsync();
+            }
+
+            using var client = _factory.CreateTestClient();
+
+            var html = await GetHtmlAsync(client, "/");
+            string post = Regex.Match(html, "<article class=\"feed-post\"[\\s\\S]*?</article>").Value;
+
+            Assert.Contains("data-feed-read-more", post);
+            Assert.Contains("<span class=\"feed-story-rest\"", post);
+            Assert.Contains("hidden", post);
+            Assert.Contains("phần tiếp", post);
+            Assert.Contains("Gà sau khi được sơ chế, ướp gia vị.", post);
+            Assert.DoesNotContain("sơ\nchế", post);
+            Assert.Contains("Đọc thêm câu chuyện", post);
+            Assert.DoesNotContain("<details", post);
+        }
+
+        [Fact]
         public async Task EmptyHomeAndExplore_ShouldShowEmptyStatesWithoutDemoRecipeLinks()
         {
             using var client = _factory.CreateTestClient();

@@ -80,6 +80,9 @@ namespace CookShare.Data
                     Description = recipe.Description,
                     Image = recipe.Image,
                     Category = recipe.Category,
+                    PreparationTimeMinutes = recipe.PreparationTimeMinutes,
+                    CookingTimeMinutes = recipe.CookingTimeMinutes,
+                    Difficulty = recipe.Difficulty,
                     CreatedAt = recipe.CreatedAt,
                     AuthorId = recipe.UserId,
                     AuthorName = recipe.User == null ? "Thành viên CookShare"

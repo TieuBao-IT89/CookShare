@@ -260,12 +260,19 @@ namespace CookShare.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int?>("CookingTimeMinutes")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Difficulty")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<string>("ExternalId")
                         .HasMaxLength(128)
@@ -286,6 +293,9 @@ namespace CookShare.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("PreparationTimeMinutes")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Source")
                         .HasMaxLength(32)
@@ -309,6 +319,12 @@ namespace CookShare.Migrations
 
                     b.ToTable("Recipes", t =>
                         {
+                            t.HasCheckConstraint("CK_Recipes_CookingTimeMinutes", "\"CookingTimeMinutes\" IS NULL OR \"CookingTimeMinutes\" BETWEEN 1 AND 1440");
+
+                            t.HasCheckConstraint("CK_Recipes_Difficulty", "\"Difficulty\" IS NULL OR \"Difficulty\" IN ('Easy', 'Medium', 'Hard')");
+
+                            t.HasCheckConstraint("CK_Recipes_PreparationTimeMinutes", "\"PreparationTimeMinutes\" IS NULL OR \"PreparationTimeMinutes\" BETWEEN 1 AND 1440");
+
                             t.HasCheckConstraint("CK_Recipes_SourceIdentity", "(\"Source\" IS NULL AND \"ExternalId\" IS NULL) OR (\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL)");
                         });
                 });

@@ -217,6 +217,15 @@
     }
 
     root.addEventListener("click", event => {
+        const readMore = event.target.closest("[data-feed-read-more]");
+        if (readMore && root.contains(readMore)) {
+            const rest = document.getElementById(readMore.getAttribute("aria-controls"));
+            if (rest && readMore.closest("[data-feed-post]")?.contains(rest)) {
+                rest.hidden = false;
+                readMore.setAttribute("aria-expanded", "true");
+                readMore.hidden = true;
+            }
+        }
         const comments = event.target.closest("[data-feed-comment-toggle]");
         if (comments && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
             event.preventDefault();

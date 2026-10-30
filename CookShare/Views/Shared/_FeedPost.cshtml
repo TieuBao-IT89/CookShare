@@ -6,7 +6,15 @@
     var detailsUrl = Url.Action("Details", "Recipe", new { id = Model.Id });
     var headingId = $"feedPostTitle_{Model.Id}";
     var image = RecipeImageReference.GetSource(Model.Image);
+    var description = Model.Description.ReplaceLineEndings(" ").Trim();
     var initials = string.IsNullOrWhiteSpace(Model.AuthorName) ? "CS" : System.Globalization.StringInfo.GetNextTextElement(Model.AuthorName).ToUpperInvariant();
+    var descriptionBreak = description.Length > 220
+        ? description.LastIndexOf(' ', 220)
+        : description.Length;
+    if (descriptionBreak < 160)
+    {
+        descriptionBreak = Math.Min(220, description.Length);
+    }
     var saveData = new ViewDataDictionary(ViewData)
     {
         ["SavedRecipeIds"] = Model.IsSaved ? new HashSet<int> { Model.Id } : new HashSet<int>(),
@@ -35,14 +43,30 @@
     </header>
     <div class="feed-post-copy">
         <h2 id="@headingId"><a href="@detailsUrl">@Model.Name</a></h2>
-        @if (Model.Description.Length > 220)
+        @if (description.Length > descriptionBreak)
         {
-            <p>@Model.Description[..220].TrimEnd()…</p>
-            <details class="feed-story"><summary>Đọc thêm câu chuyện</summary><p>@Model.Description[220..]</p></details>
+            <div class="feed-post-description">@description[..descriptionBreak]<button class="feed-story-more" type="button" data-feed-read-more aria-expanded="false" aria-controls="feedStoryRest_@Model.Id"><span aria-hidden="true">… </span>Đọc thêm câu chuyện</button><span class="feed-story-rest" id="feedStoryRest_@Model.Id" hidden>@description[descriptionBreak..]</span></div>
         }
         else
         {
-            <p>@Model.Description</p>
+            <p>@description</p>
+        }
+        @if (Model.PreparationTimeMinutes.HasValue || Model.CookingTimeMinutes.HasValue || Model.Difficulty.HasValue)
+        {
+            <div class="feed-post-recipe-meta" aria-label="Thời gian và độ khó">
+                @if (Model.PreparationTimeMinutes.HasValue)
+                {
+                    <span>Chuẩn bị @Model.PreparationTimeMinutes phút</span>
+                }
+                @if (Model.CookingTimeMinutes.HasValue)
+                {
+                    <span>Nấu @Model.CookingTimeMinutes phút</span>
+                }
+                @if (Model.Difficulty.HasValue)
+                {
+                    <span>Độ khó: @Model.Difficulty.Value.GetDisplayName()</span>
+                }
+            </div>
         }
     </div>
     <a class="feed-post-image @(image == RecipeImageReference.Placeholder ? "feed-post-placeholder" : "")" href="@detailsUrl" aria-label="Xem công thức @Model.Name">
