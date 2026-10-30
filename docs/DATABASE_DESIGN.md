@@ -67,11 +67,20 @@ Bảng: `Recipes`.
 | Image | string? | text | Có | — | Đường dẫn ảnh món ăn. |
 | Ingredients | string | text | Không | — | Danh sách nguyên liệu. |
 | Instructions | string | text | Không | — | Hướng dẫn chế biến. |
+| Servings | int | integer | Không | — | Số khẩu phần gốc (1–20); mặc định 4. |
 | Category | string | character varying(100) | Không | — | Danh mục món ăn. |
 | UserId | string? | character varying(450) | Có | FK → AspNetUsers.Id | Tác giả; cho phép chưa được gán đối với dữ liệu cũ. |
 | CreatedAt | DateTime | timestamp with time zone | Không | — | Thời điểm tạo công thức. |
 
 Navigation: `User` có thể không có; `Likes`, `Comments`, `Favorites`, `Ratings` là các tập bản ghi liên quan và được khởi tạo bằng danh sách rỗng. Chúng không phải cột dữ liệu riêng.
+
+Migration thêm `Servings` với giá trị mặc định 4 để giữ các công thức hiện có hợp lệ; form tạo/sửa cho phép chọn từ 1 đến 20. Trang chi tiết dùng số khẩu phần gốc này để tính lại lượng nguyên liệu có định lượng nhận diện được, không ghi thay đổi phần nguyên liệu vào database.
+
+Áp dụng migration lên database Development đã cấu hình trước khi chạy phiên bản mới:
+
+```powershell
+dotnet ef database update --project CookShare/CookShare.csproj -- --environment Development
+```
 
 ### 3.3. RecipeLike
 

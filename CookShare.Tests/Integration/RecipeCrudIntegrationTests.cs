@@ -67,6 +67,7 @@ namespace CookShare.Tests.Integration
                 ["Name"] = name,
                 ["Description"] = "Cong thuc kiem thu",
                 ["Category"] = "Món Việt",
+                ["Servings"] = "4",
                 ["Ingredients"] = "Thit bo\nBanh pho",
                 ["Instructions"] = "Buoc 1: Chuan bi\nBuoc 2: Nau"
             };
@@ -136,11 +137,13 @@ namespace CookShare.Tests.Integration
                 _factory.CreateTestClient(_factory.OwnerId);
 
             var name = "Test Recipe " + Guid.NewGuid();
+            var form = ValidRecipeForm(name);
+            form["Servings"] = "6";
 
             using var response = await PostFormAsync(
                 client,
                 "/Recipe/Create",
-                ValidRecipeForm(name));
+                form);
 
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
 
@@ -154,6 +157,7 @@ namespace CookShare.Tests.Integration
                 .SingleAsync(r => r.Name == name);
 
             Assert.Equal(_factory.OwnerId, saved.UserId);
+            Assert.Equal(6, saved.Servings);
         }
 
         // TC02 - Tạo Recipe thiếu Name.
@@ -242,11 +246,13 @@ namespace CookShare.Tests.Integration
                 _factory.CreateTestClient(_factory.OwnerId);
 
             var newName = "Updated " + Guid.NewGuid();
+            var form = ValidRecipeForm(newName);
+            form["Servings"] = "7";
 
             using var response = await PostFormAsync(
                 client,
                 $"/Recipe/Edit/{id}",
-                ValidRecipeForm(newName));
+                form);
 
             Assert.Equal(
                 HttpStatusCode.Redirect,
@@ -256,6 +262,7 @@ namespace CookShare.Tests.Integration
 
             Assert.NotNull(updated);
             Assert.Equal(newName, updated.Name);
+            Assert.Equal(7, updated.Servings);
         }
 
         // TC07 - Người khác không được sửa.
