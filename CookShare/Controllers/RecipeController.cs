@@ -244,6 +244,7 @@ namespace CookShare.Controllers
                 Description = model.Description.Trim(),
                 Ingredients = model.Ingredients.Trim(),
                 Instructions = model.Instructions.Trim(),
+                Servings = model.Servings,
                 Category = model.Category.Trim(),
                 Image = string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim(),
                 UserId = userId,
@@ -300,6 +301,7 @@ namespace CookShare.Controllers
                 Description = recipe.Description,
                 Ingredients = recipe.Ingredients,
                 Instructions = recipe.Instructions,
+                Servings = recipe.Servings,
                 Category = recipe.Category,
                 Image = recipe.Image
             };
@@ -342,6 +344,7 @@ namespace CookShare.Controllers
             recipe.Description = model.Description.Trim();
             recipe.Ingredients = model.Ingredients.Trim();
             recipe.Instructions = model.Instructions.Trim();
+            recipe.Servings = model.Servings;
             recipe.Category = model.Category.Trim();
             recipe.Image = string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim();
 

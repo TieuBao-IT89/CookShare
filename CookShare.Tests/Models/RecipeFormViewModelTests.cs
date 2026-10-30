@@ -8,7 +8,23 @@ namespace CookShare.Tests.Models
         [Fact]
         public void ValidRecipe_ShouldPassValidation()
         {
-            Assert.Empty(Validate(CreateValidModel()));
+            var model = CreateValidModel();
+
+            Assert.Empty(Validate(model));
+            Assert.Equal(4, model.Servings);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(21)]
+        public void ServingsOutsideSupportedRange_ShouldFailValidation(int servings)
+        {
+            var model = CreateValidModel();
+            model.Servings = servings;
+
+            Assert.Contains(
+                Validate(model),
+                error => error.MemberNames.Contains(nameof(model.Servings)));
         }
 
         [Theory]

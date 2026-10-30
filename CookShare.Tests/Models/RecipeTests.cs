@@ -46,6 +46,7 @@ namespace CookShare.Tests.Models
 
             // Assert
             Assert.Empty(results);
+            Assert.Equal(4, recipe.Servings);
         }
 
         [Theory]

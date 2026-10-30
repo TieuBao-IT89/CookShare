@@ -101,6 +101,23 @@
                         </div>
 
                         <div class="form-field-group">
+                            <label asp-for="Servings" class="form-label"></label>
+                            <input asp-for="Servings"
+                                   class="form-input"
+                                   type="number"
+                                   min="1"
+                                   max="20"
+                                   step="1"
+                                   aria-describedby="ServingsHelp ServingsValidation" />
+                            <span asp-validation-for="Servings"
+                                  id="ServingsValidation"
+                                  class="text-danger"></span>
+                            <p class="cs108-field-help" id="ServingsHelp">
+                                Số khẩu phần của lượng nguyên liệu trong công thức (từ 1 đến 20).
+                            </p>
+                        </div>
+
+                        <div class="form-field-group">
                             <label asp-for="Description" class="form-label">
                                 Mô tả món ăn <span class="cs108-required">*</span>
                             </label>
