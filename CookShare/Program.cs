@@ -13,6 +13,9 @@ var builder = WebApplication.CreateBuilder(seedRecipes ? Array.Empty<string>() :
 
 // ASP.NET Core MVC
 builder.Services.AddControllersWithViews();
+builder.Services.Configure<RecipeImageStorageOptions>(
+    builder.Configuration.GetSection(RecipeImageStorageOptions.SectionName));
+builder.Services.AddSingleton<IRecipeImageStorage, LocalRecipeImageStorage>();
 builder.Services.AddScoped<RecipeSeeder>();
 builder.Services.AddScoped<IRecipeSeedSource, LocalRecipeSeedSource>();
 builder.Services.AddHttpClient<TheMealDbClient>(client =>

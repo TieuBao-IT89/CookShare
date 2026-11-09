@@ -42,12 +42,100 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 2. Recipe Form: Image URL preview
+    // 2. Recipe Form: Local image selection and preview
     const imageInput = root.querySelector("#cs108ImageInput");
     const imagePreview = root.querySelector("#cs108PreviewImage");
     const imageStatus = root.querySelector("#cs108ImageStatus");
 
-    if (imageInput && imagePreview) {
+    if (imageInput && imagePreview && imageInput.type === "file") {
+        const fallback = imagePreview.dataset.fallback;
+        const originalSource = imagePreview.getAttribute("src") || fallback;
+        const maxSize = Number(imageInput.dataset.maxSize) || 5 * 1024 * 1024;
+        const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+        let previewUrl = null;
+
+        function releasePreview() {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            previewUrl = null;
+        }
+
+        function showImageStatus(message, error = false) {
+            if (!imageStatus) return;
+            imageStatus.textContent = message;
+            imageStatus.classList.toggle("is-error", error);
+        }
+
+        function restorePreview() {
+            imagePreview.onload = null;
+            imagePreview.onerror = () => {
+                imagePreview.onerror = null;
+                imagePreview.src = fallback;
+            };
+            imagePreview.src = originalSource;
+        }
+
+        function updateSelectedImage() {
+            releasePreview();
+            const file = imageInput.files?.[0];
+            imageInput.setCustomValidity("");
+            imageInput.removeAttribute("aria-invalid");
+
+            if (!file) {
+                restorePreview();
+                showImageStatus("");
+                return;
+            }
+
+            let error = "";
+            if (!/\.(jpe?g|png|webp)$/i.test(file.name) || (file.type && !allowedTypes.has(file.type))) {
+                error = "Vui lòng chọn ảnh JPG, PNG hoặc WebP.";
+            } else if (!file.size) {
+                error = "Ảnh đã chọn không có dữ liệu. Vui lòng chọn ảnh khác.";
+            } else if (file.size > maxSize) {
+                error = "Ảnh không được vượt quá 5 MB. Vui lòng chọn ảnh nhỏ hơn.";
+            }
+
+            if (error) {
+                imageInput.setCustomValidity(error);
+                imageInput.setAttribute("aria-invalid", "true");
+                restorePreview();
+                showImageStatus(error, true);
+                return;
+            }
+
+            const validation = root.querySelector("#ImageFileValidation");
+            if (validation) validation.textContent = "";
+            const selectedUrl = URL.createObjectURL(file);
+            previewUrl = selectedUrl;
+            showImageStatus(`Đang xem trước: ${file.name}`);
+
+            imagePreview.onload = () => {
+                if (previewUrl === selectedUrl) {
+                    showImageStatus(`Đã chọn: ${file.name}. Ảnh sẽ được tải lên khi gửi công thức.`);
+                }
+            };
+            imagePreview.onerror = () => {
+                if (previewUrl !== selectedUrl) return;
+                releasePreview();
+                const message = "Không đọc được ảnh đã chọn. Vui lòng chọn ảnh khác.";
+                imageInput.setCustomValidity(message);
+                imageInput.setAttribute("aria-invalid", "true");
+                restorePreview();
+                showImageStatus(message, true);
+            };
+            imagePreview.src = selectedUrl;
+        }
+
+        imageInput.addEventListener("change", updateSelectedImage);
+        imageInput.addEventListener("cancel", () => {
+            if (!imageInput.files?.length) updateSelectedImage();
+        });
+        window.addEventListener("pagehide", releasePreview);
+        imagePreview.onerror = () => {
+            imagePreview.onerror = null;
+            imagePreview.src = fallback;
+        };
+    } else if (imageInput && imagePreview) {
         const fallback = imagePreview.dataset.fallback;
 
         // Match RecipeImageReference for previews without changing the submitted value.

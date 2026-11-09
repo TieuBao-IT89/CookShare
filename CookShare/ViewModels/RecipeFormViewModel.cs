@@ -29,5 +29,7 @@ namespace CookShare.ViewModels
         [StringLength(RecipeImageReference.MaxLength)]
         [RecipeImageReferenceAttribute]
         public string? Image { get; set; }
+
+        public IFormFile? ImageFile { get; set; }
     }
 }

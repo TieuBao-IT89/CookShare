@@ -46,6 +46,7 @@
               asp-action="@actionName"
               asp-route-id="@(editing ? ViewBag.RecipeId : null)"
               method="post"
+              enctype="multipart/form-data"
               data-prevent-duplicate-submit
               class="auth-form">
 
@@ -136,25 +137,41 @@
                         </div>
 
                         <div class="form-field-group">
-                            <label asp-for="Image" for="cs108ImageInput" class="form-label">
-                                Đường dẫn hình ảnh
+                            <label asp-for="ImageFile" for="cs108ImageInput" class="form-label">
+                                Ảnh từ thiết bị
                             </label>
 
-                            <input asp-for="Image"
-                                   id="cs108ImageInput"
-                                   aria-describedby="ImageHelp ImageValidation cs108ImageStatus"
-                                   aria-invalid="@(ViewData.ModelState[nameof(Model.Image)]?.Errors.Count > 0 ? "true" : null)"
-                                   class="form-input"
-                                   placeholder="/img/recipe-placeholder.svg" />
+                            <input asp-for="Image" type="hidden" id="cs108ImageReference" />
+                            <div class="cs108-image-picker">
+                                <input asp-for="ImageFile"
+                                       type="file"
+                                       id="cs108ImageInput"
+                                       class="cs108-file-input"
+                                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                       data-max-size="5242880"
+                                       aria-label="Chọn hình ảnh muốn đăng"
+                                       aria-describedby="ImageHelp ImageFileValidation cs108ImageStatus"
+                                       aria-invalid="@(ViewData.ModelState[nameof(Model.ImageFile)]?.Errors.Count > 0 ? "true" : null)" />
+                                <label for="cs108ImageInput" class="cs108-image-picker-button">
+                                    <svg class="icon" aria-hidden="true"><use href="#i-image" /></svg>
+                                    <span>Chọn hình ảnh muốn đăng</span>
+                                </label>
+                            </div>
+                            <span asp-validation-for="ImageFile"
+                                  id="ImageFileValidation"
+                                  class="text-danger"></span>
                             <span asp-validation-for="Image"
                                   id="ImageValidation"
                                   class="text-danger"></span>
 
                             <p class="cs108-field-help" id="ImageHelp">
-                                Dán liên kết ảnh HTTPS hoặc đường dẫn ảnh nội bộ.
-                                Hình ảnh sẽ hiển thị phía trên.
+                                JPG, PNG hoặc WebP, tối đa 5 MB. Ảnh sẽ hiển thị phía trên.
+                                @if (editing)
+                                {
+                                    <span>Không chọn ảnh mới để giữ ảnh hiện tại.</span>
+                                }
                             </p>
-                            <p id="cs108ImageStatus" class="cs108-preview-status" role="status" aria-live="polite"></p>
+                            <p id="cs108ImageStatus" class="cs108-preview-status" role="status" aria-live="polite">@(Model.ImageFile != null ? "Vui lòng chọn lại hình ảnh trước khi gửi công thức." : null)</p>
                         </div>
                     </section>
 

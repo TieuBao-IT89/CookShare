@@ -21,11 +21,14 @@ namespace CookShare.Controllers
 
         private readonly ApplicationDbContext _db;
         private readonly ILogger<RecipeController> _logger;
+        private readonly IRecipeImageStorage? _imageStorage;
 
-        public RecipeController(ApplicationDbContext db, ILogger<RecipeController>? logger = null)
+        public RecipeController(ApplicationDbContext db, ILogger<RecipeController>? logger = null,
+            IRecipeImageStorage? imageStorage = null)
         {
             _db = db;
             _logger = logger ?? NullLogger<RecipeController>.Instance;
+            _imageStorage = imageStorage;
         }
 
         // GET: /Recipe
@@ -222,6 +225,8 @@ namespace CookShare.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(6 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]
         public async Task<IActionResult> Create(
             RecipeFormViewModel model)
         {
@@ -238,6 +243,12 @@ namespace CookShare.Controllers
                 return Challenge();
             }
 
+            string? uploadedImage = await SaveUploadedImageAsync(model);
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             var recipe = new Recipe
             {
                 Name = model.Name.Trim(),
@@ -245,7 +256,7 @@ namespace CookShare.Controllers
                 Ingredients = model.Ingredients.Trim(),
                 Instructions = model.Instructions.Trim(),
                 Category = model.Category.Trim(),
-                Image = string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim(),
+                Image = uploadedImage ?? (string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim()),
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow
             };
@@ -255,8 +266,14 @@ namespace CookShare.Controllers
             {
                 await _db.SaveChangesAsync();
             }
-            catch (Exception exception) when (exception is DbUpdateException or DbException)
+            catch (Exception exception)
             {
+                await DeleteFailedUploadAsync(uploadedImage);
+                if (exception is not (DbUpdateException or DbException))
+                {
+                    throw;
+                }
+
                 _logSaveFailure(_logger, "creation", exception.GetType().Name, null);
                 _db.Entry(recipe).State = EntityState.Detached;
                 ModelState.AddModelError(string.Empty, "Chưa thể lưu công thức. Vui lòng thử lại sau.");
@@ -311,6 +328,8 @@ namespace CookShare.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(6 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]
         public async Task<IActionResult> Edit(
             int id,
             RecipeFormViewModel model)
@@ -333,6 +352,18 @@ namespace CookShare.Controllers
 
             ViewBag.RecipeId = id;
 
+            // Submitting without another file keeps the stored photo, including legacy references.
+            if (string.IsNullOrWhiteSpace(model.Image))
+            {
+                model.Image = recipe.Image;
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            string? uploadedImage = await SaveUploadedImageAsync(model);
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -343,14 +374,20 @@ namespace CookShare.Controllers
             recipe.Ingredients = model.Ingredients.Trim();
             recipe.Instructions = model.Instructions.Trim();
             recipe.Category = model.Category.Trim();
-            recipe.Image = string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim();
+            recipe.Image = uploadedImage ?? (string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim());
 
             try
             {
                 await _db.SaveChangesAsync();
             }
-            catch (Exception exception) when (exception is DbUpdateException or DbException)
+            catch (Exception exception)
             {
+                await DeleteFailedUploadAsync(uploadedImage);
+                if (exception is not (DbUpdateException or DbException))
+                {
+                    throw;
+                }
+
                 _logSaveFailure(_logger, "update", exception.GetType().Name, null);
                 _db.Entry(recipe).State = EntityState.Detached;
                 ModelState.AddModelError(string.Empty, "Chưa thể cập nhật công thức. Vui lòng thử lại sau.");
@@ -362,6 +399,53 @@ namespace CookShare.Controllers
             return RedirectToAction(
                 nameof(Details),
                 new { id = recipe.Id });
+        }
+
+        private async Task<string?> SaveUploadedImageAsync(RecipeFormViewModel model)
+        {
+            if (model.ImageFile == null)
+            {
+                return null;
+            }
+
+            if (_imageStorage == null)
+            {
+                ModelState.AddModelError(nameof(model.ImageFile), "Chưa thể tải ảnh lên. Vui lòng thử lại sau.");
+                return null;
+            }
+
+            try
+            {
+                return await _imageStorage.SaveAsync(model.ImageFile, HttpContext.RequestAborted);
+            }
+            catch (RecipeImageUploadException exception)
+            {
+                ModelState.AddModelError(nameof(model.ImageFile), exception.Message);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                _logSaveFailure(_logger, "image upload", exception.GetType().Name, null);
+                ModelState.AddModelError(nameof(model.ImageFile), "Chưa thể tải ảnh lên. Vui lòng thử lại sau.");
+            }
+
+            return null;
+        }
+
+        private async Task DeleteFailedUploadAsync(string? imageReference)
+        {
+            if (imageReference == null || _imageStorage == null)
+            {
+                return;
+            }
+
+            try
+            {
+                await _imageStorage.DeleteAsync(imageReference);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                _logSaveFailure(_logger, "image cleanup", exception.GetType().Name, null);
+            }
         }
 
         // POST: /Recipe/Delete/5
