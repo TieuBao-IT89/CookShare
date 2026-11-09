@@ -34,14 +34,25 @@ namespace CookShare.Controllers
         // GET: /Recipe
         [HttpGet]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        public async Task<IActionResult> Index(string? q = null, string? category = null)
+        public async Task<IActionResult> Index(
+            string? q = null,
+            string? category = null,
+            RecipeDifficulty? difficulty = null,
+            int? maxTotalMinutes = null)
         {
+            if (!ModelState.IsValid
+                || (difficulty.HasValue && !Enum.IsDefined(difficulty.Value))
+                || (maxTotalMinutes.HasValue && maxTotalMinutes is < 1 or > 2880))
+            {
+                return BadRequest();
+            }
+
             string query = q?.Trim() ?? string.Empty;
             string selectedCategory = category?.Trim() ?? string.Empty;
             IQueryable<Recipe> recipesQuery = _db.Recipes
                 .AsNoTracking()
                 .Include(r => r.User)
-                .FilterBySearchAndCategory(query, selectedCategory);
+                .FilterBySearchAndCategory(query, selectedCategory, difficulty, maxTotalMinutes);
 
             var recipes = await recipesQuery
                 .OrderByDescending(r => r.CreatedAt)
@@ -59,7 +70,9 @@ namespace CookShare.Controllers
             {
                 Recipes = recipes,
                 Query = query,
-                Category = selectedCategory
+                Category = selectedCategory,
+                Difficulty = difficulty,
+                MaxTotalMinutes = maxTotalMinutes
             });
         }
 
@@ -255,6 +268,9 @@ namespace CookShare.Controllers
                 Description = model.Description.Trim(),
                 Ingredients = model.Ingredients.Trim(),
                 Instructions = model.Instructions.Trim(),
+                PreparationTimeMinutes = model.PreparationTimeMinutes,
+                CookingTimeMinutes = model.CookingTimeMinutes,
+                Difficulty = model.Difficulty,
                 Servings = model.Servings,
                 Category = model.Category.Trim(),
                 Image = uploadedImage ?? (string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim()),
@@ -318,6 +334,9 @@ namespace CookShare.Controllers
                 Description = recipe.Description,
                 Ingredients = recipe.Ingredients,
                 Instructions = recipe.Instructions,
+                PreparationTimeMinutes = recipe.PreparationTimeMinutes,
+                CookingTimeMinutes = recipe.CookingTimeMinutes,
+                Difficulty = recipe.Difficulty,
                 Servings = recipe.Servings,
                 Category = recipe.Category,
                 Image = recipe.Image
@@ -375,6 +394,9 @@ namespace CookShare.Controllers
             recipe.Description = model.Description.Trim();
             recipe.Ingredients = model.Ingredients.Trim();
             recipe.Instructions = model.Instructions.Trim();
+            recipe.PreparationTimeMinutes = model.PreparationTimeMinutes;
+            recipe.CookingTimeMinutes = model.CookingTimeMinutes;
+            recipe.Difficulty = model.Difficulty;
             recipe.Servings = model.Servings;
             recipe.Category = model.Category.Trim();
             recipe.Image = uploadedImage ?? (string.IsNullOrWhiteSpace(model.Image) ? null : model.Image.Trim());

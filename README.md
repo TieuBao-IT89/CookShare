@@ -29,6 +29,7 @@ CookShare được phát triển theo mô hình phần mềm mã nguồn mở (O
 
 - **Trang chủ:** Hiển thị giao diện khám phá công thức nấu ăn.
 - **Công thức nấu ăn:** Giao diện danh sách, chi tiết, tạo và chỉnh sửa công thức.
+- **Thời gian và độ khó:** Người đăng có thể thêm thời gian chuẩn bị/nấu và mức độ; trang khám phá hỗ trợ lọc theo tổng thời gian và độ khó.
 - **Tài khoản:** Đăng ký, đăng nhập bằng username hoặc email, ghi nhớ đăng nhập và đăng xuất bằng ASP.NET Core Identity.
 - **Hồ sơ:** Giao diện thông tin người dùng.
 - **Tìm kiếm và danh mục:** Các chức năng khám phá công thức theo nhu cầu người dùng.

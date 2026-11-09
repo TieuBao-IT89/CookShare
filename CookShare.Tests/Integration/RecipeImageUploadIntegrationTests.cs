@@ -263,6 +263,48 @@ namespace CookShare.Tests.Integration
             ? Directory.GetFiles(_factory.StoragePath, "*", SearchOption.AllDirectories)
             : Array.Empty<string>();
 
+        [Fact]
+        public async Task Upload_and_edit_should_preserve_servings_and_cooking_metadata_together()
+        {
+            using var client = _factory.CreateTestClient(OwnerId);
+            var fields = new Dictionary<string, string>
+            {
+                ["Servings"] = "6",
+                ["PreparationTimeMinutes"] = "15",
+                ["CookingTimeMinutes"] = "30",
+                ["Difficulty"] = "2"
+            };
+            using var created = await PostAsync(client, "/Recipe/Create", "Combined recipe", _png,
+                extraFields: fields);
+            Assert.Equal(HttpStatusCode.Redirect, created.StatusCode);
+            var recipe = await FindAsync("Combined recipe");
+            Assert.Equal(6, recipe.Servings);
+            Assert.Equal(15, recipe.PreparationTimeMinutes);
+            Assert.Equal(30, recipe.CookingTimeMinutes);
+            Assert.Equal(RecipeDifficulty.Medium, recipe.Difficulty);
+            Assert.StartsWith("/uploads/recipes/", recipe.Image, StringComparison.Ordinal);
+
+            string editForm = await client.GetStringAsync($"/Recipe/Edit/{recipe.Id}");
+            foreach (string field in fields.Keys)
+            {
+                Assert.Contains($"name=\"{field}\"", editForm, StringComparison.Ordinal);
+            }
+
+            fields["Servings"] = "8";
+            fields["PreparationTimeMinutes"] = "20";
+            fields["CookingTimeMinutes"] = "40";
+            fields["Difficulty"] = "3";
+            using var edited = await PostAsync(client, $"/Recipe/Edit/{recipe.Id}", "Updated combined recipe",
+                extraFields: fields);
+            Assert.Equal(HttpStatusCode.Redirect, edited.StatusCode);
+            var updated = await FindAsync("Updated combined recipe");
+            Assert.Equal(8, updated.Servings);
+            Assert.Equal(20, updated.PreparationTimeMinutes);
+            Assert.Equal(40, updated.CookingTimeMinutes);
+            Assert.Equal(RecipeDifficulty.Hard, updated.Difficulty);
+            Assert.Equal(recipe.Image, updated.Image);
+        }
+
         private async Task<int> RecipeCountAsync()
         {
             using var scope = _factory.Services.CreateScope();
@@ -316,7 +358,8 @@ namespace CookShare.Tests.Integration
         }
 
         private static async Task<HttpResponseMessage> PostAsync(HttpClient client, string action, string name,
-            byte[]? bytes = null, string filename = "meal.png", string contentType = "image/png", bool includeToken = true)
+            byte[]? bytes = null, string filename = "meal.png", string contentType = "image/png", bool includeToken = true,
+            IReadOnlyDictionary<string, string>? extraFields = null)
         {
             using var form = new MultipartFormDataContent();
             foreach (var field in new Dictionary<string, string>
@@ -329,6 +372,14 @@ namespace CookShare.Tests.Integration
             })
             {
                 form.Add(new StringContent(field.Value), field.Key);
+            }
+
+            if (extraFields != null)
+            {
+                foreach (var field in extraFields)
+                {
+                    form.Add(new StringContent(field.Value), field.Key);
+                }
             }
 
             if (includeToken)
