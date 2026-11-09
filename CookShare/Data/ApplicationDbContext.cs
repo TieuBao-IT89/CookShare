@@ -81,6 +81,8 @@ namespace CookShare.Data
                 entity.Property(r => r.Difficulty)
                     .HasConversion<string>()
                     .HasMaxLength(16);
+                entity.Property(r => r.Servings)
+                    .HasDefaultValue(4);
 
                 entity.HasIndex(r => new { r.Source, r.ExternalId })
                     .IsUnique()
@@ -101,6 +103,9 @@ namespace CookShare.Data
                     table.HasCheckConstraint(
                         "CK_Recipes_Difficulty",
                         "\"Difficulty\" IS NULL OR \"Difficulty\" IN ('Easy', 'Medium', 'Hard')");
+                    table.HasCheckConstraint(
+                        "CK_Recipes_Servings",
+                        "\"Servings\" BETWEEN 1 AND 20");
                 });
 
                 entity.HasOne(r => r.User)

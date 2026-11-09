@@ -197,6 +197,29 @@ namespace CookShare.Tests.Integration
         }
 
         [Fact]
+        public async Task Details_ShouldRenderServingSelectorWithRecipeBaseServings()
+        {
+            var id = await SeedRecipeAsync("Serving selector recipe");
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var recipe = await db.Recipes.SingleAsync(item => item.Id == id);
+                recipe.Servings = 6;
+                await db.SaveChangesAsync();
+            }
+
+            using var client = _factory.CreateTestClient();
+            var html = await GetHtmlAsync(client, $"/Recipe/Details/{id}");
+
+            Assert.Contains("data-serving-scaler", html);
+            Assert.Contains("data-base-servings=\"6\"", html);
+            Assert.Contains("id=\"recipeServings\"", html);
+            Assert.Matches("<input[^>]*id=\"recipeServings\"[^>]*value=\"6\"", html);
+            Assert.Contains("data-scalable-ingredient", html);
+            Assert.Contains("/js/recipe-serving-scaler.js", html);
+        }
+
+        [Fact]
         public async Task EmptyHomeAndExplore_ShouldShowEmptyStatesWithoutDemoRecipeLinks()
         {
             using var client = _factory.CreateTestClient();

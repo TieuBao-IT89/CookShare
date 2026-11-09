@@ -70,6 +70,8 @@ Bảng: `Recipes`.
 | PreparationTimeMinutes | int? | integer | Có | — | Thời gian chuẩn bị, phút (1–1440); có thể chưa biết. |
 | CookingTimeMinutes | int? | integer | Có | — | Thời gian nấu, phút (1–1440); có thể chưa biết. |
 | Difficulty | RecipeDifficulty? | character varying(16) | Có | — | Mức độ `Easy`, `Medium` hoặc `Hard`; có thể chưa phân loại. |
+
+| Servings | int | integer | Không | — | Số khẩu phần gốc (1–20); mặc định 4. |
 | Category | string | character varying(100) | Không | — | Danh mục món ăn. |
 | UserId | string? | character varying(450) | Có | FK → AspNetUsers.Id | Tác giả; cho phép chưa được gán đối với dữ liệu cũ. |
 | CreatedAt | DateTime | timestamp with time zone | Không | — | Thời điểm tạo công thức. |
@@ -77,6 +79,8 @@ Bảng: `Recipes`.
 Navigation: `User` có thể không có; `Likes`, `Comments`, `Favorites`, `Ratings` là các tập bản ghi liên quan và được khởi tạo bằng danh sách rỗng. Chúng không phải cột dữ liệu riêng.
 
 Migration `AddRecipeCookingMetadata` thêm thời gian chuẩn bị, thời gian nấu và độ khó dưới dạng nullable để không gán dữ liệu suy đoán cho công thức cũ hoặc công thức nhập không có thông tin thời lượng. Khi có đủ hai thời gian, bộ lọc Khám phá tính tổng thời gian; công thức chưa có cả hai giá trị không xuất hiện khi lọc theo thời gian. Biểu mẫu tạo/sửa cho phép để trống metadata này.
+
+Migration thêm `Servings` với giá trị mặc định 4 để giữ các công thức hiện có hợp lệ; form tạo/sửa cho phép chọn từ 1 đến 20. Trang chi tiết dùng số khẩu phần gốc này để tính lại lượng nguyên liệu có định lượng nhận diện được, không ghi thay đổi phần nguyên liệu vào database.
 
 Áp dụng migration lên database Development đã cấu hình trước khi chạy phiên bản mới:
 

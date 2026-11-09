@@ -36,6 +36,10 @@ namespace CookShare.ViewModels
         [Display(Name = "Độ khó")]
         public RecipeDifficulty? Difficulty { get; set; }
 
+        [Range(1, 20, ErrorMessage = "Khẩu phần phải từ 1 đến 20.")]
+        [Display(Name = "Khẩu phần")]
+        public int Servings { get; set; } = 4;
+
         [Required(ErrorMessage = "Vui lòng chọn danh mục.")]
         [StringLength(100)]
         public string Category { get; set; } = string.Empty;
@@ -43,5 +47,7 @@ namespace CookShare.ViewModels
         [StringLength(RecipeImageReference.MaxLength)]
         [RecipeImageReferenceAttribute]
         public string? Image { get; set; }
+
+        public IFormFile? ImageFile { get; set; }
     }
 }
