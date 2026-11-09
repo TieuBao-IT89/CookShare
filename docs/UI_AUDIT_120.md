@@ -1,5 +1,7 @@
 # UI/UX Audit — Issue #120
 
+> Historical verification report for the baseline and scope stated below. Test counts, screenshots and findings describe that review, not the current branch. See the [documentation index](README.md) and [testing guide](TESTING.md) for current workflows.
+
 Method: dual-agent (A: `/root/ui_visual_review` · B: `/root/ui_detector_review`), followed by an authenticated fixture review. Assessment A finished before the parent read detector findings. Baseline: `224f9af`, 2026-10-24. Scope: refinement of the existing Razor UI, with the Warm & Fresh identity retained.
 
 ## Findings and implementation scope

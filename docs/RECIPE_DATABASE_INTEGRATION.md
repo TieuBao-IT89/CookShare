@@ -1,5 +1,7 @@
 # Tích hợp giao diện công thức với database
 
+> Báo cáo lịch sử của lần tích hợp ban đầu. Hướng dẫn hiện tại ở [Setup](SETUP.md), [Database design](DATABASE_DESIGN.md), [Testing](TESTING.md) và [mục lục tính năng](README.md). Các giới hạn và số test bên dưới chỉ thuộc phạm vi triển khai lúc đó.
+
 > Tài liệu này ghi nhận trạng thái khi hoàn tất tích hợp Recipe. Issue #76 và #94 sau đó bổ sung Likes/Comments và Favorites dùng database trên các trang công thức thật. Toàn bộ phần việc được tích hợp trên nhánh `feature/persistent-favorites`; xem [PERSISTENT_FAVORITES.md](PERSISTENT_FAVORITES.md) cho phạm vi review và kết quả tổng hợp mới nhất. Các mô tả Saved legacy và số liệu 183 test bên dưới thuộc giai đoạn triển khai trước đó; dữ liệu browser cũ được giữ nguyên nhưng không dùng để render Saved database hiện tại.
 
 ## Luồng dữ liệu

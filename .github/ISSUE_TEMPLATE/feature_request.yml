@@ -1,0 +1,27 @@
+name: Đề xuất tính năng
+description: Mô tả nhu cầu và kết quả mong muốn.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Vấn đề người dùng
+      description: Ai gặp vấn đề, trong tình huống nào và ảnh hưởng ra sao?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Kết quả mong muốn
+      description: Mô tả hành vi và tiêu chí hoàn thành; không cần có sẵn giải pháp kỹ thuật.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Phương án khác
+      description: Cách xử lý hiện tại hoặc lựa chọn đã cân nhắc.
+  - type: textarea
+    id: context
+    attributes:
+      label: Bối cảnh bổ sung
+      description: Issue liên quan, ví dụ hoặc ảnh minh họa không chứa dữ liệu riêng tư.

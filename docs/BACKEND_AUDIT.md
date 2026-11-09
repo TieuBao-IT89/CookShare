@@ -1,5 +1,7 @@
 # BÁO CÁO RÀ SOÁT HIỆN TRẠNG BACKEND COOKSHARE
 
+> Báo cáo lịch sử của đợt rà soát backend ban đầu, không phải danh sách chức năng còn thiếu hiện tại. Xem [mục lục tài liệu](README.md), [thiết kế dữ liệu](DATABASE_DESIGN.md) và [kiểm thử](TESTING.md) cho hướng dẫn hiện hành. Các trạng thái và đề xuất bên dưới giữ theo phạm vi audit gốc.
+
 - **Repository:** `TieuBao-IT89/CookShare`
 - **Tài liệu:** `docs/BACKEND_AUDIT.md`
 - **Branch:** `audit/backend-readiness`

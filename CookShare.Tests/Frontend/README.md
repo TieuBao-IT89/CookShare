@@ -1,4 +1,15 @@
-# Saved Recipes browser checks
+# Kiểm tra frontend trên trình duyệt
+
+Các harness bên dưới chạy từ thư mục gốc repository. Xem [Testing](../../docs/TESTING.md) để phân biệt harness cô lập, kiểm tra toàn ứng dụng và test PostgreSQL.
+
+## Khẩu phần công thức
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-RecipeServingScalerBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-RecipeServingScalerBrowserTests.ps1 -Viewport Mobile
+```
+
+Harness chạy `recipe-serving-scaler.js` với nguyên liệu mẫu: tăng/giảm và giới hạn khẩu phần, số nguyên/thập phân/phân số, dòng không nhận diện được và khôi phục văn bản gốc. Cần Python và Chrome/Edge; dữ liệu ứng dụng không bị thay đổi. Xem [thông tin nấu ăn](../../docs/RECIPE_COOKING.md).
 
 ## UI audit refinements (#120)
 

@@ -92,6 +92,8 @@ git push -u origin feature/recipe-search
 
 Mở PR vào `TieuBao-IT89/CookShare:develop`. Mô tả vấn đề, hành vi sau thay đổi, Issue liên quan, cách kiểm tra và giới hạn; thêm ảnh trước/sau khi sửa UI. Chỉ dùng `Closes #...` khi PR giải quyết toàn bộ Issue. GitHub chỉ tự đóng Issue theo từ khóa khi thay đổi tới nhánh mặc định; maintainer cần kiểm tra trạng thái Issue sau khi tích hợp vào `develop`.
 
+Các mẫu Issue/PR trong `.github/` được GitHub tự động sử dụng khi đã có trên nhánh mặc định `main`. Thay đổi mẫu vẫn đi qua `develop` và quy trình tích hợp sang `main`; trong thời gian chờ, có thể dùng nội dung mẫu từ nhánh `develop`.
+
 ## Review và merge
 
 Contributor sửa trên nhánh PR và trả lời các nhận xét. Maintainer kiểm tra phạm vi, quyền truy cập, migration, tương thích và test; giải quyết mọi yêu cầu sửa bắt buộc trước khi merge.

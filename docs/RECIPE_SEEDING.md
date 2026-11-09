@@ -34,7 +34,7 @@ dotnet restore CookShare.sln
 dotnet ef database update --project CookShare/CookShare.csproj
 ```
 
-Có thể dùng User Secrets thay cho biến chuỗi kết nối; xem hướng dẫn Database Setup trong README. Nếu dùng `Testing`, cấu hình connection qua biến môi trường vì User Secrets mặc định chỉ được nạp trong Development.
+Có thể dùng User Secrets thay cho biến chuỗi kết nối; xem [Setup](SETUP.md). Nếu dùng `Testing`, cấu hình connection qua biến môi trường vì User Secrets mặc định chỉ được nạp trong Development.
 
 Các ví dụ bên dưới dùng `--no-launch-profile` để môi trường từ terminal được giữ nguyên, không bị launch profile của IDE đổi thành Development.
 

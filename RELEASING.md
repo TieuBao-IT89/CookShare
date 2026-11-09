@@ -1,198 +1,54 @@
-# Release Process – CookShare
+# Phát hành CookShare
 
-## 1. Giới thiệu (Overview)
+## Nhánh và phiên bản
 
-Tài liệu này mô tả quy trình quản lý phiên bản và phát hành phần mềm của dự án CookShare.
+Thay đổi thông thường đi qua PR vào `develop`. Maintainer đưa phạm vi đã xác nhận sang `main` qua PR phát hành. Git tag và GitHub Release trỏ đến commit trên `main`.
 
-Mục tiêu là đảm bảo mỗi bản phát hành được kiểm tra, có số phiên bản rõ ràng và có tài liệu mô tả các thay đổi.
+Dự án dùng [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`, tag dạng `vX.Y.Z`. Trong giai đoạn `0.x`, giao diện và hành vi có thể thay đổi. Không di chuyển, ghi đè hoặc xóa tag đã công bố.
 
-## 2. Quy tắc đánh số phiên bản (Semantic Versioning)
+Lịch sử phát hành nằm trong [CHANGELOG.md](CHANGELOG.md) và [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases). Không tạo số phiên bản/ngày phát hành dự kiến dưới dạng bản đã phát hành.
 
-CookShare áp dụng [Semantic Versioning](https://semver.org/) với cấu trúc:
+## Chuẩn bị
 
-`MAJOR.MINOR.PATCH`
+1. Chốt phạm vi và kiểm tra các PR liên quan đã được review/merge vào `develop`.
+2. Xác nhận không còn lỗi nghiêm trọng đã biết hoặc yêu cầu sửa bắt buộc.
+3. Chạy build Release, test PostgreSQL, kiểm tra chất lượng và UI phù hợp theo [Testing](docs/TESTING.md); kiểm tra CI của commit dự kiến phát hành.
+4. Review migration, tương thích dữ liệu và khả năng rollback. Sao lưu database và storage ảnh trước khi triển khai có rủi ro.
+5. Cập nhật hướng dẫn cài đặt, cấu hình, thay đổi ảnh hưởng người dùng và giới hạn còn lại.
 
-Trong đó:
+Staging từ `develop` theo [Deployment](docs/DEPLOYMENT.md) phục vụ kiểm chứng, không tự tạo bản phát hành trên `main`.
 
-- **MAJOR:** Tăng khi có thay đổi không tương thích ngược với giao diện hoặc hợp đồng sử dụng đã công bố.
-- **MINOR:** Tăng khi bổ sung chức năng tương thích ngược.
-- **PATCH:** Tăng khi sửa lỗi tương thích ngược.
+## Changelog và PR phát hành
 
-Ví dụ:
+Tạo nhánh chuẩn bị từ `develop`, chẳng hạn `chore/prepare-vX.Y.Z`, theo [Contributing](CONTRIBUTING.md). Chuyển các mục tương ứng từ `Unreleased` vào phiên bản đã chọn, dùng ngày phát hành thực tế. Giữ các mục chưa thuộc phạm vi ở `Unreleased`. Gửi PR chuẩn bị vào `develop`.
 
-| Phiên bản | Ý nghĩa                                                                        |
-| --------- | ------------------------------------------------------------------------------ |
-| `0.1.0`   | Phiên bản phát triển ban đầu, nếu được chọn để phát hành                       |
-| `0.2.0`   | Bản phát triển tiếp theo có chức năng mới                                      |
-| `0.2.1`   | Bản sửa lỗi cho phiên bản 0.2.0                                                |
-| `1.0.0`   | Phiên bản đầu tiên có hợp đồng sử dụng công khai được nhóm xác định là ổn định |
+Sau khi PR chuẩn bị merge và CI đạt, maintainer mở PR `develop` → `main`. Mô tả phạm vi, kết quả kiểm tra, migration, cấu hình mới và vấn đề đã biết. Kiểm tra lại kết quả tích hợp, nhận phê duyệt theo quy định repository rồi merge; không bỏ qua branch protection.
 
-Trong giai đoạn `0.x.y`, dự án vẫn đang phát triển và có thể thay đổi giao diện hoặc chức năng chưa ổn định.
+## Tag và GitHub Release
 
-Các số phiên bản trên chỉ là ví dụ; không đại diện cho Release đã tồn tại của CookShare.
-
-## 3. Quy tắc Git Tags
-
-Mỗi phiên bản chính thức sử dụng Git Tag với tiền tố `v`.
-
-Ví dụ:
-
-- `v0.1.0`
-- `v0.2.0`
-- `v0.2.1`
-- `v1.0.0`
-
-Git Tag phải trỏ đến commit đã được phát hành trên nhánh `main`.
-
-Ưu tiên sử dụng Annotated Tags để ghi nhận thông tin phiên bản.
-
-Không tự ý di chuyển, ghi đè hoặc xóa Tag đã được công bố.
-
-## 4. Vai trò các nhánh
-
-- `main`: Chứa mã nguồn ổn định được sử dụng để tạo Release.
-- `develop`: Nhánh tích hợp các thay đổi trong quá trình phát triển.
-- `feature/*`: Phát triển tính năng.
-- `fix/*`: Sửa lỗi.
-- `docs/*`: Cập nhật tài liệu.
-- `test/*`: Bổ sung kiểm thử.
-
-Thông thường, Contributors gửi Pull Request vào `develop`. Maintainer chịu trách nhiệm quyết định khi nào mã nguồn đủ điều kiện đưa vào `main`.
-
-## 5. Điều kiện phát hành (Release Criteria)
-
-Trước khi tạo Release, cần đảm bảo:
-
-- Các tính năng dự kiến phát hành đã hoàn thành.
-- Không còn lỗi nghiêm trọng chưa được xử lý.
-- Các Pull Request liên quan đã được Review.
-- Build thành công.
-- Unit Tests thành công.
-- GitHub Actions CI đạt yêu cầu.
-- Các kiểm tra Code Quality bắt buộc thành công.
-- Không có thông tin nhạy cảm bị đưa vào bản phát hành.
-- `CHANGELOG.md` được cập nhật.
-- Số phiên bản và nội dung Release Notes đã được Maintainer phê duyệt.
-
-## 6. Quy trình phát hành (Release Workflow)
-
-### Bước 1. Hoàn thành công việc trên develop
-
-Các thay đổi được tích hợp vào `develop` thông qua Pull Requests đã được review.
-
-### Bước 2. Kiểm tra chất lượng
-
-Chạy:
+Sau khi `main` chứa đúng commit phát hành đã kiểm tra:
 
 ```bash
-dotnet restore CookShare.sln
-dotnet build CookShare.sln --configuration Release
-dotnet test CookShare.sln --configuration Release --no-build
-```
-
-Kiểm tra trạng thái GitHub Actions trước khi phát hành.
-
-### Bước 3. Chuẩn bị Changelog
-
-Cập nhật `CHANGELOG.md` dựa trên những thay đổi thực sự nằm trong phạm vi phát hành.
-
-Chuyển các mục tương ứng từ `Unreleased` sang tiêu đề phiên bản đã chọn, kèm ngày phát hành thực tế.
-
-### Bước 4. Đưa phiên bản ổn định lên main
-
-Tạo Pull Request từ `develop` sang `main`.
-
-Maintainer kiểm tra sự khác biệt, xác nhận CI và tiến hành Merge nếu đáp ứng các điều kiện phát hành.
-
-### Bước 5. Tạo Git Tag
-
-Sau khi mã nguồn phát hành đã có trên `main`, chạy:
-
-```bash
+git fetch origin
 git switch main
-git pull --ff-only origin main
+git merge --ff-only origin/main
 git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-Thay `vX.Y.Z` bằng số phiên bản được nhóm phê duyệt.
+Thay `vX.Y.Z` bằng phiên bản được maintainer xác nhận. Với fork, dùng remote repo gốc có quyền phát hành thay cho `origin`. Nếu không thể fast-forward, kiểm tra khác biệt trước khi tiếp tục.
 
-### Bước 6. Tạo GitHub Release
+Tạo bản nháp tại [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases/new), chọn tag vừa tạo và viết release notes:
 
-Truy cập:
+- Điểm nổi bật và thay đổi đáng chú ý.
+- Hướng nâng cấp, migration và cấu hình cần bổ sung.
+- Giới hạn/vấn đề đã biết và cách giảm ảnh hưởng.
+- Liên kết changelog và hướng dẫn cài đặt của đúng tag.
 
-https://github.com/TieuBao-IT89/CookShare/releases
+Chỉ publish sau khi maintainer xác nhận nội dung và commit/tag. Không công bố chi tiết lỗ hổng chưa được phối hợp theo [Security Policy](SECURITY.md).
 
-Chọn **Draft a new release**, sau đó:
+## Sau phát hành
 
-1. Chọn Git Tag vừa tạo.
-2. Nhập tiêu đề phiên bản.
-3. Viết Release Notes.
-4. Kiểm tra nội dung và phạm vi mã nguồn.
-5. Nhấn Publish release sau khi được xác nhận.
+Kiểm tra tag, Release, archive mã nguồn và liên kết tài liệu; thử cài đặt từ tag trong môi trường sạch. Nếu PR phát hành có commit mới trên `main` chưa có ở `develop`, đồng bộ trở lại qua PR theo quy trình repo. Tiếp tục ghi thay đổi mới vào `Unreleased`.
 
-### Bước 7. Kiểm tra sau phát hành
-
-- Kiểm tra Release xuất hiện trên GitHub.
-- Xác nhận Tag trỏ đến commit dự kiến.
-- Kiểm tra đường dẫn tải Source code.
-- Kiểm tra Release Notes và CHANGELOG.
-- Thông báo phiên bản đến Contributors nếu cần.
-
-## 7. Mẫu Release Notes
-
-```markdown
-# CookShare vX.Y.Z
-
-## Highlights
-
-Mô tả ngắn gọn những điểm nổi bật của phiên bản.
-
-## Added
-
-- Các tính năng mới.
-
-## Changed
-
-- Những cải tiến quan trọng.
-
-## Fixed
-
-- Các lỗi đã được khắc phục.
-
-## Security
-
-- Các cập nhật bảo mật đã được công bố.
-
-## Known Issues
-
-- Những hạn chế hoặc lỗi còn tồn tại.
-
-## Installation
-
-Xem hướng dẫn cài đặt tại README.md.
-```
-
-Chỉ ghi các thay đổi đã được xác minh trong phiên bản tương ứng.
-
-## 8. Trách nhiệm của Maintainer
-
-Maintainer chịu trách nhiệm:
-
-- Xác nhận điều kiện phát hành.
-- Phê duyệt số phiên bản.
-- Review Pull Request hướng đến `main`.
-- Quản lý Git Tags.
-- Công bố GitHub Releases.
-- Đảm bảo Changelog và Release Notes chính xác.
-
-## 9. Tài liệu liên quan
-
-- [README](README.md)
-- [CHANGELOG](CHANGELOG.md)
-- [CONTRIBUTING](CONTRIBUTING.md)
-- [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases)
-
----
-
-**CookShare – Release Management Guidelines**
+Rollback ứng dụng không tự hạ schema hoặc khôi phục file ảnh. Theo hướng dẫn [Deployment](docs/DEPLOYMENT.md) và [Recipe images](docs/RECIPE_IMAGES.md); không sửa tag để thay thế bản lỗi, phát hành bản vá mới.
