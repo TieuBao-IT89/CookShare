@@ -56,6 +56,9 @@
     <link rel="stylesheet"
           href="~/css/cooking-mode.css"
           asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/recipe-serving-scaler.css"
+          asp-append-version="true" />
 }
 
 <div class="recipe-page-wrapper cs108">
@@ -196,6 +199,37 @@
                     Nguyên liệu
                 </h2>
 
+                <div class="serving-size-control"
+                     data-serving-scaler
+                     data-base-servings="@Model.Servings">
+                    <label for="recipeServings">Khẩu phần</label>
+                    <div class="serving-size-stepper">
+                        <button type="button"
+                                class="serving-size-stepper-button"
+                                data-serving-change="-1"
+                                aria-label="Giảm số khẩu phần">−</button>
+                        <input id="recipeServings"
+                               type="number"
+                               min="1"
+                               max="20"
+                               step="1"
+                               value="@Model.Servings"
+                               inputmode="numeric"
+                               aria-describedby="servingSizeHelp servingSizeStatus" />
+                        <button type="button"
+                                class="serving-size-stepper-button"
+                                data-serving-change="1"
+                                aria-label="Tăng số khẩu phần">+</button>
+                    </div>
+                    <p id="servingSizeHelp" class="serving-size-help">
+                        Công thức gốc: @Model.Servings khẩu phần. Chỉ lượng đo nhận diện được sẽ thay đổi.
+                    </p>
+                    <p id="servingSizeStatus"
+                       class="serving-size-status"
+                       role="status"
+                       aria-live="polite"></p>
+                </div>
+
                 <p class="ingredient-progress"
                    id="cs108IngredientProgress"
                    aria-live="polite">
@@ -209,7 +243,8 @@
                             <label>
                                 <input type="checkbox"
                                        class="cs108-ingredient-check" />
-                                <span>@ingredient</span>
+                                <span data-scalable-ingredient
+                                      data-original="@ingredient">@ingredient</span>
                             </label>
                         </li>
                     }
@@ -329,6 +364,8 @@
     <script src="~/js/issue108.js"
             asp-append-version="true"></script>
     <script src="~/js/cooking-mode.js"
+            asp-append-version="true"></script>
+    <script src="~/js/recipe-serving-scaler.js"
             asp-append-version="true"></script>
 }
 

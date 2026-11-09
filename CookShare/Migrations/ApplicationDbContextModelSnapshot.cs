@@ -287,6 +287,11 @@ namespace CookShare.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<int>("Servings")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(4);
+
                     b.Property<string>("Source")
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
@@ -309,6 +314,8 @@ namespace CookShare.Migrations
 
                     b.ToTable("Recipes", t =>
                         {
+                            t.HasCheckConstraint("CK_Recipes_Servings", "\"Servings\" BETWEEN 1 AND 20");
+
                             t.HasCheckConstraint("CK_Recipes_SourceIdentity", "(\"Source\" IS NULL AND \"ExternalId\" IS NULL) OR (\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL)");
                         });
                 });
