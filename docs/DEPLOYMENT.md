@@ -67,10 +67,17 @@ Cấu hình các giá trị sau trong **Azure Portal → App Service → Setting
 | --- | --- |
 | `ASPNETCORE_ENVIRONMENT` | `Staging` |
 | `ConnectionStrings__DefaultConnection` | Chuỗi kết nối Neon của database Staging. Cùng database với secret `STAGING_CONNECTION_STRING`. |
+| `RecipeImages__StoragePath` | Tùy chọn: đường dẫn storage ảnh bền vững, ngoài web root; xem [Recipe images](RECIPE_IMAGES.md). |
 
 ASP.NET Core map `ConnectionStrings__DefaultConnection` thành `ConnectionStrings:DefaultConnection`.
 
 Sau khi sửa Application settings, lưu thay đổi để App Service khởi động lại.
+
+### Email và ảnh upload
+
+Cấu hình SMTP/TLS và `Email__PublicBaseUrl` theo [Setup](SETUP.md); Staging cần URL HTTPS thật của App Service. Credential email đặt trong Application settings/secret store.
+
+Ảnh upload không nằm trong gói publish. Trên Azure có `WEBSITE_INSTANCE_ID` và `HOME`, mặc định lưu tại `<HOME>/data/CookShare/recipe-images`. Kiểm tra storage App Service bền vững và dùng chung giữa các instance; hoặc đặt `RecipeImages__StoragePath` tới volume phù hợp. Sao lưu file ảnh cùng database, xác minh ảnh còn đọc được sau deploy/restart. Xem [Recipe images](RECIPE_IMAGES.md) về giới hạn dọn file.
 
 ## 7. GitHub Actions Secrets
 

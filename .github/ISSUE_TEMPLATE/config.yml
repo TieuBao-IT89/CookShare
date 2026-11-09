@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Báo cáo lỗ hổng riêng tư
+    url: https://github.com/TieuBao-IT89/CookShare/security/advisories/new
+    about: Gửi thông tin bảo mật qua GitHub Private Vulnerability Reporting.
+  - name: Hướng dẫn hỗ trợ
+    url: https://github.com/TieuBao-IT89/CookShare/blob/develop/SUPPORT.md
+    about: Đọc hướng dẫn thiết lập và thông tin cần cung cấp trước khi hỏi.

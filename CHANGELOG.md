@@ -1,121 +1,60 @@
-# Changelog – CookShare
+# Changelog
 
-Tất cả những thay đổi đáng chú ý của dự án **CookShare** được ghi nhận trong tài liệu này.
-
-Tài liệu được tổ chức theo [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) và sử dụng quy tắc đánh số phiên bản [Semantic Versioning](https://semver.org/).
-
-CookShare đang trong giai đoạn phát triển ban đầu. Phiên bản `v0.1.0` đang được chuẩn bị để trở thành bản phát hành đầu tiên của dự án.
+Thay đổi đáng chú ý của CookShare, theo [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) và [Semantic Versioning](https://semver.org/). Mục `Unreleased` mô tả mã đang tích hợp trên `develop`, chưa phải một bản phát hành.
 
 ## [Unreleased]
 
-Các thay đổi được thực hiện sau khi chốt phiên bản `v0.1.0` sẽ được ghi nhận tại đây.
-
 ### Added
 
-- Trang chi tiết có chế độ nấu từng bước. Các bước lấy từ nội dung công thức đang lưu, và vị trí bước được nhớ trong phiên làm việc.
-- Trang chủ xếp món nổi bật, món được yêu thích và món điểm cao từ lượt thích và đánh giá. Trang chi tiết gợi ý công thức cùng danh mục, không gợi ý chính món đang xem.
-- Thêm trang cài đặt tài khoản: xác minh email, đổi email, đổi mật khẩu, quên mật khẩu và xóa tài khoản kèm dữ liệu liên quan. Tên hiển thị và ảnh đại diện được chỉnh trên trang hồ sơ.
-- Thiết lập triển khai tự động lên Azure App Service (Staging) bằng GitHub Actions, kèm kiểm tra `/health` và phương án rollback.
-
-## [0.1.0] - YYYY-MM-DD
-
-**Initial Release – Phiên bản phát hành đầu tiên của CookShare (dự kiến)**
-
-Phiên bản `0.1.0` tập trung xây dựng nền tảng website chia sẻ công thức nấu ăn, bổ sung các chức năng giao diện và thiết lập quy trình phát triển phần mềm mã nguồn mở.
-
-### Added
-
-**Core Features**
-
-- Xây dựng website CookShare bằng ASP.NET Core MVC và C#.
-- Bổ sung các giao diện trang chủ, danh sách công thức và chi tiết công thức.
-- Bổ sung giao diện đăng nhập, đăng ký và hồ sơ người dùng.
-- Bổ sung giao diện quản lý công thức nấu ăn.
-- Thêm chức năng bình luận demo tại trang chi tiết công thức, sử dụng localStorage ([PR #61](https://github.com/TieuBao-IT89/CookShare/pull/61)).
-- Bổ sung chức năng tương tác Like trên giao diện công thức ([PR #62](https://github.com/TieuBao-IT89/CookShare/pull/62)).
-
-**Open Source Documentation**
-
-- Bổ sung giấy phép mã nguồn mở MIT License ([PR #35](https://github.com/TieuBao-IT89/CookShare/pull/35)).
-- Thêm tài liệu hướng dẫn đóng góp `CONTRIBUTING.md` ([PR #54](https://github.com/TieuBao-IT89/CookShare/pull/54)).
-- Thêm bộ quy tắc ứng xử `CODE_OF_CONDUCT.md` ([PR #65](https://github.com/TieuBao-IT89/CookShare/pull/65)).
-- Bổ sung tài liệu ghi nhận lịch sử thay đổi `CHANGELOG.md`.
-
-**Testing & Continuous Integration**
-
-- Thiết lập GitHub Actions CI cho quá trình Restore và Build .NET 8 ([PR #59](https://github.com/TieuBao-IT89/CookShare/pull/59)).
-- Bổ sung project Unit Tests sử dụng xUnit ([PR #60](https://github.com/TieuBao-IT89/CookShare/pull/60)).
-- Tích hợp kiểm thử tự động vào GitHub Actions.
+- Lưu công thức, tác giả và dữ liệu tương tác trong PostgreSQL qua EF Core; quản lý công thức theo quyền tác giả.
+- Tài khoản ASP.NET Core Identity; xác minh/đổi email, đổi/khôi phục mật khẩu và xóa tài khoản kèm dữ liệu liên quan.
+- Lưu công thức, thích, bình luận, theo dõi và đánh giá 1–5 sao theo tài khoản; thông báo trong ứng dụng theo người nhận.
+- Bảng tin mới nhất/đang theo dõi, tải thêm bài và tương tác ngay trên feed.
+- Hồ sơ người sáng tạo có Bio, ảnh bìa và tối đa ba công thức ghim.
+- Seed công thức mẫu và import TheMealDB với kiểm tra trùng lặp.
+- Nấu theo từng bước, nhớ vị trí trong phiên làm việc; gợi ý món nổi bật và công thức liên quan.
+- Tải ảnh JPG/PNG/WebP tối đa 5 MiB, xem trước, lưu file ngoài web root và giữ ảnh khi sửa không chọn ảnh mới ([#129](https://github.com/TieuBao-IT89/CookShare/pull/129)).
+- Khẩu phần gốc 1–20, điều chỉnh định lượng ở trang chi tiết mà không sửa dữ liệu gốc ([#130](https://github.com/TieuBao-IT89/CookShare/pull/130)).
+- Thời gian chuẩn bị/nấu, độ khó và bộ lọc tương ứng; mở rộng mô tả ngay trên feed ([#131](https://github.com/TieuBao-IT89/CookShare/pull/131)).
+- Triển khai Azure App Service Staging từ `develop`, health check và rollback gói ứng dụng.
+- Hướng dẫn setup/testing, lưu trữ ảnh, thông tin nấu ăn, mục lục tài liệu, hỗ trợ và mẫu Issue/PR.
 
 ### Changed
 
-- Hoàn thiện `README.md` với phần giới thiệu, công nghệ sử dụng, hướng dẫn cài đặt và quy trình đóng góp ([PR #56](https://github.com/TieuBao-IT89/CookShare/pull/56)).
-- Chuẩn hóa Coding Standards cho mã nguồn C# thông qua `.editorconfig`.
-- Bổ sung các bước kiểm tra định dạng và chất lượng mã nguồn vào GitHub Actions ([PR #66](https://github.com/TieuBao-IT89/CookShare/pull/66)).
-- Cải thiện quy trình cộng tác thông qua Issues, Pull Requests và Code Review.
+- Cải thiện giao diện responsive, trạng thái form, thông báo và tương tác bàn phím.
+- Tổ chức README và hướng dẫn cộng tác theo luồng bắt đầu → đóng góp → kiểm thử → vận hành; phân biệt hướng dẫn hiện tại với báo cáo lịch sử.
+- CI dùng PostgreSQL tạm cho kiểm thử tích hợp, không dùng credential Neon của ứng dụng.
+
+### Fixed
+
+- Tích hợp khẩu phần và metadata nấu ăn trong controller, form, model, snapshot và mô hình đích của migration mới nhất; bổ sung test hồi quy create/edit cùng ảnh upload ([#131](https://github.com/TieuBao-IT89/CookShare/pull/131)).
+- Sửa ngày và trạng thái bản v0.1.0 trong tài liệu theo Release đã công bố.
+
+## [0.1.0] - 2026-10-19
+
+Bản phát hành đầu tiên. Nội dung bên dưới ghi nhận phạm vi lịch sử của tag `v0.1.0`, không mô tả trạng thái hiện tại của `develop`.
+
+### Added
+
+- Nền tảng ASP.NET Core MVC/C#; giao diện trang chủ, khám phá, chi tiết và quản lý công thức.
+- Giao diện tài khoản và hồ sơ; bình luận demo bằng localStorage và tương tác Like trên giao diện.
+- Project xUnit, GitHub Actions build/test và các tài liệu README, Contributing, Code of Conduct, Security, Changelog.
+- MIT License.
+
+### Changed
+
+- Chuẩn hóa quy tắc C# bằng `.editorconfig` và kiểm tra chất lượng trong CI.
+- Thiết lập cộng tác qua Issue, PR và code review.
 
 ### Security
 
-- Cải thiện `.gitignore` và ngừng theo dõi các file build, cache và cấu hình cá nhân không cần thiết ([PR #55](https://github.com/TieuBao-IT89/CookShare/pull/55)).
-- Bổ sung chính sách bảo mật `SECURITY.md`, hướng dẫn báo cáo và xử lý lỗ hổng bảo mật ([PR #63](https://github.com/TieuBao-IT89/CookShare/pull/63)).
-- Bổ sung hướng dẫn quản lý cấu hình nhạy cảm và không công khai thông tin xác thực trong repository.
+- Bỏ qua build output và cấu hình cá nhân trong Git; hướng dẫn quản lý secrets và báo cáo lỗ hổng riêng tư.
 
-### Known Limitations
+Ở bản v0.1.0, một số chức năng mới ở mức giao diện/demo và chưa tích hợp đầy đủ backend/database. Xem [Release notes v0.1.0](https://github.com/TieuBao-IT89/CookShare/releases/tag/v0.1.0) để biết phạm vi bản phát hành.
 
-- Một số chức năng hiện mới được triển khai ở mức giao diện hoặc demo.
-- Một số dữ liệu tương tác được lưu bằng localStorage và chưa đồng bộ giữa các thiết bị hoặc tài khoản.
-- Các chức năng xác thực, lưu trữ dữ liệu và tương tác với cơ sở dữ liệu vẫn đang trong quá trình phát triển và hoàn thiện.
-- Hệ thống kiểm thử hiện chưa bao phủ toàn bộ chức năng nghiệp vụ.
+## Cập nhật changelog
 
----
+Ghi thay đổi hướng người dùng vào `Unreleased` theo `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` hoặc `Security`; bỏ nhóm không có nội dung. Liên kết PR khi có và không ghi công việc dự định như đã hoàn thành. Khi phát hành, maintainer chuyển đúng phạm vi vào phiên bản/ngày thực tế theo [Releasing](RELEASING.md).
 
-## Quy ước cập nhật Changelog
-
-CookShare tuân thủ cấu trúc Keep a Changelog với các nhóm thay đổi:
-
-| Nhóm       | Ý nghĩa                            |
-| ---------- | ---------------------------------- |
-| Added      | Chức năng hoặc thành phần mới      |
-| Changed    | Các cải tiến và thay đổi           |
-| Deprecated | Chức năng dự kiến ngừng hỗ trợ     |
-| Removed    | Chức năng đã bị loại bỏ            |
-| Fixed      | Các lỗi đã được khắc phục          |
-| Security   | Các cập nhật liên quan đến bảo mật |
-
-Khi thực hiện thay đổi đáng chú ý, Contributors cần:
-
-1. Xác định nhóm thay đổi phù hợp.
-2. Bổ sung mô tả ngắn gọn vào mục `Unreleased`.
-3. Liên kết Issue hoặc Pull Request khi phù hợp.
-4. Chỉ ghi nhận những thay đổi đã được triển khai và xác minh.
-5. Không tự tạo phiên bản hoặc ngày phát hành chưa được xác nhận.
-6. Khi phát hành phiên bản mới, Maintainer chuyển những thay đổi tương ứng từ `Unreleased` sang mục phiên bản chính thức.
-
-## Quy tắc quản lý phiên bản
-
-CookShare sử dụng Semantic Versioning:
-
-`MAJOR.MINOR.PATCH`
-
-Ví dụ:
-
-- `v0.1.0`: Phiên bản phát triển đầu tiên.
-- `v0.2.0`: Bổ sung chức năng mới.
-- `v0.2.1`: Sửa lỗi của phiên bản trước.
-- `v1.0.0`: Phiên bản được nhóm xác định có giao diện và chức năng công khai đủ ổn định.
-
-Các phiên bản trên `v0.1.0` chỉ là ví dụ định hướng và chưa được công bố.
-
-Git Tags được tạo từ commit phát hành trên nhánh `main`. GitHub Releases cung cấp Release Notes tương ứng với từng phiên bản.
-
-## Liên kết
-
-- [CookShare Repository](https://github.com/TieuBao-IT89/CookShare)
-- [GitHub Releases](https://github.com/TieuBao-IT89/CookShare/releases)
-- [GitHub Pull Requests](https://github.com/TieuBao-IT89/CookShare/pulls)
-- [GitHub Issues](https://github.com/TieuBao-IT89/CookShare/issues)
-- [Release Guidelines](RELEASING.md)
-
----
-
-**CookShare – Chia sẻ công thức, kết nối đam mê nấu ăn.**
+[Unreleased]: https://github.com/TieuBao-IT89/CookShare/compare/v0.1.0...develop
+[0.1.0]: https://github.com/TieuBao-IT89/CookShare/releases/tag/v0.1.0
