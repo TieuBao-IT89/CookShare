@@ -13,7 +13,7 @@
 .page-intro h1 { font: 600 46px/1.25 var(--font-display); margin: 13px 0; }
 .page-intro p { color: var(--muted); font-size: 12px; margin: 0; }
 .recipe-intro { border-bottom: 1px solid var(--line); margin-bottom: 28px; }
-.recipe-toolbar-grid { display: grid; grid-template-columns: minmax(0, 1fr) 230px auto; gap: 16px; }
+.recipe-toolbar-grid { display: grid; grid-template-columns: minmax(0, 1fr) repeat(2, minmax(150px, 1fr)); gap: 16px; }
 .recipe-search-submit { white-space: nowrap; }
 .recipe-search-wrap { display: flex; align-items: center; gap: 12px; background: white; border: 1px solid #dce1d7; padding: 0 17px; border-radius: var(--radius-sm); }
 .recipe-search-wrap > .icon { color: var(--muted); width: 18px; }

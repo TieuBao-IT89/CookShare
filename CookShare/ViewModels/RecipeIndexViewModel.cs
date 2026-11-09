@@ -9,5 +9,9 @@ namespace CookShare.ViewModels
         public string Query { get; set; } = string.Empty;
 
         public string Category { get; set; } = string.Empty;
+
+        public RecipeDifficulty? Difficulty { get; set; }
+
+        public int? MaxTotalMinutes { get; set; }
     }
 }

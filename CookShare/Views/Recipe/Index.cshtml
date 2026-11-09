@@ -2,7 +2,11 @@
 @{
   ViewData["Title"] = "Khám phá công thức";
   var categories = new[] { "Món Việt", "Món Á", "Món Âu", "Món chính", "Món phụ", "Món chay", "Món tráng miệng", "Đồ uống", "Ăn sáng" };
-  var hasFilters = !string.IsNullOrEmpty(Model.Query) || !string.IsNullOrEmpty(Model.Category);
+  var maxMinuteOptions = new[] { 30, 45, 60, 90, 120 };
+  var hasFilters = !string.IsNullOrEmpty(Model.Query)
+      || !string.IsNullOrEmpty(Model.Category)
+      || Model.Difficulty.HasValue
+      || Model.MaxTotalMinutes.HasValue;
 }
 @section Styles {
   <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
@@ -41,14 +45,38 @@
             }
           </select>
         </div>
+        <div class="recipe-filter-wrap">
+          <label class="sr-only" for="difficultyFilter">Độ khó</label>
+          <select id="difficultyFilter" name="difficulty">
+            <option value="">Mọi mức độ</option>
+            @foreach (var difficulty in Enum.GetValues<CookShare.Models.RecipeDifficulty>())
+            {
+              <option value="@((int)difficulty)" selected="@(difficulty == Model.Difficulty)">@difficulty.GetDisplayName()</option>
+            }
+          </select>
+        </div>
+        <div class="recipe-filter-wrap">
+          <label class="sr-only" for="maxTotalMinutesFilter">Thời gian tối đa</label>
+          <select id="maxTotalMinutesFilter" name="maxTotalMinutes">
+            <option value="">Mọi thời lượng</option>
+            @if (Model.MaxTotalMinutes.HasValue && !maxMinuteOptions.Contains(Model.MaxTotalMinutes.Value))
+            {
+              <option value="@Model.MaxTotalMinutes" selected>Tối đa @Model.MaxTotalMinutes phút</option>
+            }
+            @foreach (var minutes in maxMinuteOptions)
+            {
+              <option value="@minutes" selected="@(minutes == Model.MaxTotalMinutes)">Tối đa @minutes phút</option>
+            }
+          </select>
+        </div>
         <button type="submit" class="btn recipe-search-submit">Tìm công thức</button>
       </div>
     </form>
     <nav class="recipe-category-pills" aria-label="Danh mục công thức">
-      <a class="category-pill @(string.IsNullOrEmpty(Model.Category) ? "active" : "")" asp-action="Index" asp-route-q="@Model.Query">Tất cả</a>
+      <a class="category-pill @(string.IsNullOrEmpty(Model.Category) ? "active" : "")" asp-action="Index" asp-route-q="@Model.Query" asp-route-difficulty="@Model.Difficulty" asp-route-maxTotalMinutes="@Model.MaxTotalMinutes">Tất cả</a>
       @foreach (var category in categories)
       {
-        <a class="category-pill @(category == Model.Category ? "active" : "")" asp-action="Index" asp-route-q="@Model.Query" asp-route-category="@category">@category</a>
+        <a class="category-pill @(category == Model.Category ? "active" : "")" asp-action="Index" asp-route-q="@Model.Query" asp-route-category="@category" asp-route-difficulty="@Model.Difficulty" asp-route-maxTotalMinutes="@Model.MaxTotalMinutes">@category</a>
       }
     </nav>
     <div class="recipe-results-bar">
