@@ -25,6 +25,11 @@ Thay đổi đáng chú ý của CookShare, theo [Keep a Changelog](https://keep
 - Tổ chức README và hướng dẫn cộng tác theo luồng bắt đầu → đóng góp → kiểm thử → vận hành; phân biệt hướng dẫn hiện tại với báo cáo lịch sử.
 - CI dùng PostgreSQL tạm cho kiểm thử tích hợp, không dùng credential Neon của ứng dụng.
 
+### Removed
+
+- Module JavaScript/CSS và view tài khoản demo không còn dùng, Bootstrap chưa được tham chiếu, partial rỗng và test mẫu không có assertion.
+- Báo cáo backend/database ban đầu, bộ ảnh UI #85, bản nháp PR và script kiểm thử localStorage đã lỗi thời; hướng dẫn hiện hành và bằng chứng kiểm chứng liên quan còn được giữ lại.
+
 ### Fixed
 
 - Tích hợp khẩu phần và metadata nấu ăn trong controller, form, model, snapshot và mô hình đích của migration mới nhất; bổ sung test hồi quy create/edit cùng ảnh upload ([#131](https://github.com/TieuBao-IT89/CookShare/pull/131)).

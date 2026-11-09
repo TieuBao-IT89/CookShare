@@ -48,6 +48,10 @@ coverage.xml
 *.coverage
 *.coveragexml
 
+# Python bytecode
+__pycache__/
+*.py[cod]
+
 # NuGet packages
 *.nupkg
 *.snupkg

@@ -39,7 +39,7 @@ Khách chưa đăng nhập được đọc dữ liệu; thao tác ghi dùng cook
 - Home, Explore, Details và thẻ Profile dùng cùng component. Truy vấn projection lấy counts/trạng thái theo lô một lần cho tập ID; không truy vấn riêng từng thẻ. Like trên một thẻ cập nhật các thẻ cùng ID đang hiển thị.
 - `_RecipeComments`/`_RecipeCommentItem` dùng lại CSS Comments, composer 500 ký tự, bộ đếm/cảnh báo, avatar/initials, tác giả thật, timestamp, sửa trực tiếp và xác nhận xóa. Danh sách ban đầu do Razor render; không cần bộ dựng Details demo.
 - `recipe-interactions.js` xử lý gửi request, CSRF, chống gửi lặp, cập nhật sau thành công và phục hồi focus bàn phím. Lỗi giữ nguyên trạng thái/nội dung.
-- Các script legacy `recipe-likes.js`, `recipe-comments.js` và các key localStorage cũ được giữ nguyên. Favorites sau đó đã chuyển sang database trong Issue #94; Ratings vẫn giữ module hiện có. Dữ liệu browser cũ không tự nhập vào tài khoản.
+- Các script demo localStorage cũ đã được loại khỏi mã nguồn; Like/Comment dùng `recipe-interactions.js`, Favorites dùng `recipe-saved.js` và Ratings dùng `recipe-ratings.js` với database. Dữ liệu browser cũ không bị xóa hoặc tự nhập vào tài khoản.
 
 ## Kiểm chứng đã thực thi
 
@@ -74,7 +74,7 @@ Khi có database an toàn và hai tài khoản thử nghiệm: User A Like, refr
 | Partial mới | `CookShare/Views/Shared/_RecipeLikeButton.cshtml`, `_RecipeComments.cshtml`, `_RecipeCommentItem.cshtml` |
 | Frontend mới | `CookShare/wwwroot/js/recipe-interactions.js`, `CookShare/wwwroot/css/recipe-interactions.css` |
 | Test mới | `CookShare.Tests/Controllers/RecipeLikesControllerTests.cs`, `RecipeCommentsControllerTests.cs`, `CookShare.Tests/Integration/RecipeInteractionsIntegrationTests.cs` |
-| Tài liệu | `docs/PERSISTENT_INTERACTIONS.md` mới; `docs/RECIPE_DATABASE_INTEGRATION.md` thêm ghi chú chuyển tiếp tới Issue #76 |
+| Tài liệu | `docs/PERSISTENT_INTERACTIONS.md`; xem thêm [Database design](DATABASE_DESIGN.md) và [Testing](TESTING.md) cho mã hiện tại |
 
 ## PR đề xuất
 

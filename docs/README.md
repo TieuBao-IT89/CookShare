@@ -36,10 +36,10 @@ Tài liệu ở nhánh `develop` đi cùng mã nguồn đang tích hợp. Với 
 
 Các tài liệu dưới đây ghi lại một đợt triển khai hoặc kiểm chứng cụ thể. Đọc cùng hướng dẫn tính năng hiện tại và mã nguồn; các checklist cũ không phải danh sách việc còn lại của dự án.
 
-- [Tích hợp database ban đầu](RECIPE_DATABASE_INTEGRATION.md).
-- [Backend audit](BACKEND_AUDIT.md).
 - [UI audit #120](UI_AUDIT_120.md).
-- [Bằng chứng UI](ui/README.md), [hồ sơ #117](ui/issue117/README.md), [cải tiến #120](ui/issue120/README.md).
+- [Hồ sơ #117](ui/issue117/README.md) và [cải tiến #120](ui/issue120/README.md).
+
+Audit backend ban đầu, báo cáo tích hợp database cũ và bộ ảnh/demo UI #85 đã được thay bằng hướng dẫn hiện hành; có thể tra cứu trong lịch sử Git nếu cần. Dùng các hướng dẫn Setup, Testing và Database design ở trên cho mã hiện tại.
 
 ## Nguồn tham khảo về cách tổ chức
 

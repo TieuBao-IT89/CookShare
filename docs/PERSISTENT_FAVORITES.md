@@ -32,7 +32,7 @@ Saved dùng truy vấn async, `AsNoTracking()`, Include Recipe/User trước Sel
 - `_RecipeSaveButton` dùng chung ở card, Details và bộ sưu tập Profile; form có CSRF và trạng thái ban đầu từ server, dùng được khi tải trang trước JavaScript.
 - `recipe-saved.js` khóa các nút cùng RecipeId khi request đang chạy. Chỉ đổi trạng thái/count hoặc bỏ card sau phản hồi hợp lệ. Save/Unsave và Like/Unlike chỉ hiển thị một toast phía dưới cho thành công hoặc lỗi, không hiện dòng thông báo cạnh nút. Toast dùng vùng thông báo truy cập được bằng trình đọc màn hình; lỗi giữ trạng thái cũ.
 - Khi quay về tab hoặc khôi phục bfcache, đọc lại trạng thái server. Nếu đổi tài khoản/hết phiên, ẩn bộ sưu tập cũ, khóa form cũ và cung cấp link tải lại/đăng nhập. Nếu có recipe mới được lưu ở tab khác, thông báo tải lại để nạp đủ card.
-- Không tải `recipe.js`, `recipe-likes.js`, `recipe-ratings.js` legacy trên Saved database. Giữ nguyên mã nguồn Ratings. Likes độc lập với Favorites.
+- Saved dùng `recipe-saved.js` và `recipe-interactions.js` với dữ liệu server; các module demo localStorage không còn được phân phối. Ratings hiện dùng `recipe-ratings.js` trên trang chi tiết. Likes độc lập với Favorites.
 
 `cookshare_saved_recipes_v1` và dữ liệu recipe cũ được giữ nguyên trong browser. Module Favorites mới không đọc, ghi, xóa hoặc upload dữ liệu đó. Các ID cũ không được bảo đảm trùng với recipe database; không tự gán cho bất kỳ tài khoản nào. Migration dữ liệu legacy cần thiết kế và phê duyệt riêng.
 
