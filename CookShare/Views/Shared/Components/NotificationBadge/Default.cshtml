@@ -4,7 +4,8 @@
    asp-controller="Notifications"
    asp-action="Index"
    aria-label="Thông báo@(Model > 0 ? $", {Model} chưa đọc" : string.Empty)">
-    <span>Thông báo</span>
+    <i class="icon fa-regular fa-bell" aria-hidden="true"></i>
+    <span class="notification-label">Thông báo</span>
     @if (Model > 0)
     {
         <span class="notification-count" aria-hidden="true">

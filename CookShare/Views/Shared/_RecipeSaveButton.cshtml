@@ -18,6 +18,7 @@
   {
     <form action="@(saved ? unsaveUrl : saveUrl)" method="post" asp-antiforgery="false" data-db-save-form>
       @Html.AntiForgeryToken()
+      <input type="hidden" name="returnUrl" value="@returnUrl" />
       <button type="submit" class="recipe-save-btn @buttonClass @(saved ? "saved" : "")"
               data-db-recipe-save data-recipe-id="@Model.Id" data-recipe-name="@Model.Name"
               data-is-saved="@saved.ToString().ToLowerInvariant()" data-saved-user-id="@userId"

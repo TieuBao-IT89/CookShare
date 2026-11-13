@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CookShare discovery filter regression</title>
+<link rel="stylesheet" href="../../CookShare/wwwroot/css/style.css">
+<link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe.css">
+<link rel="stylesheet" href="../../CookShare/wwwroot/css/recipe-discovery.css">
+<style>main { padding: 20px; max-width: 1200px; margin: auto; } #results { white-space: pre-wrap; overflow-wrap: anywhere; }</style>
+<main class="recipe-discovery-page">
+    <form id="recipeDiscoveryForm" action="/Recipe" method="get">
+        <div class="discovery-search-row"><div class="recipe-search-wrap"><label class="sr-only" for="searchRecipe">Tên món</label><input id="searchRecipe" name="q" value="Đậu &amp; gà"></div><button class="btn" type="submit">Tìm công thức</button></div>
+        <div class="discovery-controls">
+            <details class="discovery-filters" data-discovery-filters data-active-filter-count="0" open>
+                <summary data-discovery-filter-trigger>Bộ lọc</summary>
+                <div data-discovery-filter-content>
+                    <div class="discovery-filter-fields">
+                        <div class="discovery-field"><label for="ingredientFilter">Nguyên liệu</label><input id="ingredientFilter" name="ingredient" value="đậu hũ" form="recipeDiscoveryForm"></div>
+                        <div class="discovery-field"><label for="authorFilter">Người chia sẻ</label><input id="authorFilter" name="author" value="Bếp Việt" form="recipeDiscoveryForm"></div>
+                        <div class="discovery-field"><label for="categoryFilter">Danh mục</label><select id="categoryFilter" name="category" form="recipeDiscoveryForm"><option>Món Việt</option></select></div>
+                        <div class="discovery-field"><label for="difficultyFilter">Độ khó</label><select id="difficultyFilter" name="difficulty" form="recipeDiscoveryForm"><option value="1">Dễ</option></select></div>
+                        <div class="discovery-field"><label for="maxTotalMinutesFilter">Thời gian</label><select id="maxTotalMinutesFilter" name="maxTotalMinutes" form="recipeDiscoveryForm"><option value="30">Tối đa 30 phút</option></select></div>
+                    </div>
+                    <div class="discovery-filter-actions"><a href="/Recipe" class="text-link">Xóa bộ lọc</a><button id="apply" class="btn" type="submit" form="recipeDiscoveryForm">Áp dụng bộ lọc</button></div>
+                </div>
+            </details>
+            <div class="discovery-sort"><label for="sort">Sắp xếp</label><select id="sort" name="sort"><option value="popular">Nhiều tương tác</option></select><button class="text-link" type="submit">Xem</button></div>
+        </div>
+    </form>
+    <pre id="results">RUNNING</pre>
+</main>
+<dialog class="discovery-filter-dialog" data-discovery-filter-dialog aria-labelledby="filterTitle"><div class="discovery-filter-dialog-heading"><h2 id="filterTitle">Tìm món hợp ý</h2><button class="icon-button" type="button" data-discovery-filter-close aria-label="Đóng bộ lọc">×</button></div><div data-discovery-dialog-content></div></dialog>
+<script>
+const errors = [];
+addEventListener('error', event => { if (event.error) errors.push(event.message); });
+const form = document.getElementById('recipeDiscoveryForm');
+const nativeData = new FormData(form);
+let submitted;
+form.addEventListener('submit', event => { event.preventDefault(); submitted = new FormData(form); });
+</script>
+<script src="../../CookShare/wwwroot/js/recipe-discovery.js"></script>
+<script>
+addEventListener('DOMContentLoaded', async () => {
+    const checks = [], assert = (condition, name) => { if (!condition) throw Error(name); checks.push('PASS ' + name); };
+    const tick = () => new Promise(resolve => setTimeout(resolve, 30));
+    const details = document.querySelector('[data-discovery-filters]'), trigger = details.querySelector('summary');
+    const dialog = document.querySelector('dialog'), ingredient = document.getElementById('ingredientFilter');
+    try {
+        assert(form.method === 'get' && nativeData.get('ingredient') === 'đậu hũ', 'native GET filters work before enhancement');
+        assert(nativeData.get('q') === 'Đậu & gà' && nativeData.get('author') === 'Bếp Việt', 'native form preserves Vietnamese and special characters');
+        assert(document.querySelectorAll('#ingredientFilter').length === 1, 'enhancement keeps one input per filter');
+        trigger.click(); await tick();
+        if (innerWidth <= 719) {
+            assert(dialog.open && dialog.contains(ingredient), 'mobile filters open in a modal sheet');
+            assert(document.activeElement === ingredient, 'opening sheet focuses the first filter');
+        } else {
+            assert(details.open && details.contains(ingredient) && !dialog.open, 'desktop uses the native inline disclosure');
+            assert(trigger.getAttribute('aria-haspopup') === null, 'desktop disclosure does not advertise an unavailable dialog');
+        }
+        assert(ingredient.form === form, 'moved controls remain associated with the GET form');
+        ingredient.value = 'đậu hũ & ớt + rau';
+        form.requestSubmit(document.getElementById('apply'));
+        assert(submitted.get('ingredient') === ingredient.value, 'Apply submits the edited filter from its current location');
+        assert(submitted.get('author') === 'Bếp Việt' && submitted.get('category') === 'Món Việt' && submitted.get('sort') === 'popular', 'Apply retains author category and sort');
+        assert(submitted.get('difficulty') === '1' && submitted.get('maxTotalMinutes') === '30', 'Apply retains difficulty and time');
+        assert(document.getElementById('apply').getBoundingClientRect().height >= 44 && trigger.getBoundingClientRect().height >= 44, 'filter controls provide 44px touch targets');
+        assert(innerWidth > 719 || parseFloat(getComputedStyle(ingredient).fontSize) >= 16, 'mobile input text avoids small-input zoom');
+        if (dialog.open) {
+            document.querySelector('[data-discovery-filter-close]').click(); await tick();
+            assert(!dialog.open && document.activeElement === trigger, 'closing the sheet restores focus to its trigger');
+            trigger.click(); await tick();
+            assert(ingredient.value === 'đậu hũ & ớt + rau', 'reopening the sheet retains unsent changes');
+            dialog.dispatchEvent(new Event('cancel', { cancelable: true })); await tick();
+            assert(!dialog.open && document.activeElement === trigger, 'Escape cancellation closes the sheet and restores focus');
+        } else {
+            trigger.click(); trigger.click();
+            assert(ingredient.value === 'đậu hũ & ớt + rau', 'native disclosure retains unsent changes');
+            assert(new FormData(form).get('q') === 'Đậu & gà', 'disclosure changes preserve the search query');
+        }
+        assert(document.documentElement.scrollWidth <= innerWidth, 'discovery controls do not overflow horizontally');
+        assert(errors.length === 0, 'production filter script raises no browser errors');
+        document.body.dataset.testStatus = 'passed';
+        document.getElementById('results').textContent = checks.join('\n') + '\nCOMPLETE ' + checks.length + ' passed';
+    } catch (error) {
+        document.body.dataset.testStatus = 'failed';
+        document.getElementById('results').textContent = checks.join('\n') + '\nFAIL ' + error.message;
+    }
+    parent.postMessage({ type: 'social-discovery-test-result', status: document.body.dataset.testStatus, output: document.getElementById('results').textContent }, '*');
+});
+</script>
+</html>

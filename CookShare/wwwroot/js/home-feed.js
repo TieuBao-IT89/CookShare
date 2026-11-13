@@ -10,7 +10,8 @@
     const end = root.querySelector("[data-feed-end]");
     const automatic = root.querySelector("[data-feed-auto]");
     const top = root.querySelector("[data-feed-top]");
-    const ids = new Set(Array.from(items.querySelectorAll("[data-feed-post]")).map(post => post.dataset.recipeId));
+    const postKey = post => (post.dataset.feedKind || "recipe") + ":" + (post.dataset.feedItemId || post.dataset.recipeId);
+    const ids = new Set(Array.from(items.querySelectorAll("[data-feed-post]")).map(postKey));
     const pendingComments = new WeakSet();
     let busy = false;
     let autoLoads = 0;
@@ -98,8 +99,8 @@
             if (posts.length > 8 || posts.some(post => !/^[1-9]\d*$/.test(post.dataset.recipeId || ""))) throw new Error("Dữ liệu công thức không hợp lệ.");
             const incomingIds = new Set();
             posts.forEach(post => {
-                if (ids.has(post.dataset.recipeId) || incomingIds.has(post.dataset.recipeId)) post.remove();
-                else incomingIds.add(post.dataset.recipeId);
+                if (ids.has(postKey(post)) || incomingIds.has(postKey(post))) post.remove();
+                else incomingIds.add(postKey(post));
             });
             const first = batch.querySelector("[data-feed-post]");
             prepare(batch);

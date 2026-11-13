@@ -9,6 +9,10 @@
         return item.textContent.trim();
     }).filter(Boolean);
     if (steps.length === 0) return;
+    if (typeof mode.showModal !== "function") return;
+    start.hidden = false;
+    const fallback = document.querySelector("[data-cooking-fallback]");
+    if (fallback) fallback.hidden = true;
 
     const progress = mode.querySelector("[data-cooking-progress]");
     const label = mode.querySelector("[data-cooking-step-label]");

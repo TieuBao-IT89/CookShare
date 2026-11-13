@@ -1,0 +1,38 @@
+@model CookShare.ViewModels.CookedPostViewModel
+@using CookShare.Helpers
+@{
+  bool prioritizeImage = ViewData["PrioritizeImage"] is true;
+}
+<article class="cooked-post feed-post" aria-label="Thành phẩm: @Model.RecipeName" data-feed-post data-recipe-id="@Model.RecipeId" data-feed-kind="cooked" data-feed-item-id="@Model.Id" data-post-key="cooked:@Model.Id">
+  <header class="cooked-post-header">
+    <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.AuthorId" class="cooked-post-author">
+      @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+      {
+        <img src="@RecipeImageReference.GetSource(Model.AvatarUrl)" width="44" height="44" loading="lazy" alt="" class="cooked-post-avatar" />
+      }
+      else
+      {
+        <span class="cooked-post-avatar cooked-post-avatar-fallback" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+      }
+      <span><strong>@Model.AuthorName</strong><small>Đã nấu thử · <time datetime="@Model.CreatedAt.ToString("O")">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</time></small></span>
+    </a>
+    @if (Model.IsOwner)
+    {
+      <a asp-controller="CookedPosts" asp-action="Edit" asp-route-id="@Model.Id" class="cooked-post-menu" aria-label="Chỉnh sửa bài thành phẩm"><i class="fa-solid fa-pen" aria-hidden="true"></i></a>
+    }
+  </header>
+  <a asp-controller="CookedPosts" asp-action="Details" asp-route-id="@Model.Id" class="cooked-post-image-link" aria-label="Xem thành phẩm @Model.RecipeName">
+    <img src="@Model.ImageUrl" alt="Thành phẩm @Model.RecipeName do @Model.AuthorName nấu" width="800" height="640" loading="@(prioritizeImage ? "eager" : "lazy")" fetchpriority="@(prioritizeImage ? "high" : "auto")" decoding="async" class="cooked-post-image" data-fallback-src="/img/recipe-placeholder.svg" />
+  </a>
+  <div class="cooked-post-content">
+    @if (!string.IsNullOrWhiteSpace(Model.Note))
+    {
+      <p class="cooked-post-note">@Model.Note</p>
+    }
+    <a asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.RecipeId" class="cooked-post-recipe"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Nấu từ công thức<strong>@Model.RecipeName</strong></span><span aria-hidden="true">→</span></a>
+  </div>
+  <footer class="cooked-post-footer">
+    <a asp-controller="CookedPosts" asp-action="Create" asp-route-recipeId="@Model.RecipeId"><i class="fa-solid fa-camera" aria-hidden="true"></i> Tôi cũng đã nấu</a>
+    <a asp-controller="ContentReports" asp-action="Create" asp-route-targetType="CookedPost" asp-route-targetId="@Model.Id" class="cooked-post-report"><i class="fa-regular fa-flag" aria-hidden="true"></i><span>Báo cáo</span></a>
+  </footer>
+</article>

@@ -13,7 +13,8 @@
 }
 <div class="saved-page-wrapper container">
     <header class="page-intro saved-page-header"><div><span class="eyebrow"><svg class="icon"><use href="#i-bookmark" /></svg> GÓC NHỎ CỦA RIÊNG BẠN</span><h1>Để dành <em>món ngon.</em></h1><p>Những công thức bạn muốn thử, luôn ở đây chờ bạn vào bếp.</p></div><span class="count-badge"><span id="savedRecipeCount" data-saved-count>@Model.Count</span> công thức đã lưu</span></header>
-    <div class="saved-toolbar"><p>Hiển thị <strong id="savedRecipeCountInline" data-saved-count>@Model.Count</strong> công thức trong bộ sưu tập</p><a class="text-link" asp-controller="Recipe" asp-action="Index">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div>
+    <nav class="collections-tabs" aria-label="Món đã lưu"><a asp-controller="Recipe" asp-action="Saved" aria-current="page">Tất cả món đã lưu</a><a asp-controller="Collections" asp-action="Index">Bộ sưu tập</a></nav>
+    <div class="saved-toolbar"><p>Hiển thị <strong id="savedRecipeCountInline" data-saved-count>@Model.Count</strong> công thức đã lưu</p><a class="text-link" asp-controller="Recipe" asp-action="Index">Khám phá thêm <svg class="icon"><use href="#i-arrow" /></svg></a></div>
     <div class="recipe-grid saved-recipe-grid" id="savedRecipeGrid" style="@(Model.Count == 0 ? "display:none" : null)"
          data-state-url="@Url.Action("State", "RecipeFavorites")" data-saved-user-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)"
          data-login-url="@Url.Action("Login", "Account", new { returnUrl })">

@@ -1,0 +1,40 @@
+@model CookShare.ViewModels.ModerationQueueViewModel
+@using CookShare.Helpers
+@{
+  ViewData["Title"] = "Kiểm duyệt nội dung";
+}
+@section Styles {
+  <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
+}
+<div class="social-page moderation-page">
+  <p class="social-eyebrow">Không gian quản trị</p>
+  <h1>Hàng chờ báo cáo</h1>
+  <nav class="social-tabs" aria-label="Lọc báo cáo">
+    <a asp-action="Index" aria-current="@(!Model.IncludeResolved ? "page" : null)">Cần xử lý</a>
+    <a asp-action="Index" asp-route-includeResolved="true" aria-current="@(Model.IncludeResolved ? "page" : null)">Tất cả báo cáo</a>
+  </nav>
+  @if (Model.Reports.Count == 0)
+  {
+    <div class="social-empty"><h2>Không có báo cáo trong danh sách</h2><p>Các báo cáo mới sẽ hiển thị tại đây.</p></div>
+  }
+  <ul class="moderation-list">
+    @foreach (var report in Model.Reports)
+    {
+      <li>
+        <div><span class="social-eyebrow">#@report.Id · @SocialContentLabels.Status(report.Status) · @SocialContentLabels.Reason(report.Reason)</span><h2><a asp-action="Details" asp-route-id="@report.Id">@report.TargetName</a></h2><p>@(report.ReporterName ?? "Tài khoản đã xóa") · @report.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p></div>
+        <a asp-action="Details" asp-route-id="@report.Id" class="btn btn-primary">Xem báo cáo</a>
+      </li>
+    }
+  </ul>
+  <nav class="social-pagination" aria-label="Phân trang báo cáo">
+    @if (Model.Page > 1)
+    {
+      <a asp-action="Index" asp-route-page="@(Model.Page - 1)" asp-route-includeResolved="@Model.IncludeResolved">← Trang trước</a>
+    }
+    <span>Trang @Model.Page</span>
+    @if (Model.HasMore)
+    {
+      <a asp-action="Index" asp-route-page="@(Model.Page + 1)" asp-route-includeResolved="@Model.IncludeResolved">Trang sau →</a>
+    }
+  </nav>
+</div>

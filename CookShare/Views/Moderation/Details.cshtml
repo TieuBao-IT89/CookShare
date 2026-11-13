@@ -1,0 +1,55 @@
+@model CookShare.ViewModels.ModerationReportViewModel
+@using CookShare.Helpers
+@{
+  ViewData["Title"] = "Báo cáo #" + Model.Id;
+}
+@section Styles {
+  <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
+}
+<div class="social-page social-form-page">
+  <a asp-action="Index" class="social-back-link">← Hàng chờ báo cáo</a>
+  <p class="social-eyebrow">Báo cáo #@Model.Id · @SocialContentLabels.Status(Model.Status)</p>
+  <h1>@Model.TargetName</h1>
+  <dl class="moderation-report-meta"><dt>Người báo cáo</dt><dd>@(Model.ReporterName ?? "Tài khoản đã xóa")</dd><dt>Lý do</dt><dd>@SocialContentLabels.Reason(Model.Reason)</dd><dt>Thời gian</dt><dd>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd><dt>Hiển thị</dt><dd>@(!Model.TargetExists ? "Đã xóa" : Model.TargetIsHidden ? "Đang ẩn" : "Công khai")</dd></dl>
+  <p class="cooked-post-note">@(string.IsNullOrWhiteSpace(Model.Details) ? "Không có thông tin bổ sung." : Model.Details)</p>
+  @if (Model.TargetExists)
+  {
+    <details class="moderation-content-preview"><summary>Xem nội dung cần kiểm duyệt</summary><p class="cooked-post-note">@Model.TargetText</p>
+      @if (Model.ReviewImageUrl != null)
+      {
+        <img src="@Model.ReviewImageUrl" alt="Ảnh nội dung cần kiểm duyệt; không hiển thị công khai khi đang ẩn" class="social-image-preview" loading="lazy" data-fallback-src="/img/recipe-placeholder.svg" />
+      }
+    </details>
+  }
+  @if (Model.TargetExists && !Model.TargetIsHidden)
+  {
+    <a asp-controller="@(Model.TargetType == ContentTargetType.Recipe ? "Recipe" : "CookedPosts")" asp-action="Details" asp-route-id="@Model.TargetId" class="social-back-link">Mở nội dung được báo cáo →</a>
+  }
+  <form asp-action="Decide" asp-route-id="@Model.Id" method="post" class="social-form" data-social-form>
+    <div class="social-field"><label for="moderationReason">Lý do xử lý (bắt buộc)</label><textarea id="moderationReason" name="Reason" rows="3" required minlength="3" maxlength="1000" aria-describedby="moderationReasonHelp"></textarea><p id="moderationReasonHelp" class="social-hint">Ghi từ 3 đến 1000 ký tự. Thao tác, người xử lý, lý do và thời gian được lưu trong nhật ký.</p></div>
+    <div class="social-form-actions">
+      <button type="submit" name="Action" value="Dismiss" class="btn btn-secondary" data-social-submit>Bỏ qua báo cáo</button>
+      @if (Model.TargetExists)
+      {
+        <button type="submit" name="Action" value="Hide" class="btn btn-danger" data-social-submit>Ẩn nội dung</button>
+        <button type="submit" name="Action" value="Restore" class="btn btn-primary" data-social-submit>Khôi phục nội dung</button>
+      }
+      <span role="status" class="social-hint" data-social-status></span>
+    </div>
+  </form>
+  <section class="moderation-history" aria-labelledby="moderationHistoryTitle"><h2 id="moderationHistoryTitle">Nhật ký xử lý</h2>
+    @if (Model.History.Count == 0)
+    {
+      <p>Chưa có thao tác xử lý.</p>
+    }
+    <ol>
+      @foreach (var entry in Model.History)
+      {
+        <li><strong>@entry.ModeratorName · @SocialContentLabels.Action(entry.Action)</strong><time datetime="@entry.CreatedAt.ToString("O")">@entry.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</time><p class="cooked-post-note">@entry.Reason</p></li>
+      }
+    </ol>
+  </section>
+</div>
+@section Scripts {
+  <script src="~/js/cooked-posts.js" asp-append-version="true" defer></script>
+}

@@ -42,6 +42,14 @@
             </p>
         </header>
 
+        @if (!editing)
+        {
+            <nav class="publish-type-tabs" aria-label="Bạn muốn chia sẻ gì?">
+                <a asp-controller="Recipe" asp-action="Create" aria-current="page"><i class="icon fa-solid fa-book-open" aria-hidden="true"></i> Công thức mới</a>
+                <a asp-controller="CookedPosts" asp-action="Create"><i class="icon fa-solid fa-camera" aria-hidden="true"></i> Đã nấu thử</a>
+            </nav>
+        }
+
         <form asp-controller="Recipe"
               asp-action="@actionName"
               asp-route-id="@(editing ? ViewBag.RecipeId : null)"

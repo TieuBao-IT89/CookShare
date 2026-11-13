@@ -1,0 +1,23 @@
+@model CookShare.ViewModels.CookedPostViewModel
+@{
+  ViewData["Title"] = "Thành phẩm: " + Model.RecipeName;
+  ViewData["PrioritizeImage"] = true;
+}
+@section Styles {
+  <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
+}
+<div class="social-page social-post-page">
+  <a asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.RecipeId" class="social-back-link"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Về công thức gốc</a>
+  <h1 class="social-detail-title">Đã nấu thử: @Model.RecipeName</h1>
+  <partial name="_CookedPost" model="Model" />
+  @if (Model.IsOwner)
+  {
+    <details class="social-delete-confirm">
+      <summary>Xóa bài thành phẩm</summary>
+      <p>Bài và ảnh thành phẩm sẽ bị xóa vĩnh viễn. Công thức gốc vẫn được giữ lại.</p>
+      <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+        <button type="submit" class="btn btn-danger">Xác nhận xóa bài</button>
+      </form>
+    </details>
+  }
+</div>

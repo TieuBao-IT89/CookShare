@@ -1,0 +1,16 @@
+@model CookShare.ViewModels.CookedPostFormViewModel
+@{
+  ViewData["Title"] = "Chỉnh sửa thành phẩm";
+}
+@section Styles {
+  <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
+}
+<div class="social-page social-form-page">
+  <p class="social-eyebrow">Câu chuyện trong căn bếp</p>
+  <h1>Chỉnh sửa thành phẩm</h1>
+  <p class="social-lead">Giữ lại khoảnh khắc và những điều bạn muốn kể về món ăn.</p>
+  <partial name="_Form" model="Model" />
+</div>
+@section Scripts {
+  <script src="~/js/cooked-posts.js" asp-append-version="true" defer></script>
+}

@@ -62,13 +62,13 @@
                 }
             </nav>
 
-            <section class="feed-composer" aria-label="Chia sẻ công thức">
+            <section class="feed-composer" aria-label="Chia sẻ từ căn bếp của bạn">
                 <div class="feed-composer-top">
                     <span class="feed-avatar" aria-hidden="true"><i class="icon fa-solid fa-utensils" aria-hidden="true"></i></span>
                     <a asp-controller="Recipe" asp-action="Create">@(profile == null ? "Bạn vừa nấu một món ngon?" : $"{profile.Name}, hôm nay bạn nấu gì?")</a>
                     <a class="feed-composer-add" asp-controller="Recipe" asp-action="Create" aria-label="Đăng công thức mới"><i class="icon fa-solid fa-plus" aria-hidden="true"></i></a>
                 </div>
-                <div class="feed-composer-bottom"><span><i class="icon fa-regular fa-image" aria-hidden="true"></i> Chia sẻ hương vị, kể chuyện căn bếp</span><a asp-controller="Recipe" asp-action="Create">Đăng công thức <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+                <div class="feed-composer-bottom"><a asp-controller="Recipe" asp-action="Create"><i class="icon fa-solid fa-book-open" aria-hidden="true"></i> Công thức mới</a><a asp-controller="CookedPosts" asp-action="Create"><i class="icon fa-solid fa-camera" aria-hidden="true"></i> Đã nấu thử</a></div>
             </section>
 
             <section class="feed-stream" aria-labelledby="feedHeading">

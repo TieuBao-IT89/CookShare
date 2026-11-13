@@ -1,0 +1,60 @@
+@model CookShare.ViewModels.CollectionChooserViewModel
+@using CookShare.Helpers
+@{
+  var chooserUrl = Url.Action("Chooser", "Collections", new { recipeId = Model.RecipeId, returnUrl = Model.ReturnUrl, page = Model.Page });
+}
+<section class="collection-chooser-content" data-collection-chooser-content data-chooser-url="@chooserUrl">
+  <header class="collection-chooser-heading"><div><span class="eyebrow">GIỮ LẠI CẢM HỨNG</span><h2 id="collectionChooserTitle">Lưu món theo cách của bạn</h2></div></header>
+  <a class="collection-chosen-recipe" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.RecipeId"><img src="@RecipeImageReference.GetSource(Model.RecipeImage)" alt="" width="80" height="80" /><strong>@Model.RecipeName</strong></a>
+  <div class="collection-favorite-state">
+    <div><h3>Tất cả món đã lưu</h3><p data-collection-saved-label>@(Model.IsSaved ? "Món này đã được lưu." : "Lưu nhanh vào danh sách riêng của bạn.")</p></div>
+    <form action="@Url.Content($"~/Recipe/{Model.RecipeId}/Favorites{(Model.IsSaved ? "/Unsave" : "")}")" method="post" data-collection-form>
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="returnUrl" value="@chooserUrl" />
+      <button class="collection-membership-button @(Model.IsSaved ? "is-selected" : "")" type="submit" aria-pressed="@Model.IsSaved.ToString().ToLowerInvariant()" data-collection-focus="favorite">@(Model.IsSaved ? "Bỏ lưu" : "Lưu món")</button>
+    </form>
+  </div>
+  <div class="collection-list-heading"><h3>Trong bộ sưu tập</h3><a asp-controller="Collections" asp-action="Index">Quản lý</a></div>
+  <p class="collection-help">Mỗi món có thể ở nhiều bộ. Bỏ lưu hoặc gỡ khỏi một bộ không ảnh hưởng các bộ khác.</p>
+  @if (Model.Collections.Count == 0)
+  {
+    <p class="collection-chooser-empty">Bạn chưa có bộ sưu tập nào ở trang này. Tạo một bộ bên dưới để bắt đầu.</p>
+  }
+  else
+  {
+    <ul class="collection-membership-list">
+      @foreach (var collection in Model.Collections)
+      {
+        <li>
+          <a class="collection-membership-description" asp-action="Details" asp-controller="Collections" asp-route-id="@collection.Id"><img src="@RecipeImageReference.GetSource(collection.CoverImage)" alt="" width="56" height="56" loading="lazy" /><span><strong>@collection.Name</strong><small>@collection.RecipeCount món · @(collection.IsPublic ? "Công khai" : "Chỉ mình bạn")</small></span></a>
+          <form asp-action="@(collection.ContainsRecipe ? "Remove" : "Add")" asp-controller="Collections" asp-route-id="@collection.Id" asp-route-recipeId="@Model.RecipeId" method="post" data-collection-form>
+            <input type="hidden" name="returnUrl" value="@chooserUrl" />
+            <button class="collection-membership-button @(collection.ContainsRecipe ? "is-selected" : "")" type="submit" aria-pressed="@collection.ContainsRecipe.ToString().ToLowerInvariant()" aria-label="@(collection.ContainsRecipe ? "Gỡ khỏi" : "Thêm vào") @collection.Name" data-collection-focus="collection-@collection.Id">@(collection.ContainsRecipe ? "Đã thêm · Gỡ" : "Thêm")</button>
+          </form>
+        </li>
+      }
+    </ul>
+  }
+  @if (Model.Page > 1 || Model.HasMore)
+  {
+    <nav class="collection-pagination" aria-label="Chọn trang bộ sưu tập">
+      @if (Model.Page > 1) { <a asp-action="Chooser" asp-controller="Collections" asp-route-recipeId="@Model.RecipeId" asp-route-returnUrl="@Model.ReturnUrl" asp-route-page="@(Model.Page - 1)" data-collection-page>Trang trước</a> }
+      <span>Trang @Model.Page</span>
+      @if (Model.HasMore) { <a asp-action="Chooser" asp-controller="Collections" asp-route-recipeId="@Model.RecipeId" asp-route-returnUrl="@Model.ReturnUrl" asp-route-page="@(Model.Page + 1)" data-collection-page>Trang tiếp</a> }
+    </nav>
+  }
+  <details class="collection-create-inline" open="@(!ViewData.ModelState.IsValid)">
+    <summary>Tạo bộ sưu tập mới và thêm món</summary>
+    <form asp-action="Create" asp-controller="Collections" method="post" data-collection-form>
+      <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+      <input type="hidden" name="RecipeId" value="@Model.RecipeId" />
+      <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+      <label for="collectionNewName">Tên bộ sưu tập</label>
+      <input id="collectionNewName" name="Name" value="@Model.NewCollection.Name" class="form-input" maxlength="80" required placeholder="Ví dụ: Bữa tối trong tuần" autocomplete="off" />
+      <label for="collectionNewDescription">Mô tả (không bắt buộc)</label>
+      <textarea id="collectionNewDescription" name="Description" class="form-textarea" rows="2" maxlength="300">@Model.NewCollection.Description</textarea>
+      <p class="collection-help"><i class="fa-solid fa-lock" aria-hidden="true"></i> Bộ mới chỉ mình bạn xem được.</p>
+      <button class="btn" type="submit" data-collection-focus="create">Tạo bộ và thêm món</button>
+    </form>
+  </details>
+</section>

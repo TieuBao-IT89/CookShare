@@ -1,0 +1,50 @@
+@model CookShare.ViewModels.CollectionDetailsViewModel
+@{ ViewData["Title"] = Model.Name; }
+@section Styles {
+  <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
+}
+<div class="container collections-page">
+  <a class="collection-back-link" asp-action="Index">Bộ sưu tập của bạn</a>
+  <header class="collections-heading">
+    <div><span class="collection-privacy"><i class="fa-solid @(Model.IsPublic ? "fa-earth-asia" : "fa-lock")" aria-hidden="true"></i> @(Model.IsPublic ? "Bộ sưu tập công khai" : "Chỉ mình bạn")</span><h1>@Model.Name</h1><p>@Model.Description</p><p>@Model.RecipeCount công thức · <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.OwnerId">@Model.OwnerName</a></p></div>
+    @if (Model.IsOwner)
+    {
+      <div class="collection-owner-actions"><a class="btn btn-secondary" asp-action="Edit" asp-route-id="@Model.Id">Chỉnh sửa</a><form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm-delete="Xóa bộ sưu tập này? Công thức và các bộ sưu tập khác vẫn được giữ." data-confirm-confirm-label="Xóa bộ sưu tập"><button class="btn btn-secondary" type="submit">Xóa bộ sưu tập</button></form></div>
+    }
+  </header>
+  @if (Model.Recipes.Count > 0)
+  {
+    <div class="recipe-grid collection-recipe-grid">
+      @foreach (var recipe in Model.Recipes)
+      {
+        <div class="collection-recipe-item">
+          <partial name="_RecipeCard" model="recipe" />
+          @if (Model.IsOwner)
+          {
+            <form asp-action="Remove" asp-route-id="@Model.Id" asp-route-recipeId="@recipe.Id" method="post" class="collection-remove-form">
+              <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Collections", new { id = Model.Id, page = Model.Page })" />
+              <button class="collection-remove-button" type="submit" aria-label="Gỡ @recipe.Name khỏi @Model.Name"><i class="fa-solid fa-minus" aria-hidden="true"></i> Gỡ khỏi bộ sưu tập</button>
+            </form>
+          }
+        </div>
+      }
+    </div>
+  }
+  else
+  {
+    <div class="collection-empty"><i class="fa-regular fa-folder-open" aria-hidden="true"></i><h2>Chưa có công thức hiển thị</h2><p>@(Model.IsOwner ? "Mở một món bạn thích rồi chọn Bộ sưu tập để thêm vào đây." : "Người tạo chưa thêm công thức nào đang hiển thị.")</p><a class="btn" asp-controller="Recipe" asp-action="Index">Khám phá món ngon</a></div>
+  }
+  @if (Model.Page > 1 || Model.HasMore)
+  {
+    <nav class="collection-pagination" aria-label="Các trang công thức">
+      @if (Model.Page > 1) { <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.Id" asp-route-page="@(Model.Page - 1)">Trang trước</a> }
+      <span>Trang @Model.Page</span>
+      @if (Model.HasMore) { <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.Id" asp-route-page="@(Model.Page + 1)">Trang tiếp</a> }
+    </nav>
+  }
+</div>
+@section Scripts {
+  <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
+  <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
+}

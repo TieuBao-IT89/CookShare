@@ -1,0 +1,54 @@
+/* Shared navigation and composition links. Screen layouts have separate files. */
+.site-header .nav { gap: 24px; }
+.site-header .nav-links { gap: 18px; }
+.site-header .nav-actions { gap: 10px; }
+.site-header .header-search { display: block; width: clamp(190px, 17vw, 260px); }
+.site-header .header-search input { min-height: 44px; padding: 10px 46px 10px 14px; border: 1px solid var(--line); border-radius: 24px; background: var(--white); font-size: 12px; }
+.site-header .header-search button { top: 0; right: 2px; width: 44px; height: 44px; }
+.site-header .profile-link, .site-header .account-settings-link, .site-header .notification-nav-link { min-width: 44px; min-height: 44px; }
+.site-header .notification-nav-link { position: relative; justify-content: center; border-radius: 50%; }
+.site-header .notification-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.site-header .notification-count { position: absolute; top: -2px; right: -3px; min-width: 18px; height: 18px; font-size: 10px; }
+.site-header .notification-nav-link:hover { background: var(--light); }
+.site-header .publish-link { min-height: 44px; }
+.header-account { position: relative; }
+.header-account > summary { list-style: none; cursor: pointer; min-width: 44px; min-height: 44px; }
+.header-account > summary::-webkit-details-marker { display: none; }
+.header-account-menu { position: absolute; top: calc(100% + 12px); right: 0; z-index: 45; width: 230px; max-width: calc(100vw - 40px); padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); box-shadow: var(--shadow); }
+.header-account-name { display: block; padding: 8px 12px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; border-bottom: 1px solid var(--line); }
+.header-account-menu > a, .header-account-menu .logout-form button { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 10px 12px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--primary); font-size: 13px; text-align: left; }
+.header-account-menu > a:hover, .header-account-menu .logout-form button:hover { background: var(--light); }
+.mobile-bottom-nav { display: none; }
+.recipe-card .avatar-small { overflow: hidden; }
+.recipe-card .avatar-small img { width: 100%; height: 100%; object-fit: cover; }
+.publish-type-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-block: 0 24px; }
+.publish-type-tabs > a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--white); font-weight: 600; color: var(--muted); }
+.publish-type-tabs > a[aria-current="page"] { color: var(--primary); background: var(--light); border-color: var(--primary); }
+@media (min-width: 960px) and (max-width: 1199px) {
+    .site-header .nav { gap: 16px; }
+    .site-header .nav-links { gap: 14px; }
+    .site-header .nav-links > a:nth-child(3) { display: none; }
+    .site-header .profile-link { display: none; }
+    .site-header .header-search { width: 190px; }
+    .site-header .nav-actions .logout-form .btn { padding-inline: 9px; }
+}
+@media (max-width: 959px) {
+    :root { --mobile-nav-space: calc(72px + env(safe-area-inset-bottom, 0px)); }
+    html { scroll-padding-bottom: calc(var(--mobile-nav-space) + 16px); }
+    body { padding-bottom: var(--mobile-nav-space); }
+    .site-header .nav { gap: 8px; }
+    .site-header .nav-actions { display: flex; order: 2; margin-left: auto; }
+    .site-header .nav-actions > :not(.notification-nav-link) { display: none; }
+    .site-header .menu-btn { order: 3; margin-left: 0; width: 44px; height: 44px; }
+    .site-header .nav-links.open { max-height: calc(100dvh - 86px - var(--mobile-nav-space)); }
+    .mobile-bottom-nav { position: fixed; z-index: 35; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; min-height: var(--mobile-nav-space); padding: 7px max(8px, env(safe-area-inset-right, 0px)) calc(7px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); border-top: 1px solid var(--line); background: var(--paper); box-shadow: 0 -4px 20px #243b3006; }
+    .mobile-bottom-nav > a { display: flex; min-width: 0; min-height: 56px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 11px; font-weight: 600; }
+    .mobile-bottom-nav > a .icon { width: 22px; height: 22px; font-size: 20px; }
+    .mobile-bottom-nav > a.is-active { color: var(--primary); background: var(--light); }
+    .mobile-bottom-nav .mobile-publish .icon { width: 32px; height: 28px; border-radius: 8px; background: var(--primary); color: var(--white); }
+    .ui-toast { bottom: calc(var(--mobile-nav-space) + 16px); }
+    .home-feed .feed-back-top { bottom: calc(var(--mobile-nav-space) + 16px); }
+    :is(input, select, textarea, button, a, summary) { scroll-margin-block: 100px calc(var(--mobile-nav-space) + 20px); }
+    body:has(.cooking-mode[open]) .mobile-bottom-nav { visibility: hidden; }
+}
+@media print { .mobile-bottom-nav { display: none; } body { padding-bottom: 0; } }

@@ -2,32 +2,33 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content="CookShare — khám phá món ngon, chia sẻ công thức và tìm cảm hứng cho căn bếp của bạn." />
     <meta name="theme-color" content="#245c43" />
     <title>@ViewData["Title"] · CookShare</title>
     <link rel="icon" href="~/favicon.ico" />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
-          integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/fontawesome/css/fontawesome.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/fontawesome/css/solid.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/fontawesome/css/regular.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/fonts/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/notifications.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    <noscript><link rel="stylesheet" href="~/css/app-shell-nojs.css" asp-append-version="true" /></noscript>
 </head>
 <body>
     <a class="skip-link" href="#main-content">Chuyển đến nội dung</a>
     <partial name="_Icons" />
     <partial name="_RecipeHeader" />
     <main id="main-content" tabindex="-1">
-        @if (TempData["StatusMessage"] is string statusMessage)
+        @foreach (var statusMessage in new[] { TempData["StatusMessage"] as string, TempData["Success"] as string }.Where(message => !string.IsNullOrWhiteSpace(message)).Distinct())
         {
             <div class="notice container status-banner" role="status">@statusMessage</div>
         }
-        @if (TempData["ErrorMessage"] is string errorMessage)
+        @foreach (var errorMessage in new[] { TempData["ErrorMessage"] as string, TempData["Error"] as string }.Where(message => !string.IsNullOrWhiteSpace(message)).Distinct())
         {
             <div class="notice container status-banner text-danger" role="alert">@errorMessage</div>
         }
@@ -75,6 +76,7 @@
     </dialog>
     <noscript><div class="notice container">Một số tương tác giao diện cần JavaScript. Bạn vẫn có thể xem và gửi biểu mẫu công thức.</div></noscript>
     <script src="~/js/style.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-collections.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

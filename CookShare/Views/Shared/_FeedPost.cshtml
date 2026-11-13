@@ -21,7 +21,7 @@
         ["SaveButtonClass"] = "feed-save"
     };
 }
-<article class="feed-post" data-feed-post data-recipe-id="@Model.Id" aria-labelledby="@headingId" tabindex="-1">
+<article class="feed-post" data-feed-post data-feed-kind="recipe" data-feed-item-id="@Model.Id" data-recipe-id="@Model.Id" aria-labelledby="@headingId" tabindex="-1">
     <header class="feed-post-header">
         <a class="feed-avatar" asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.AuthorId" aria-label="Ghé thăm căn bếp @Model.AuthorName">
             @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl) && RecipeImageReference.IsValid(Model.AvatarUrl))
@@ -70,7 +70,7 @@
         }
     </div>
     <a class="feed-post-image @(image == RecipeImageReference.Placeholder ? "feed-post-placeholder" : "")" href="@detailsUrl" aria-label="Xem công thức @Model.Name">
-        <img src="@image" alt="@Model.Name" width="640" height="480" loading="lazy" decoding="async" />
+        <img src="@image" alt="@Model.Name" width="640" height="480" loading="@(ViewData["PrioritizeImage"] is true ? "eager" : "lazy")" fetchpriority="@(ViewData["PrioritizeImage"] is true ? "high" : "auto")" decoding="async" />
         <span class="feed-image-link">Vào bếp cùng món này <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></span>
     </a>
     <div class="feed-post-rating">
@@ -88,5 +88,6 @@
             <i class="icon fa-solid fa-share-nodes" aria-hidden="true"></i><span>Chia sẻ</span>
         </button>
     </div>
+    <div class="feed-post-collection"><a href="/Recipe/@Model.Id/Collections" data-collection-chooser><i class="fa-regular fa-folder-open" aria-hidden="true"></i> Thêm vào bộ sưu tập</a></div>
     <div class="feed-comments-slot" id="feedComments_@Model.Id" data-feed-comments-slot hidden></div>
 </article>

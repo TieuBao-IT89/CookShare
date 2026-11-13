@@ -18,6 +18,7 @@
     var relatedRecipes = ViewData["RelatedRecipes"] as IReadOnlyList<Recipe> ?? Array.Empty<Recipe>();
     var ratingSummaries = ViewData["RecipeRatingSummaries"] as IReadOnlyDictionary<int, RecipeRatingViewModel>;
     var recipeRating = ratingSummaries != null && ratingSummaries.TryGetValue(Model.Id, out var rating) ? rating : null;
+    var cookedPosts = ViewData["CookedPosts"] as IReadOnlyList<CookedPostViewModel> ?? Array.Empty<CookedPostViewModel>();
 
     var ingredients = Model.Ingredients.Split(
         '\n',
@@ -59,9 +60,10 @@
     <link rel="stylesheet"
           href="~/css/recipe-serving-scaler.css"
           asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-details.css" asp-append-version="true" />
 }
 
-<div class="recipe-page-wrapper cs108">
+<div class="recipe-page-wrapper cs108 recipe-details-page">
     <div class="container recipe-details-wrapper">
 
         <nav class="recipe-breadcrumb" aria-label="Đường dẫn">
@@ -71,11 +73,6 @@
             <span>/</span>
             <span aria-current="page">@Model.Name</span>
         </nav>
-
-        @if (TempData["Success"] != null)
-        {
-            <p class="notice" role="status">@TempData["Success"]</p>
-        }
 
         <nav class="cs108-quick-nav"
              aria-label="Nội dung công thức">
@@ -95,8 +92,6 @@
                 </span>
 
                 <h1 class="details-title">@Model.Name</h1>
-
-                <p class="details-desc-box">@Model.Description</p>
 
                 @if (Model.Source == "themealdb" && !string.IsNullOrEmpty(Model.ExternalId))
                 {
@@ -141,6 +136,7 @@
                 </div>
 
                 <div class="cs108-recipe-summary">
+                    <span><i class="icon fa-solid fa-utensils" aria-hidden="true"></i>@Model.Servings khẩu phần</span>
                     @if (recipeRating != null)
                     {
                         <partial name="_RecipeRatingSummary" model="recipeRating" />
@@ -172,6 +168,11 @@
                 </div>
 
                 <div class="details-actions cs108-social-actions">
+                    @if (instructions.Length > 0)
+                    {
+                        <a href="#instructions" class="btn details-cook-fallback" data-cooking-fallback>Bắt đầu nấu <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                        <button type="button" class="btn details-cook-primary" data-cooking-start hidden>Bắt đầu nấu <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                    }
                     <partial name="_RecipeSaveButton" model="Model" view-data='new ViewDataDictionary(ViewData) { ["SaveButtonClass"] = "btn btn-secondary btn-details-save" }' />
                     @if (recipeLike != null)
                     {
@@ -180,12 +181,6 @@
                     <a href="#comments" class="btn btn-secondary">
                         Bình luận (<span data-db-comment-count>@(recipeComments?.Comments.Count ?? Model.Comments.Count)</span>)
                     </a>
-                    @if (instructions.Length > 0)
-                    {
-                        <button type="button" class="btn" data-cooking-start>
-                            Bắt đầu nấu
-                        </button>
-                    }
                 </div>
             </div>
 
@@ -195,6 +190,14 @@
                      width="1100"
                      height="700"
                      fetchpriority="high" />
+            </div>
+            <div class="details-story">
+                <p class="details-desc-box">@Model.Description</p>
+                <div class="details-community-actions">
+                    <a asp-controller="CookedPosts" asp-action="Create" asp-route-recipeId="@Model.Id" class="text-link"><i class="icon fa-solid fa-camera" aria-hidden="true"></i> Chia sẻ món đã nấu thử</a>
+                    <a asp-controller="Collections" asp-action="Chooser" asp-route-recipeId="@Model.Id" asp-route-returnUrl="@(Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString)" class="collection-chooser-link" data-collection-chooser aria-label="Chọn bộ sưu tập cho @Model.Name"><i class="icon fa-regular fa-folder" aria-hidden="true"></i><span>Bộ sưu tập</span></a>
+                    <a asp-controller="ContentReports" asp-action="Create" asp-route-targetType="Recipe" asp-route-targetId="@Model.Id" class="text-link details-report"><i class="icon fa-regular fa-flag" aria-hidden="true"></i> Báo cáo</a>
+                </div>
             </div>
         </article>
 
@@ -294,10 +297,22 @@
             </section>
         </div>
 
-        @if (TempData["Error"] != null)
-        {
-            <p class="notice error" role="alert">@TempData["Error"]</p>
-        }
+        <section class="recipe-community-section" id="community" aria-labelledby="recipeCommunityTitle">
+            <div class="section-heading"><div><span class="eyebrow">TỪ CÔNG THỨC ĐẾN BỮA ĂN</span><h2 id="recipeCommunityTitle">Cộng đồng đã nấu</h2></div><a class="btn btn-secondary" asp-controller="CookedPosts" asp-action="Create" asp-route-recipeId="@Model.Id"><i class="icon fa-solid fa-camera" aria-hidden="true"></i> Tôi đã nấu thử</a></div>
+            @if (cookedPosts.Count > 0)
+            {
+                <div class="recipe-community-grid">
+                    @foreach (var post in cookedPosts.Take(6))
+                    {
+                        <partial name="_CookedPost" model="post" />
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="recipe-community-empty">Bạn đã thử món này? Chia sẻ ảnh thành phẩm và một vài kinh nghiệm để căn bếp tiếp theo có thêm cảm hứng.</p>
+            }
+        </section>
 
         @if (recipeRating != null)
         {
@@ -388,7 +403,7 @@
         <p class="cooking-mode-progress" data-cooking-progress>1/@instructions.Length</p>
         <h2 id="cookingModeTitle" data-cooking-step-label>Bước 1</h2>
         <p class="cooking-mode-text" data-cooking-step-text>@instructions[0]</p>
-        <p class="cooking-mode-complete" data-cooking-complete hidden>Đã hoàn thành công thức.</p>
+        <div class="cooking-mode-complete" data-cooking-complete hidden><p>Đã hoàn thành công thức.</p><a class="btn" asp-controller="CookedPosts" asp-action="Create" asp-route-recipeId="@Model.Id"><i class="icon fa-solid fa-camera" aria-hidden="true"></i> Chia sẻ ảnh thành phẩm</a></div>
         <ol class="cooking-mode-steps" aria-hidden="true">
             @for (int i = 0; i < instructions.Length; i++)
             {

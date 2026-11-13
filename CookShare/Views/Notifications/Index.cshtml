@@ -100,6 +100,7 @@
                             <p>
                                 <strong>@notification.ActorName</strong>
                                 @notification.Message
+                                <small class="notification-event-label">@notification.EventLabel</small>
                             </p>
 
                             <time datetime="@notification.CreatedAt.ToString("O")">
@@ -124,9 +125,9 @@
 
                             <button type="submit"
                                     class="btn btn-secondary">
-                                @(notification.HasRecipe
-                                    ? "Xem công thức"
-                                    : "Xem hồ sơ")
+                                @(notification.EventType == "CookedPost"
+                                    ? notification.HasRecipe ? "Xem thành phẩm" : "Kiểm tra bài đăng"
+                                    : notification.HasRecipe ? "Xem công thức" : "Xem hồ sơ")
                                 <svg class="icon" aria-hidden="true">
                                     <use href="#i-arrow" />
                                 </svg>

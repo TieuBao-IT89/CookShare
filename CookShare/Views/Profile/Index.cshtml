@@ -68,7 +68,6 @@
                 </nav>
             </header>
         </article>
-        @if (TempData["Success"] != null) { <p class="notice creator-notice" role="status">@TempData["Success"]</p> }
 
         @if (Model.FeaturedRecipes.Count > 0 || Model.IsOwner)
         {
@@ -94,6 +93,8 @@
             <a id="creatorTab_followers" href="#followers">Người theo dõi <span>@Model.FollowersCount</span></a>
             <a id="creatorTab_following" href="#following">Đang theo dõi <span>@Model.FollowingCount</span></a>
             @if (Model.IsOwner) { <a id="creatorTab_favorites" href="#favorites">Đã lưu <span data-saved-count>@Model.Favorites.Count</span></a> }
+            @if (Model.CookedPosts.Count > 0 || Model.IsOwner) { <a id="creatorTab_cooked" href="#cooked">Đã nấu <span>@Model.CookedPosts.Count</span></a> }
+            @if (Model.PublicCollections.Count > 0 || Model.IsOwner) { <a id="creatorTab_collections" href="#collections">Bộ sưu tập công khai <span>@Model.PublicCollections.Count</span></a> }
         </nav>
         <section id="recipes" class="creator-panel" data-profile-panel aria-labelledby="creatorRecipesTitle">
             <div class="creator-section-heading"><div><span class="eyebrow">TỪ CĂN BẾP NÀY</span><h2 id="creatorRecipesTitle">Góc công thức</h2></div><span class="creator-section-meta">@Model.RecipeCount công thức đã chia sẻ</span></div>
@@ -103,6 +104,22 @@
             }
             else { <div class="recipe-grid" id="profileRecipeGrid">@foreach (var recipe in Model.Recipes) { <partial name="_RecipeCard" model="recipe" /> }</div> }
         </section>
+        @if (Model.CookedPosts.Count > 0 || Model.IsOwner)
+        {
+            <section id="cooked" class="creator-panel" data-profile-panel aria-labelledby="creatorCookedTitle">
+                <div class="creator-section-heading"><h2 id="creatorCookedTitle">Những món đã nấu thử</h2>@if (Model.IsOwner) { <a class="btn btn-small" asp-controller="CookedPosts" asp-action="Create">Đăng thành phẩm</a> }</div>
+                @if (Model.CookedPosts.Count == 0) { <p class="creator-empty">Chưa có ảnh thành phẩm. Chọn một công thức yêu thích rồi chia sẻ bữa ăn của bạn.</p> }
+                <div class="social-post-grid">@foreach (var post in Model.CookedPosts) { <partial name="_CookedPost" model="post" /> }</div>
+            </section>
+        }
+        @if (Model.PublicCollections.Count > 0 || Model.IsOwner)
+        {
+            <section id="collections" class="creator-panel" data-profile-panel aria-labelledby="creatorCollectionsTitle">
+                <div class="creator-section-heading"><h2 id="creatorCollectionsTitle">Bộ sưu tập công khai</h2>@if (Model.IsOwner) { <a class="text-link" asp-controller="Collections" asp-action="Index">Quản lý tất cả bộ sưu tập</a> }</div>
+                @if (Model.PublicCollections.Count == 0) { <p class="creator-empty">Chưa có bộ sưu tập công khai.</p> }
+                <div class="collections-grid">@foreach (var collection in Model.PublicCollections) { <partial name="~/Views/Collections/_CollectionCard.cshtml" model="collection" /> }</div>
+            </section>
+        }
         <section id="followers" class="creator-panel profile-connections-section" data-profile-panel aria-labelledby="creatorFollowersTitle">
             <div class="creator-section-heading"><div><span class="eyebrow">CÙNG NHAU YÊU BẾP</span><h2 id="creatorFollowersTitle">Người theo dõi (@Model.FollowersCount)</h2></div></div>
             @if (Model.Followers.Count == 0) { <div class="creator-empty"><i class="fa-solid fa-users" aria-hidden="true"></i><p>Chưa có người theo dõi. Mỗi công thức mới là một cơ hội để kết nối.</p></div> }

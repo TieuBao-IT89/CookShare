@@ -1,0 +1,16 @@
+@model CookShare.ViewModels.RecipeCollectionSummaryViewModel
+@using CookShare.Helpers
+<article class="collection-card">
+  <a class="collection-card-cover" asp-controller="Collections" asp-action="Details" asp-route-id="@Model.Id" aria-label="Mở bộ sưu tập @Model.Name">
+    <img src="@RecipeImageReference.GetSource(Model.CoverImage)" alt="" width="640" height="480" loading="lazy" decoding="async" />
+  </a>
+  <div class="collection-card-content">
+    <span class="collection-privacy"><i class="fa-solid @(Model.IsPublic ? "fa-earth-asia" : "fa-lock")" aria-hidden="true"></i> @(Model.IsPublic ? "Công khai" : "Chỉ mình bạn")</span>
+    <h2><a asp-controller="Collections" asp-action="Details" asp-route-id="@Model.Id">@Model.Name</a></h2>
+    <p>@Model.RecipeCount công thức</p>
+    @if (!string.IsNullOrWhiteSpace(Model.Description))
+    {
+      <p class="collection-description">@Model.Description</p>
+    }
+  </div>
+</article>

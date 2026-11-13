@@ -1,12 +1,23 @@
 @model CookShare.ViewModels.RecipeFeedPage
+@using CookShare.ViewModels
 @{
     ViewData["InteractionReturnUrl"] = Url.Action("Index", "Home", new { feed = Model.Mode });
+    bool firstPost = !Context.Request.Path.StartsWithSegments("/Feed/More");
 }
 <div class="feed-batch" data-feed-batch data-mode="@Model.Mode" data-viewer-id="@Model.ViewerId"
      data-next-url="@(Model.NextCursor == null ? null : Url.Action("More", "Home", new { feed = Model.Mode, cursor = Model.NextCursor }))"
      data-next-page="@(Model.NextCursor == null ? null : Url.Action("Index", "Home", new { feed = Model.Mode, cursor = Model.NextCursor }))">
     @foreach (var post in Model.Recipes)
     {
-        <partial name="_FeedPost" model="post" />
+        var postViewData = new ViewDataDictionary(ViewData) { ["PrioritizeImage"] = firstPost };
+        firstPost = false;
+        @if (post.Kind == 1)
+        {
+            <partial name="_CookedPost" model='new CookedPostViewModel { Id = post.Id, RecipeId = post.RecipeId, RecipeName = post.Name, Note = post.Description, ImageUrl = post.Image ?? "", AuthorId = post.AuthorId ?? "", AuthorName = post.AuthorName, AvatarUrl = post.AvatarUrl, CreatedAt = post.CreatedAt, IsOwner = post.AuthorId == Model.ViewerId }' view-data="postViewData" />
+        }
+        else
+        {
+            <partial name="_FeedPost" model="post" view-data="postViewData" />
+        }
     }
 </div>

@@ -1,0 +1,14 @@
+@model CookShare.ViewModels.CollectionInputViewModel
+@{ ViewData["Title"] = "Chỉnh sửa bộ sưu tập"; var collectionId = (int)ViewData["CollectionId"]!; }
+<div class="container collections-page collection-form-page">
+  <a class="collection-back-link" asp-action="Details" asp-route-id="@collectionId">Quay lại bộ sưu tập</a>
+  <header class="collections-heading"><div><span class="eyebrow">BẾP CỦA BẠN</span><h1>Chỉnh sửa bộ sưu tập</h1></div></header>
+  <form asp-action="Edit" asp-route-id="@collectionId" method="post" class="collection-editor">
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+    <div class="form-group"><label asp-for="Name"></label><input asp-for="Name" class="form-input" maxlength="80" required autocomplete="off" /><span asp-validation-for="Name" class="text-danger"></span></div>
+    <div class="form-group"><label asp-for="Description"></label><textarea asp-for="Description" class="form-textarea" rows="3" maxlength="300"></textarea><span asp-validation-for="Description" class="text-danger"></span></div>
+    <div class="collection-visibility-field"><input asp-for="IsPublic" aria-describedby="collectionPrivacyHelp" /><label asp-for="IsPublic"></label></div>
+    <p id="collectionPrivacyHelp" class="collection-help">Khi bật công khai, mọi người có thể mở liên kết và thấy bộ sưu tập trên hồ sơ của bạn. Bạn luôn có thể chuyển lại riêng tư.</p>
+    <button class="btn" type="submit">Lưu thay đổi</button>
+  </form>
+</div>

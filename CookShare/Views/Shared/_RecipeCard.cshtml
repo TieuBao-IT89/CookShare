@@ -11,11 +11,14 @@
   var savedCollection = ViewData["SavedCollection"] as bool? == true;
   var ratingSummaries = ViewData["RecipeRatingSummaries"] as IReadOnlyDictionary<int, RecipeRatingViewModel>;
   var ratingState = ratingSummaries != null && ratingSummaries.TryGetValue(Model.Id, out var rating) ? rating : null;
+  var prioritizeImage = ViewData["PrioritizeImage"] is true;
+  var authorAvatar = Model.User?.AvatarUrl;
+  var authorInitial = string.IsNullOrWhiteSpace(authorName) ? "CS" : System.Globalization.StringInfo.GetNextTextElement(authorName).ToUpperInvariant();
 }
 <article class="recipe-card" data-recipe-id="@Model.Id" data-saved-recipe-id="@(savedCollection ? Model.Id : (int?)null)">
   <div class="recipe-image">
     <a class="recipe-image-link" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id" aria-label="Xem công thức @Model.Name">
-      <img src="@RecipeImageReference.GetSource(Model.Image)" alt="@Model.Name" loading="lazy" decoding="async" width="640" height="480" />
+      <img src="@RecipeImageReference.GetSource(Model.Image)" alt="@Model.Name" loading="@(prioritizeImage ? "eager" : "lazy")" fetchpriority="@(prioritizeImage ? "high" : "auto")" decoding="async" width="640" height="480" />
     </a>
     <span class="recipe-category-badge">@Model.Category</span>
     <partial name="_RecipeSaveButton" model="Model" />
@@ -46,7 +49,16 @@
       <partial name="_RecipeRatingSummary" model="ratingState" />
     }
     <div class="recipe-card-author">
-      <span class="avatar-small">CS</span>
+      <span class="avatar-small" aria-hidden="true">
+        @if (!string.IsNullOrWhiteSpace(authorAvatar) && RecipeImageReference.IsValid(authorAvatar))
+        {
+          <img src="@RecipeImageReference.GetSource(authorAvatar)" alt="" width="28" height="28" loading="lazy" />
+        }
+        else
+        {
+          @authorInitial
+        }
+      </span>
       @if (!string.IsNullOrEmpty(Model.UserId))
       {
         <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.UserId">@authorName</a>
@@ -63,6 +75,7 @@
         <partial name="_RecipeLikeButton" model="likeState" />
       }
     </div>
+    <a asp-controller="Collections" asp-action="Chooser" asp-route-recipeId="@Model.Id" asp-route-returnUrl="@(Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString)" class="collection-chooser-link" data-collection-chooser aria-label="Chọn bộ sưu tập cho @Model.Name"><i class="icon fa-regular fa-folder" aria-hidden="true"></i><span>Bộ sưu tập</span></a>
     @if (savedCollection)
     {
       <partial name="_RecipeSaveButton" model="Model" view-data='new ViewDataDictionary(ViewData) { ["SaveButtonClass"] = "saved-card-unsave-btn" }' />
