@@ -106,4 +106,15 @@ Cả hai chế độ SMTP đều yêu cầu mã hóa. Khi chưa cấu hình/gử
 | Không gửi được email | SMTP/TLS, credential và `Email__PublicBaseUrl` |
 | Upload lỗi/ảnh mất sau deploy | Quyền ghi, volume và `RecipeImages__StoragePath` |
 
+### `42703: column a.PublicSearchName does not exist`
+
+Model Social 2.0 đang chạy với database chưa áp dụng `AddSocialV2`. Lỗi có thể xuất hiện ngay khi Identity kiểm tra cookie đăng nhập, trước khi controller xử lý request. Kiểm tra và nâng cấp **đúng database của ứng dụng**, kể cả khi một database demo/test khác đã được nâng cấp:
+
+```bash
+dotnet ef migrations list --project CookShare/CookShare.csproj -- --environment Development
+dotnet ef database update --project CookShare/CookShare.csproj -- --environment Development
+```
+
+Sau khi chạy, cả `20261109154259_AddSocialV2` và `20261109154451_AddSocialSearchIndexes` phải không còn trạng thái `Pending`. Tải lại trang; không cần xóa cookie hoặc tạo lại tài khoản. Nếu vẫn lỗi, đối chiếu biến môi trường `ConnectionStrings__DefaultConnection` đang ghi đè User Secrets và môi trường chạy của phiên web/EF CLI. Không thêm cột thủ công vì các bảng, backfill và index liên quan cũng cần được tạo bằng migration. Với database dùng chung, sao lưu và theo quy trình [Deployment](DEPLOYMENT.md) trước khi nâng cấp.
+
 Xem [Support](../SUPPORT.md) để báo lỗi, kèm log đã che thông tin nhạy cảm.
