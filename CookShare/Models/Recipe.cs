@@ -6,6 +6,12 @@ namespace CookShare.Models
     {
         public int Id { get; set; }
 
+        public bool IsHidden { get; set; }
+
+        public string SearchText { get; set; } = string.Empty;
+
+        public string SearchIngredients { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Vui lòng nhập tên món ăn.")]
         [Display(Name = "Tên món ăn")]
         public string Name { get; set; } = string.Empty;

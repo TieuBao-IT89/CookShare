@@ -24,6 +24,8 @@ namespace CookShare.Models
 
         public int? CommentId { get; set; }
 
+        public int? CookedRecipePostId { get; set; }
+
         [Required]
         [MaxLength(200)]
         public string EventKey { get; set; } = string.Empty;

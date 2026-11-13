@@ -1,4 +1,5 @@
 
+using CookShare.Helpers;
 using CookShare.Models;
 using CookShare.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -16,6 +17,38 @@ namespace CookShare.Data
         }
 
         public DbSet<Recipe> Recipes => Set<Recipe>();
+
+        public DbSet<RecipeCollection> RecipeCollections => Set<RecipeCollection>();
+        public DbSet<CollectionRecipe> CollectionRecipes => Set<CollectionRecipe>();
+        public DbSet<CookedRecipePost> CookedRecipePosts => Set<CookedRecipePost>();
+        public DbSet<ContentReport> ContentReports => Set<ContentReport>();
+        public DbSet<ModerationAction> ModerationActions => Set<ModerationAction>();
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            PrepareSearchFields();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            PrepareSearchFields();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void PrepareSearchFields()
+        {
+            foreach (var entry in ChangeTracker.Entries<Recipe>().Where(entry => entry.State is EntityState.Added or EntityState.Modified))
+            {
+                entry.Entity.SearchText = VietnameseSearch.Normalize(entry.Entity.Name + " " + entry.Entity.Description);
+                entry.Entity.SearchIngredients = VietnameseSearch.Normalize(entry.Entity.Ingredients);
+            }
+
+            foreach (var entry in ChangeTracker.Entries<ApplicationUser>().Where(entry => entry.State is EntityState.Added or EntityState.Modified))
+            {
+                entry.Entity.PublicSearchName = VietnameseSearch.Normalize(entry.Entity.DisplayName + " " + entry.Entity.UserName);
+            }
+        }
 
         public DbSet<RecipeLike> RecipeLikes
             => Set<RecipeLike>();
@@ -41,6 +74,22 @@ namespace CookShare.Data
             ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+            modelBuilder.HasPostgresExtension("pg_trgm");
+            modelBuilder.Entity<Recipe>().HasIndex(recipe => recipe.SearchText).HasMethod("gin").HasOperators("gin_trgm_ops");
+            modelBuilder.Entity<Recipe>().HasIndex(recipe => recipe.SearchIngredients).HasMethod("gin").HasOperators("gin_trgm_ops");
+            modelBuilder.Entity<ApplicationUser>().HasIndex(user => user.PublicSearchName).HasMethod("gin").HasOperators("gin_trgm_ops");
+            modelBuilder.Entity<Recipe>().HasQueryFilter(recipe => !recipe.IsHidden);
+            modelBuilder.Entity<Recipe>().HasIndex(recipe => new { recipe.CreatedAt, recipe.Id });
+            modelBuilder.Entity<CookedRecipePost>().HasQueryFilter(post => !post.IsHidden && !post.Recipe.IsHidden);
+            modelBuilder.Entity<Favorite>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<RecipeLike>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<RecipeComment>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<RecipeRating>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<ProfileFeaturedRecipe>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<CollectionRecipe>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<Notification>().HasOne<CookedRecipePost>().WithMany()
+                .HasForeignKey(item => item.CookedRecipePostId).OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<ApplicationUser>(entity =>
             {
