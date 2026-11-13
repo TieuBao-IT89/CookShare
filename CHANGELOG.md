@@ -6,6 +6,10 @@ Thay đổi đáng chú ý của CookShare, theo [Keep a Changelog](https://keep
 
 ### Added
 
+- CookShare Social 2.0: tìm kiếm tiếng Việt có/không dấu theo món, nguyên liệu và tác giả; sắp xếp và phân trang cursor phía server với chỉ mục tìm kiếm PostgreSQL.
+- Bộ sưu tập riêng tư mặc định, chia sẻ công khai và quản lý nhiều bộ cho một món, độc lập với Favorite.
+- Bài đã nấu thử gắn công thức gốc, media có kiểm tra quyền, feed hỗn hợp, hồ sơ/thư viện thành phẩm và thông báo cho tác giả công thức.
+- Báo cáo, kiểm duyệt theo role, ẩn/khôi phục cùng nhật ký giao dịch; CLI quản trị moderator và dọn media mồ côi.
 - Lưu công thức, tác giả và dữ liệu tương tác trong PostgreSQL qua EF Core; quản lý công thức theo quyền tác giả.
 - Tài khoản ASP.NET Core Identity; xác minh/đổi email, đổi/khôi phục mật khẩu và xóa tài khoản kèm dữ liệu liên quan.
 - Lưu công thức, thích, bình luận, theo dõi và đánh giá 1–5 sao theo tài khoản; thông báo trong ứng dụng theo người nhận.
@@ -21,6 +25,7 @@ Thay đổi đáng chú ý của CookShare, theo [Keep a Changelog](https://keep
 
 ### Changed
 
+- App shell có thanh điều hướng dưới trên mobile, bộ lọc dạng sheet, chi tiết ưu tiên thao tác nấu và hai lựa chọn đăng nội dung. Font/icon sẵn có được phục vụ local kèm giấy phép và manifest hash.
 - Cải thiện giao diện responsive, trạng thái form, thông báo và tương tác bàn phím.
 - Tổ chức README và hướng dẫn cộng tác theo luồng bắt đầu → đóng góp → kiểm thử → vận hành; phân biệt hướng dẫn hiện tại với báo cáo lịch sử.
 - CI dùng PostgreSQL tạm cho kiểm thử tích hợp, không dùng credential Neon của ứng dụng.

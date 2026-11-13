@@ -4,7 +4,7 @@ Trang chủ ưu tiên công thức từ cộng đồng với bố cục bảng t
 
 ## Icon giao diện
 
-Layout dùng chung tải [Font Awesome Free 7.3.1 từ cdnjs](https://cdnjs.com/libraries/font-awesome), cố định phiên bản và kiểm tra SRI. Bảng tin, danh mục món ăn, nút tương tác và thanh điều hướng dùng icon Free qua CSS/webfont; không cần Kit hoặc API key. Trình duyệt cần truy cập `cdnjs.cloudflare.com` để tải CSS và font.
+Layout dùng chung phục vụ Font Awesome Free 7.3.1 và các font hiện có từ `wwwroot/lib/`. Bảng tin, danh mục, tương tác và điều hướng dùng CSS/webfont Free; không cần Kit/API key hoặc kết nối CDN lúc chạy. Xem [nguồn, giấy phép và kiểm tra hash](THIRD_PARTY_ASSETS.md).
 
 Thêm icon theo dạng `<i class="icon fa-solid fa-utensils" aria-hidden="true"></i>` hoặc `fa-regular` cho kiểu nét viền. Giữ nhãn chữ cho thao tác; nút chỉ có icon cần `aria-label`. Icon trái tim/dấu lưu đổi từ viền sang đặc theo trạng thái server. Logo đầu bếp vẫn dùng SVG của CookShare. Tra tên và kiểu icon Free tại [Font Awesome](https://fontawesome.com/search?ic=free).
 
@@ -19,7 +19,7 @@ Từ cột gợi ý hoặc một bài đăng, mở Profile tác giả và dùng 
 
 ## Tải thêm và tương tác
 
-- Mỗi lượt tối đa 8 công thức, sắp xếp `CreatedAt DESC, Id DESC`. Cursor mang thời gian/ID của công thức cuối; bài mới xuất hiện trong lúc cuộn không làm lặp các bài đã xem. Tải lại đầu bảng tin để nhận những bài mới đó.
+- Mỗi lượt tối đa 8 bài gồm công thức và thành phẩm, sắp xếp `CreatedAt DESC, Kind DESC, Id DESC`. Cursor v2 mang thời gian/loại/ID cuối; frontend deduplicate theo loại + ID. Bài mới xuất hiện trong lúc cuộn không làm lặp bài đã xem. Tải lại đầu bảng tin để nhận bài mới; cursor cũ được hiểu tại vị trí công thức tương ứng.
 - Khi cuộn gần cuối, JavaScript tải thêm qua `GET /Feed/More`. Sau tối đa 3 lượt tự động, dùng **Xem thêm món ngon** để tiếp tục và giữ chân trang dễ truy cập. Có thể bỏ chọn **Tự tải thêm**.
 - Khi tắt JavaScript, **Xem thêm** là liên kết chuyển sang trang kế tiếp được render từ server.
 - **Like** và **Lưu** dùng các API/CSRF hiện có, kể cả với bài vừa tải thêm. Trạng thái lấy từ database và được giữ khi tải lại trang.
@@ -27,7 +27,9 @@ Từ cột gợi ý hoặc một bài đăng, mở Profile tác giả và dùng 
 - **Chia sẻ** mở trình chia sẻ của thiết bị nếu có, hoặc sao chép link. Khi trình duyệt không cho phép clipboard, hộp thoại cung cấp liên kết để sao chép thủ công.
 - Mô tả dài có thể mở rộng. Thời gian bài đăng được trình bày theo trình duyệt; thời gian đầy đủ có trong tooltip. Nút **Về đầu** xuất hiện sau khi cuộn xuống.
 
-Truy vấn feed dùng projection thông tin công khai, số Like/Comment và trạng thái Like/Save, không tải PasswordHash, SecurityStamp hoặc Email. Mỗi lượt chỉ lấy 9 dòng để xác định còn trang tiếp theo, trả tối đa 8. Không có truy vấn riêng cho từng bài và không có nguồn dữ liệu feed trong localStorage.
+Truy vấn feed dùng `UNION ALL` và projection thông tin công khai, số Like/Comment và trạng thái Like/Save của công thức, không tải PasswordHash, SecurityStamp hoặc Email. Mỗi lượt chỉ lấy 9 dòng để xác định còn trang tiếp theo, trả tối đa 8. Thành phẩm hiển thị người nấu, ảnh, ghi chú và link công thức gốc; không gán số tương tác công thức cho bài thành phẩm. Không có truy vấn riêng cho từng bài và không có nguồn feed trong localStorage.
+
+Following dùng tác giả của từng loại bài để kiểm tra Follow. Bài và công thức gốc bị ẩn không xuất hiện; ảnh thành phẩm có route kiểm tra quyền riêng. Xem [Social 2.0](SOCIAL_V2.md) và [kiểm duyệt](COOKED_POSTS_MODERATION.md).
 
 Các phản hồi feed và bình luận đặt `Cache-Control: no-store`. API tải thêm Following trả 401 nếu hết phiên. Frontend không ghép dữ liệu từ hai tài khoản khác nhau; khi phát hiện tài khoản đổi, yêu cầu tải lại. Khi quay lại bằng bfcache, trang tải lại để xác nhận phiên hiện tại.
 

@@ -22,6 +22,23 @@ The harness runs production `issue108.js`, shared styles and feed styles with co
 
 Run the Home Feed harness below for pagination and social regression coverage. See the [audit](../../docs/UI_AUDIT_120.md) and [Before/After evidence](../../docs/ui/issue120/README.md) for native application forms, notification persistence, responsive screenshots and verification limits.
 
+## Social 2.0 discovery filters
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-SocialDiscoveryBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-SocialDiscoveryBrowserTests.ps1 -Viewport Mobile
+```
+
+The harness runs the production discovery CSS/JavaScript with an isolated GET
+form. It verifies native form behavior before enhancement, Vietnamese/special
+characters, form association after moving filters into the mobile sheet,
+Apply preserving every filter and sort, input retention, focus restoration,
+the Escape cancellation handler, touch targets and overflow. Desktop uses the
+native disclosure; mobile uses a real 360px iframe. Python and Chrome/Edge are
+required. Results are written under ignored `artifacts/social-v2/discovery-tests/`.
+Full-page screenshots, real keyboard Escape, Back navigation and database search
+remain separate application checks.
+
 ## Creator Profile
 
 ```powershell

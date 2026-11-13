@@ -43,6 +43,19 @@ COOKSHARE_RUN_POSTGRES_TESTS=1 COOKSHARE_TEST_CONNECTION='Host=localhost;Port=55
 
 Fixture áp dụng migration trước test; không cần tự tạo schema. Dừng service sau khi xong bằng `docker stop cookshare-tests`.
 
+## Kiểm thử Social 2.0
+
+Social 2.0 bổ sung kiểm tra PostgreSQL cho membership đồng thời và nâng cấp từ schema cũ có dữ liệu. Test nâng cấp tạo database `cookshare_test_social_upgrade_<guid>` bằng cùng service test, đối chiếu chín bảng cũ, cột tìm kiếm và ba GIN index rồi dọn database do chính test tạo. Tài khoản fixture cần quyền tạo database và extension `pg_trgm`.
+
+Các test controller/service/integration kiểm tra bộ riêng, Favorite độc lập, cursor hỗn hợp, tìm tiếng Việt/literal đặc biệt, transaction bài–thông báo–media, role/CSRF, nội dung và URL ảnh bị ẩn, xóa tài khoản có dữ liệu mới. Kết quả chạy và phạm vi browser được ghi tại [biên bản Social 2.0](ui/social-v2/README.md).
+
+```powershell
+powershell -NoProfile -File CookShare.Tests/Frontend/Run-SocialDiscoveryBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -File CookShare.Tests/Frontend/Run-SocialDiscoveryBrowserTests.ps1 -Viewport Mobile
+```
+
+Harness dùng Chrome/Edge và Python local, không cần database. Các test PostgreSQL và browser opt-in vẫn cần chạy riêng theo hướng dẫn dưới đây; không suy ra kết quả UI từ unit test.
+
 ## Định dạng và analyzer
 
 ```bash

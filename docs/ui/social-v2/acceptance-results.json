@@ -1,0 +1,37 @@
+{
+  "passed": 27,
+  "checks": [
+    "Vietnamese accented/unaccented search matches",
+    "Ingredient and public author search is bounded to 24",
+    "Back restores discovery URL/filter state",
+    "Discovery next page has no duplicates",
+    "A follows B and sees B recipes in Following",
+    "Favorite stores confirmed server state",
+    "Create two private collections and add the same recipe",
+    "B cannot read A private collection directly",
+    "Only explicitly published collection is readable by B",
+    "Unsave leaves both collection memberships intact",
+    "Serving scaler doubles recognized quantities",
+    "Cooksnap upload creates gated media and original recipe link",
+    "Other account cannot edit cooksnap",
+    "Recipe author receives notification opening the cooksnap",
+    "Cooksnap appears in original recipe community gallery",
+    "Following includes followed cooksnap author",
+    "Unfollow removes cooksnap from Following",
+    "Ordinary user cannot open moderation queue",
+    "Moderator hide blocks post and direct media",
+    "Hidden cooksnap is absent from public feed",
+    "Restore makes post and gated media readable again",
+    "Moderation audit records both decisions",
+    "No horizontal overflow in acceptance state",
+    "No horizontal overflow in acceptance state",
+    "No horizontal overflow in acceptance state",
+    "Native search works without JavaScript",
+    "Native collection chooser works without JavaScript"
+  ],
+  "postId": 4,
+  "collectionIds": [
+    7,
+    8
+  ]
+}

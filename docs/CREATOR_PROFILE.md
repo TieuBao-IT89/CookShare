@@ -2,6 +2,8 @@
 
 Profile có ảnh bìa, Bio, ngày tham gia, thống kê, các tab nội dung và tối đa 3 công thức nổi bật. Xem [ảnh trước/sau và các màn hình kiểm thử](ui/issue117/README.md).
 
+Social 2.0 bổ sung các mục Đã nấu và Bộ sưu tập công khai, lấy từ server và loại nội dung ẩn. Bộ riêng chỉ hiển thị cho owner ở trang Bộ sưu tập, không xuất hiện trên hồ sơ công khai. Xem [Social 2.0](SOCIAL_V2.md) và [ảnh giao diện mới](ui/social-v2/README.md).
+
 ## Chạy và cập nhật database
 
 Sau khi lấy nhánh `feature/enhanced-creator-profile`, áp dụng migration trước khi mở website, bằng connection Development đã cấu hình trong User Secrets:

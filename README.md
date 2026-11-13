@@ -5,7 +5,7 @@
 
 Nền tảng chia sẻ công thức nấu ăn viết bằng **ASP.NET Core MVC, .NET 8 và PostgreSQL**. Khám phá món ăn, đăng công thức và kết nối với những người cùng thích nấu nướng.
 
-> Tài liệu mô tả mã nguồn trên `develop`. `main` dành cho bản ổn định; xem [Releases](https://github.com/TieuBao-IT89/CookShare/releases) để chọn phiên bản đã phát hành.
+> Tài liệu đi cùng mã nguồn đang checkout. `develop` là nhánh tích hợp, `main` dành cho bản ổn định; xem [Releases](https://github.com/TieuBao-IT89/CookShare/releases) để chọn phiên bản đã phát hành.
 
 ## Tính năng
 
@@ -16,6 +16,7 @@ Nền tảng chia sẻ công thức nấu ăn viết bằng **ASP.NET Core MVC, 
 - Hồ sơ có Bio, ảnh bìa, ghim tối đa ba công thức và theo dõi người sáng tạo.
 - Đăng ký/đăng nhập, xác minh email, khôi phục mật khẩu, cài đặt và xóa tài khoản.
 - Tài khoản, công thức và tương tác được lưu trong PostgreSQL; thông báo trong ứng dụng theo người nhận.
+- Social 2.0: tìm món tiếng Việt không dấu, nguyên liệu/tác giả, bộ sưu tập riêng tư/công khai, bài đã nấu thử và báo cáo/kiểm duyệt nội dung.
 
 ## Bắt đầu
 
@@ -51,6 +52,7 @@ Các test cần PostgreSQL hoặc trình duyệt chạy theo cơ chế opt-in. [
 | Cài đặt, cấu hình và chạy local | [Setup](docs/SETUP.md) |
 | Kiểm thử và kiểm tra chất lượng | [Testing](docs/TESTING.md) |
 | Kiến trúc dữ liệu và migration | [Database design](docs/DATABASE_DESIGN.md) |
+| CookShare Social 2.0, nghiệm thu và thay đổi schema | [Social 2.0](docs/SOCIAL_V2.md) |
 | Tải ảnh, khẩu phần, thời gian và độ khó | [Ảnh công thức](docs/RECIPE_IMAGES.md) · [Thông tin nấu ăn](docs/RECIPE_COOKING.md) |
 | Triển khai Staging và rollback | [Deployment](docs/DEPLOYMENT.md) |
 | Các hướng dẫn tính năng và bằng chứng kiểm chứng | [Mục lục tài liệu](docs/README.md) |

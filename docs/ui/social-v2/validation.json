@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-14",
+  "branch": "feature/cookshare-social-v2",
+  "baseline": "2d125b4c74013b07b883c6a62101487e54638a32",
+  "environment": {
+    "os": "Windows",
+    "framework": ".NET 8",
+    "database": "isolated PostgreSQL on loopback",
+    "browser": "Chrome headless via Playwright",
+    "viewports": [
+      360,
+      390,
+      768,
+      1440
+    ]
+  },
+  "dotnetTests": {
+    "passed": 613,
+    "failed": 0,
+    "skipped": 0,
+    "postgresOptIn": true,
+    "browserOptIn": true
+  },
+  "format": {
+    "whitespace": 0,
+    "style": 0,
+    "analyzers": 0
+  },
+  "browserHarnesses": {
+    "discovery-Desktop": "COMPLETE 15 passed",
+    "discovery-Mobile": "COMPLETE 16 passed",
+    "feed-Desktop": "COMPLETE 30 passed",
+    "feed-Mobile": "COMPLETE 30 passed"
+  },
+  "liveAcceptancePassed": 27,
+  "additionalUiChecksPassed": 5,
+  "screenshots": {
+    "paired": 56,
+    "routes": 7,
+    "http200": 56,
+    "horizontalOverflow": 0
+  }
+}

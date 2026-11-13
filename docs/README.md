@@ -1,6 +1,6 @@
 # Tài liệu CookShare
 
-Tài liệu ở nhánh `develop` đi cùng mã nguồn đang tích hợp. Với phiên bản đã phát hành, đọc tài liệu tại tag tương ứng trong [Releases](https://github.com/TieuBao-IT89/CookShare/releases).
+Tài liệu đi cùng mã nguồn đang checkout; `develop` là nhánh tích hợp. Với phiên bản đã phát hành, đọc tài liệu tại tag tương ứng trong [Releases](https://github.com/TieuBao-IT89/CookShare/releases).
 
 ## Bắt đầu và vận hành
 
@@ -17,6 +17,9 @@ Tài liệu ở nhánh `develop` đi cùng mã nguồn đang tích hợp. Với 
 | Tài liệu | Nội dung |
 | --- | --- |
 | [Ảnh công thức](RECIPE_IMAGES.md) | Upload, kiểm tra tệp, vị trí lưu và sao lưu |
+| [Social 2.0](SOCIAL_V2.md) | Ba giai đoạn, route, migration, kiểm chứng và giới hạn |
+| [Bộ sưu tập](COLLECTIONS.md) | Riêng tư/công khai, nhiều bộ cho một món, độc lập Favorite |
+| [Thành phẩm và kiểm duyệt](COOKED_POSTS_MODERATION.md) | Upload riêng, feed hỗn hợp, báo cáo, moderator và media |
 | [Thông tin nấu ăn](RECIPE_COOKING.md) | Khẩu phần, định lượng, thời gian và độ khó |
 | [Dữ liệu mẫu](RECIPE_SEEDING.md) | Seed local và import TheMealDB |
 | [Bảng tin](HOME_FEED.md) | Mới nhất/đang theo dõi, phân trang và tương tác |
@@ -31,6 +34,7 @@ Tài liệu ở nhánh `develop` đi cùng mã nguồn đang tích hợp. Với 
 - [Contributing](../CONTRIBUTING.md), [Code of Conduct](../CODE_OF_CONDUCT.md), [Security](../SECURITY.md) và [Support](../SUPPORT.md).
 - [Frontend harness](../CookShare.Tests/Frontend/README.md) và [công cụ thiết kế UI tùy chọn](UI_DESIGN_WORKFLOW.md).
 - [Changelog](../CHANGELOG.md) ghi thay đổi đáng chú ý; không dùng số kiểm thử trong báo cáo cũ để suy ra kết quả hiện tại.
+- [Audit Social 2.0](SOCIAL_V2_UI_AUDIT.md), [ảnh và kiểm chứng](ui/social-v2/README.md), [nguồn và giấy phép tài nguyên](THIRD_PARTY_ASSETS.md).
 
 ## Báo cáo và bằng chứng lịch sử
 

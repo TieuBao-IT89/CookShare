@@ -1,0 +1,170 @@
+[
+  {
+    "route": "/",
+    "width": 360,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe",
+    "width": 360,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Details/1",
+    "width": 360,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Profile?userId=social-b",
+    "width": 360,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Create",
+    "width": 360,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Saved",
+    "width": 360,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Notifications",
+    "width": 360,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe",
+    "width": 390,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Details/1",
+    "width": 390,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Profile?userId=social-b",
+    "width": 390,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Create",
+    "width": 390,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Saved",
+    "width": 390,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Notifications",
+    "width": 390,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/",
+    "width": 768,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe",
+    "width": 768,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Details/1",
+    "width": 768,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Profile?userId=social-b",
+    "width": 768,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Create",
+    "width": 768,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Saved",
+    "width": 768,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Notifications",
+    "width": 768,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/",
+    "width": 1440,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe",
+    "width": 1440,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Details/1",
+    "width": 1440,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Profile?userId=social-b",
+    "width": 1440,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Create",
+    "width": 1440,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Recipe/Saved",
+    "width": 1440,
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "route": "/Notifications",
+    "width": 1440,
+    "status": 200,
+    "overflow": false
+  }
+]

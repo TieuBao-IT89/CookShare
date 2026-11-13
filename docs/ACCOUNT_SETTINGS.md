@@ -1,5 +1,7 @@
 # Account Settings — Issue #101
 
+> Social 2.0 bổ sung bộ sưu tập, thành phẩm và kiểm duyệt. Xóa tài khoản hiện xử lý cả dữ liệu ẩn, dọn ảnh sau commit và giữ lịch sử báo cáo/nhật ký với danh tính NULL. Xem [Social 2.0](SOCIAL_V2.md) và [chính sách thành phẩm](COOKED_POSTS_MODERATION.md). Các số kiểm thử/lịch sử Issue #101 bên dưới giữ nguyên phạm vi thời điểm đó.
+
 ## Nguồn triển khai và phạm vi
 
 Tính năng tái sử dụng PR [#105](https://github.com/TieuBao-IT89/CookShare/pull/105) của Nguyên Hải (`haivo200c-lang`), head commit `6dd79a9e86e6d9cc6bfd4db3d7f205121c5b39a3`. Lịch sử commit gốc được giữ trong merge vào nhánh tích hợp; không sao chép lại tính năng từ đầu và không ghi lên nhánh của contributor.

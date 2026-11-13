@@ -59,6 +59,8 @@ Migration trên Staging là thay đổi tiến tới. Job rollback của workflo
 
 Không chạy migration thử nghiệm trên database Staging hoặc Production.
 
+Social 2.0 cần PostgreSQL có hàm `normalize` (13+) và quyền tạo extension `pg_trgm` cho tài khoản migration, hoặc extension đã được quản trị viên cài trước. Hai migration bổ sung schema và backfill cột tìm kiếm; kiểm tra bản sao có dữ liệu trước khi áp dụng. Xem [thiết kế dữ liệu](DATABASE_DESIGN.md) và [Social 2.0](SOCIAL_V2.md).
+
 ## 6. Biến môi trường
 
 Cấu hình các giá trị sau trong **Azure Portal → App Service → Settings → Environment variables**. Không ghi chúng vào `appsettings.json` hoặc commit vào repository.
@@ -68,6 +70,7 @@ Cấu hình các giá trị sau trong **Azure Portal → App Service → Setting
 | `ASPNETCORE_ENVIRONMENT` | `Staging` |
 | `ConnectionStrings__DefaultConnection` | Chuỗi kết nối Neon của database Staging. Cùng database với secret `STAGING_CONNECTION_STRING`. |
 | `RecipeImages__StoragePath` | Tùy chọn: đường dẫn storage ảnh bền vững, ngoài web root; xem [Recipe images](RECIPE_IMAGES.md). |
+| `SocialImages__StoragePath` | Kho ảnh thành phẩm bền vững, ngoài web root; tách khỏi kho công thức. |
 
 ASP.NET Core map `ConnectionStrings__DefaultConnection` thành `ConnectionStrings:DefaultConnection`.
 
@@ -78,6 +81,20 @@ Sau khi sửa Application settings, lưu thay đổi để App Service khởi đ
 Cấu hình SMTP/TLS và `Email__PublicBaseUrl` theo [Setup](SETUP.md); Staging cần URL HTTPS thật của App Service. Credential email đặt trong Application settings/secret store.
 
 Ảnh upload không nằm trong gói publish. Trên Azure có `WEBSITE_INSTANCE_ID` và `HOME`, mặc định lưu tại `<HOME>/data/CookShare/recipe-images`. Kiểm tra storage App Service bền vững và dùng chung giữa các instance; hoặc đặt `RecipeImages__StoragePath` tới volume phù hợp. Sao lưu file ảnh cùng database, xác minh ảnh còn đọc được sau deploy/restart. Xem [Recipe images](RECIPE_IMAGES.md) về giới hạn dọn file.
+
+Ảnh thành phẩm mặc định ở `<HOME>/data/CookShare/cooked-post-images` trên Azure hoặc `App_Data/cooked-post-images` khi chạy local. Không expose kho này qua static files/CDN: route media phải kiểm tra trạng thái bài và công thức mỗi lần đọc. Sao lưu cả hai kho; thử ẩn/khôi phục rồi xác minh URL ảnh trả 404/200 tương ứng. Rate limit upload/báo cáo hiện nằm trong tiến trình; khi chạy nhiều instance cần giới hạn chung ở proxy.
+
+### Quyền kiểm duyệt và dọn media
+
+Sau migration, chạy từ gói publish với đúng cấu hình database bằng tài khoản vận hành đáng tin cậy:
+
+```bash
+dotnet CookShare.dll moderator grant <username>
+dotnet CookShare.dll moderator revoke <username>
+dotnet CookShare.dll cleanup-social-media
+```
+
+Moderator cần đăng nhập lại sau khi đổi role. Không có endpoint tự cấp quyền trên web. Lệnh dọn chỉ xóa ảnh thành phẩm không còn tham chiếu và cũ hơn 24 giờ; ảnh của bài ẩn vẫn được giữ để khôi phục. Xem [thành phẩm và kiểm duyệt](COOKED_POSTS_MODERATION.md) để kiểm tra hàng chờ, nhật ký và quyền ảnh riêng.
 
 ## 7. GitHub Actions Secrets
 

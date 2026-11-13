@@ -14,6 +14,8 @@ Chạy lệnh từ thư mục gốc chứa `CookShare.sln`. Hướng dẫn dành
 
 Visual Studio/VS Code là tùy chọn. Không cần Node.js để build. Python và Chrome/Edge chỉ cần cho frontend harness.
 
+Social 2.0 dùng chuẩn hóa Unicode và chỉ mục `pg_trgm`: cần PostgreSQL hỗ trợ `normalize` (13+) và quyền cài extension khi áp dụng migration. Môi trường kiểm chứng dùng PostgreSQL 16. Xem [Social 2.0](SOCIAL_V2.md) về backfill và nâng cấp dữ liệu cũ.
+
 ```bash
 git clone --branch develop https://github.com/TieuBao-IT89/CookShare.git
 cd CookShare

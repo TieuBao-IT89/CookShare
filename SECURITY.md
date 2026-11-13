@@ -34,6 +34,7 @@ Maintainer xác minh trong môi trường cô lập, đánh giá mức độ ả
 - Liên kết email dùng `Email__PublicBaseUrl` tin cậy, yêu cầu HTTPS ngoài Development/Testing. SMTP dùng TLS; token xác minh/đặt lại mật khẩu hết hạn sau một giờ.
 - Quên mật khẩu trả thông báo chung. Đặt lại mật khẩu không tự đăng nhập hoặc tự xác minh email. Security stamp được cập nhật; các phiên khác bị vô hiệu khi Identity kiểm tra lại stamp, mặc định tối đa khoảng 30 phút.
 - Xóa tài khoản yêu cầu mật khẩu hiện tại, xóa dữ liệu phụ thuộc trong transaction và đăng xuất phiên hiện tại. Chi tiết giữ/xóa từng bảng ở [Account settings](docs/ACCOUNT_SETTINGS.md).
-- Ảnh công thức đọc công khai; file cũ chưa được tự dọn khi thay ảnh/xóa công thức/tài khoản. Xem [Recipe images](docs/RECIPE_IMAGES.md) để hiểu giới hạn lưu trữ.
+- Ảnh upload công thức chỉ đọc khi còn tham chiếu hiển thị; ảnh thành phẩm kiểm tra cả bài và công thức, trả no-store. Ảnh bị thay/xóa được dọn sau commit; xem [Recipe images](docs/RECIPE_IMAGES.md) và [thành phẩm/kiểm duyệt](docs/COOKED_POSTS_MODERATION.md).
+- Bộ sưu tập riêng tư chỉ chủ sở hữu được đọc/sửa; trạng thái Favorite độc lập với membership. Moderator chỉ được cấp qua CLI quản trị; thao tác xử lý kiểm tra role, CSRF, trạng thái và lưu nhật ký cùng transaction.
 
 Chỉ chạy test ghi/xóa trên database riêng theo [Testing](docs/TESTING.md). CI dùng PostgreSQL tạm, không dùng credential Neon của ứng dụng.

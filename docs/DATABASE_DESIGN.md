@@ -1,6 +1,6 @@
 # Thiết kế dữ liệu
 
-CookShare dùng PostgreSQL, EF Core 8 và Npgsql. Schema chuẩn được mô tả bởi [ApplicationDbContext](../CookShare/Data/ApplicationDbContext.cs), [models](../CookShare/Models/) và [migrations](../CookShare/Migrations/). Tài liệu mô tả mã trên `develop`, không khẳng định database triển khai đã áp dụng đủ migration.
+CookShare dùng PostgreSQL, EF Core 8 và Npgsql. Schema chuẩn được mô tả bởi [ApplicationDbContext](../CookShare/Data/ApplicationDbContext.cs), [models](../CookShare/Models/) và [migrations](../CookShare/Migrations/). Tài liệu bao gồm Social 2.0; database triển khai cần được kiểm tra lịch sử migration riêng.
 
 ## Các bảng
 
@@ -15,6 +15,11 @@ CookShare dùng PostgreSQL, EF Core 8 và Npgsql. Schema chuẩn được mô t�
 | `RecipeRating` / `RecipeRatings` | Đánh giá; PK `Id`, duy nhất `(UserId, RecipeId)` |
 | `Notification` / `Notifications` | Thông báo theo người nhận; PK `Id`, duy nhất `EventKey` |
 | `ProfileFeaturedRecipe` / `ProfileFeaturedRecipes` | Công thức ghim; PK ghép `(UserId, RecipeId)`, duy nhất `(UserId, DisplayOrder)` |
+| `RecipeCollection` / `RecipeCollections` | Bộ sưu tập của owner; mặc định riêng tư, index `(OwnerId, UpdatedAt, Id)` |
+| `CollectionRecipe` / `CollectionRecipes` | Thành viên; PK ghép `(CollectionId, RecipeId)` |
+| `CookedRecipePost` / `CookedRecipePosts` | Thành phẩm; duy nhất `(UserId, SubmissionKey)`, index thời gian/ID cho feed, tác giả và công thức |
+| `ContentReport` / `ContentReports` | Báo cáo; duy nhất `(ReporterId, TargetType, TargetId)`, index hàng chờ |
+| `ModerationAction` / `ModerationActions` | Nhật ký quyết định; liên kết báo cáo và moderator |
 
 Identity còn có các bảng roles, claims, logins, user roles và tokens do EF Identity quản lý. Không sửa trực tiếp password hash hoặc token trong database.
 
@@ -29,6 +34,8 @@ Identity còn có các bảng roles, claims, logins, user roles và tokens do EF
 | `CoverImageUrl` | character varying(500) | Có |
 | `Bio` | character varying(300) | Có |
 | `CreatedAt` | timestamp with time zone | Không |
+
+`PublicSearchName` (text, không NULL) chứa username và display name chuẩn hóa cho tìm kiếm công khai.
 
 `NormalizedUserName` có unique index; index `NormalizedEmail` không unique. Identity được cấu hình `RequireUniqueEmail`, nhưng đây là kiểm tra ứng dụng, không phải ràng buộc unique email ở database.
 
@@ -59,11 +66,19 @@ Ghim công thức dùng ba vị trí `DisplayOrder` từ 1 đến 3. Unique inde
 
 Thời gian/độ khó của dữ liệu cũ giữ NULL, còn khẩu phần được migration mặc định 4. Xem [khẩu phần và metadata](RECIPE_COOKING.md), [ảnh upload](RECIPE_IMAGES.md) và [seeding](RECIPE_SEEDING.md).
 
+## Dữ liệu Social 2.0
+
+Recipe bổ sung `IsHidden` (boolean, mặc định false), `SearchText` và `SearchIngredients` (text, không NULL). Bộ sưu tập độc lập với Favorite. Chỉ owner được ghi; truy vấn đọc công khai luôn yêu cầu `IsPublic`. Thành phẩm có một tên file do server sinh, ghi chú tối đa 1000 ký tự, `IsHidden` và khóa chống gửi lặp. Bài chỉ hiển thị khi công thức gốc cũng hiển thị.
+
+`TargetType`/`TargetId` trong báo cáo và nhật ký là định danh bền vững, không phải FK tới nội dung: xóa nội dung vẫn giữ lịch sử. Danh tính reporter/moderator được SetNull khi xóa tài khoản. Các enum lưu dưới dạng chuỗi có giới hạn độ dài; TargetId phải dương.
+
+EF SaveChanges chuẩn hóa tiếng Việt có/không dấu, gồm đ/d, vào ba cột tìm kiếm; migration backfill dữ liệu cũ. `pg_trgm` và ba GIN index hỗ trợ tìm substring. Ghi SQL ngoài EF phải tự đồng bộ cột tìm kiếm. Query filter toàn cục loại công thức/bài ẩn và các tương tác phụ thuộc; quyền bộ riêng vẫn được kiểm tra theo người xem. Xem [Social 2.0](SOCIAL_V2.md) về thứ tự cursor, giới hạn truy vấn và chính sách hiển thị.
+
 ## Tương tác và thông báo
 
 Like/Favorite/Rating tham chiếu người dùng và công thức; Comment có `Content` bắt buộc, tối đa 1000 ký tự. Follow có hai FK người dùng, không cho phép tự theo dõi. Rating có check constraint số sao 1–5; quy tắc không tự đánh giá công thức mình được kiểm tra trong ứng dụng.
 
-Notification gồm `RecipientId`, `ActorId`, `Type` (20 ký tự), `Message` nullable (500), `RecipeId`/`CommentId` nullable, `EventKey` (200), `IsRead` và `CreatedAt`. Unique `EventKey` chống tạo trùng sự kiện; index `(RecipientId, IsRead, CreatedAt)` hỗ trợ danh sách theo người nhận. Quyền đọc/đánh dấu thông báo được kiểm tra phía server.
+Notification gồm `RecipientId`, `ActorId`, `Type` (20 ký tự), `Message` nullable (500), `RecipeId`/`CommentId`/`CookedRecipePostId` nullable, `EventKey` (200), `IsRead` và `CreatedAt`. Unique `EventKey` chống tạo trùng sự kiện; index `(RecipientId, IsRead, CreatedAt)` hỗ trợ danh sách theo người nhận. Quyền đọc/đánh dấu thông báo được kiểm tra phía server.
 
 Các thời điểm `CreatedAt` thường được khởi tạo bằng `DateTime.UtcNow` ở C#, không có nghĩa là database có mặc định `CURRENT_TIMESTAMP`. Migration core ban đầu dùng giá trị tối thiểu cho ngày công thức cũ; không suy ra đó là ngày đăng thực tế.
 
@@ -90,6 +105,15 @@ erDiagram
   Recipe ||--o{ ProfileFeaturedRecipe : featured
   Recipe |o--o{ Notification : context
   RecipeComment |o--o{ Notification : context
+  ApplicationUser ||--o{ RecipeCollection : owns
+  RecipeCollection ||--o{ CollectionRecipe : contains
+  Recipe ||--o{ CollectionRecipe : member
+  ApplicationUser ||--o{ CookedRecipePost : cooks
+  Recipe ||--o{ CookedRecipePost : original
+  CookedRecipePost |o--o{ Notification : context
+  ApplicationUser |o--o{ ContentReport : reports
+  ContentReport ||--o{ ModerationAction : decisions
+  ApplicationUser |o--o{ ModerationAction : moderator
 ```
 
 ## Ràng buộc và xóa dữ liệu
@@ -104,7 +128,12 @@ Check constraints gồm `CK_Follows_NoSelfFollow`, `CK_RecipeRatings_Stars`, `CK
 | User/Recipe → ProfileFeaturedRecipe | Cascade |
 | User → Notification qua RecipientId | Cascade |
 | User → Notification qua ActorId | Restrict |
-| Recipe/Comment → Notification | SetNull |
+| Recipe/Comment/CookedRecipePost → Notification | SetNull |
+| User → RecipeCollection/CookedRecipePost | Restrict; AccountDeletionService dọn chủ động |
+| RecipeCollection/Recipe → CollectionRecipe | Cascade |
+| Recipe → CookedRecipePost | Cascade |
+| User → ContentReport/ModerationAction | SetNull |
+| ContentReport → ModerationAction | Cascade |
 | User/Role → bản ghi hỗ trợ Identity tương ứng | Cascade |
 
 Luồng xóa tài khoản chủ động dọn dữ liệu phụ thuộc trong transaction trước khi xóa Identity. Không diễn giải `Restrict` thành việc giữ tất cả công thức khi người dùng yêu cầu xóa tài khoản. Chính sách chi tiết ở [Account settings](ACCOUNT_SETTINGS.md). File upload không bị FK xóa; xem [Recipe images](RECIPE_IMAGES.md).
@@ -120,6 +149,8 @@ Luồng xóa tài khoản chủ động dọn dữ liệu phụ thuộc trong tr
 | `20261023234416_AddCreatorProfile` | Bio, ảnh bìa và công thức ghim |
 | `20261030083639_AddRecipeServings` | Khẩu phần và mặc định 4 |
 | `20261030142753_AddRecipeCookingMetadata` | Thời gian và độ khó |
+| `20261109154259_AddSocialV2` | Bộ sưu tập, thành phẩm, báo cáo/nhật ký, cờ ẩn, backfill tìm kiếm, FK thông báo |
+| `20261109154451_AddSocialSearchIndexes` | Extension pg_trgm và ba GIN index |
 
 EF theo dõi migration trong `__EFMigrationsHistory`; bảng đã tồn tại không thay thế lịch sử migration. Không sửa tay lịch sử để bỏ qua lỗi schema.
 

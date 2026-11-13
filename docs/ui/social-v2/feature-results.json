@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "Collection dialog Escape/focus and no overflow at 390",
+    "Invalid upload preserves note and shows validation at 390",
+    "Collection dialog Escape/focus and no overflow at 1440",
+    "Invalid upload preserves note and shows validation at 1440",
+    "Guest empty discovery has no horizontal overflow"
+  ],
+  "passed": 5
+}

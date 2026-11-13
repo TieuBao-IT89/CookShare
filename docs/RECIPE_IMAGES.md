@@ -8,7 +8,7 @@ Chọn ảnh trên form tạo/sửa để xem trước. Upload diễn ra khi g�
 - Server kiểm tra phần mở rộng, độ dài thực và dấu hiệu định dạng. Đây không phải giải mã/re-encode toàn bộ ảnh hoặc quét malware.
 - Server sinh tên GUID; tên từ trình duyệt không chọn đường dẫn lưu.
 - File ở ngoài `wwwroot`; PostgreSQL chỉ lưu `/uploads/recipes/<fileName>` trong `Recipes.Image`.
-- Route ảnh cho phép đọc công khai theo tên hợp lệ, trả Content-Type, `nosniff` và cache immutable. Không dùng ảnh công thức để lưu tài liệu riêng tư.
+- Route ảnh cho phép đọc công khai khi tên hợp lệ và có công thức còn hiển thị tham chiếu tới ảnh; tham chiếu từ công thức bị ẩn chặn URL upload cũ. Trả Content-Type, `nosniff` và `Cache-Control: no-store`. Không dùng ảnh công thức để lưu tài liệu riêng tư.
 
 Mã chính: [LocalRecipeImageStorage](../CookShare/Services/LocalRecipeImageStorage.cs), [RecipeImagesController](../CookShare/Controllers/RecipeImagesController.cs), [RecipeController](../CookShare/Controllers/RecipeController.cs).
 
@@ -34,7 +34,9 @@ Dùng volume bền vững; trên Azure kiểm tra cấu hình storage của App 
 
 Sao lưu cả database và thư mục ảnh. Khôi phục database đơn lẻ không khôi phục file. Nếu đổi `StoragePath`, di chuyển nội dung và xác minh đọc ảnh trước khi chuyển lưu lượng.
 
-Upload mới được xóa khi lưu database thất bại. Hiện chưa tự dọn ảnh cũ khi thay ảnh, xóa công thức hoặc xóa tài khoản. Trước khi dọn file cần đối chiếu tham chiếu database và chính sách sao lưu.
+Upload mới được xóa khi lưu database thất bại. Khi thay ảnh, xóa công thức hoặc xóa tài khoản, ảnh cũ được dọn sau commit nếu không còn công thức nào tham chiếu, kể cả công thức ẩn. Nếu storage lỗi, không đảo ngược thao tác database đã hoàn tất; cần đối chiếu tham chiếu và bản sao lưu khi dọn file còn dư.
+
+Ảnh bài **Đã nấu thử** nằm trong kho riêng và chỉ đọc qua route kiểm tra bài/công thức. Không dùng route ảnh công thức cho ảnh thành phẩm. Xem [Thành phẩm và kiểm duyệt](COOKED_POSTS_MODERATION.md), gồm lệnh dọn file mồ côi cho kho thành phẩm.
 
 ## Kiểm tra
 
