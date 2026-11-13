@@ -16,6 +16,8 @@
     <Content Update="Data\Seeds\sample-recipes.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Remove="App_Data/recipe-images/**" />
     <None Remove="App_Data/recipe-images/**" />
+    <Content Remove="App_Data/cooked-post-images/**" />
+    <None Remove="App_Data/cooked-post-images/**" />
   </ItemGroup>
 
   <ItemGroup>

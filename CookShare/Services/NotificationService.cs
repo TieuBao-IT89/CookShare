@@ -23,6 +23,18 @@ namespace CookShare.Services
                 $"follow:{follow.Id}");
         }
 
+        public Task NotifyCookedRecipePostAsync(CookedRecipePost post)
+        {
+            if (string.IsNullOrEmpty(post.Recipe.UserId))
+            {
+                return Task.CompletedTask;
+            }
+
+            return AddAsync(post.Recipe.UserId, post.UserId, "CookedPost",
+                $"đã nấu thử công thức \"{post.Recipe.Name}\" của bạn.",
+                $"cooked-post:{post.Id}", post.RecipeId, cookedRecipePostId: post.Id);
+        }
+
         public Task NotifyRecipeLikeAsync(RecipeLike like)
         {
             var recipientId = like.Recipe.UserId;
@@ -65,7 +77,8 @@ namespace CookShare.Services
             string message,
             string eventKey,
             int? recipeId = null,
-            int? commentId = null)
+            int? commentId = null,
+            int? cookedRecipePostId = null)
         {
             if (string.IsNullOrWhiteSpace(recipientId)
                 || string.IsNullOrWhiteSpace(actorId)
@@ -85,6 +98,7 @@ namespace CookShare.Services
                 EventKey = eventKey,
                 RecipeId = recipeId,
                 CommentId = commentId,
+                CookedRecipePostId = cookedRecipePostId,
                 CreatedAt = DateTime.UtcNow
             });
 

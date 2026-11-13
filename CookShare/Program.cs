@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 using CookShare.Data;
 using CookShare.Data.Seeding;
 using CookShare.Health;
@@ -9,13 +11,36 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 bool seedRecipes = args.Length > 0 && args[0] == "seed-recipes";
-var builder = WebApplication.CreateBuilder(seedRecipes ? Array.Empty<string>() : args);
+bool moderatorCommand = args.Length > 0 && args[0] == "moderator";
+bool cleanupSocialMedia = args.Length > 0 && args[0] == "cleanup-social-media";
+var builder = WebApplication.CreateBuilder(seedRecipes || moderatorCommand || cleanupSocialMedia ? Array.Empty<string>() : args);
 
 // ASP.NET Core MVC
 builder.Services.AddControllersWithViews();
 builder.Services.Configure<RecipeImageStorageOptions>(
     builder.Configuration.GetSection(RecipeImageStorageOptions.SectionName));
 builder.Services.AddSingleton<IRecipeImageStorage, LocalRecipeImageStorage>();
+builder.Services.Configure<SocialImageStorageOptions>(builder.Configuration.GetSection(SocialImageStorageOptions.SectionName));
+builder.Services.AddSingleton<ISocialImageStorage, LocalSocialImageStorage>();
+builder.Services.AddScoped<RecipeCollectionService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<CookedPostService>();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    foreach (string policy in new[] { "cooked-upload", "reports" })
+    {
+        options.AddPolicy(policy, context => RateLimitPartition.GetFixedWindowLimiter(
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(5),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+    }
+});
 builder.Services.AddScoped<RecipeSeeder>();
 builder.Services.AddScoped<IRecipeSeedSource, LocalRecipeSeedSource>();
 builder.Services.AddHttpClient<TheMealDbClient>(client =>
@@ -93,6 +118,43 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
+if (moderatorCommand || cleanupSocialMedia)
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    if (cleanupSocialMedia)
+    {
+        await scope.ServiceProvider.GetRequiredService<CookedPostService>().CleanOrphanedImagesAsync();
+        Console.WriteLine("Completed the bounded orphan-media cleanup batch.");
+    }
+    else if (args.Length != 3 || args[1] is not ("grant" or "revoke"))
+    {
+        Console.Error.WriteLine("Usage: moderator grant|revoke <existing-username>");
+        Environment.ExitCode = 1;
+    }
+    else
+    {
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var user = await users.FindByNameAsync(args[2]);
+        if (user == null)
+        {
+            Console.Error.WriteLine("Account was not found.");
+            Environment.ExitCode = 1;
+        }
+        else
+        {
+            var roleResult = await roles.RoleExistsAsync("Moderator")
+                ? IdentityResult.Success : await roles.CreateAsync(new IdentityRole("Moderator"));
+            var result = !roleResult.Succeeded ? roleResult : args[1] == "grant"
+                ? await users.AddToRoleAsync(user, "Moderator") : await users.RemoveFromRoleAsync(user, "Moderator");
+            Environment.ExitCode = result.Succeeded ? 0 : 1;
+            Console.WriteLine(result.Succeeded ? "Moderator membership updated. Sign in again to refresh role claims." : "Moderator membership update failed.");
+        }
+    }
+    await app.DisposeAsync();
+    return;
+}
+
 if (seedRecipes)
 {
     Environment.ExitCode = await RecipeSeedCommand.RunAsync(args[1..], app.Services, Console.Out);
@@ -115,6 +177,7 @@ app.UseRouting();
 // Authentication PHẢI đứng trước Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllerRoute(
     name: "default",

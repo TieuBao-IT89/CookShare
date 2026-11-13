@@ -6,6 +6,7 @@ using CookShare.Services;
 using CookShare.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -22,13 +23,15 @@ namespace CookShare.Controllers
         private readonly ApplicationDbContext _db;
         private readonly ILogger<RecipeController> _logger;
         private readonly IRecipeImageStorage? _imageStorage;
+        private readonly ISocialImageStorage? _socialImages;
 
         public RecipeController(ApplicationDbContext db, ILogger<RecipeController>? logger = null,
-            IRecipeImageStorage? imageStorage = null)
+            IRecipeImageStorage? imageStorage = null, ISocialImageStorage? socialImages = null)
         {
             _db = db;
             _logger = logger ?? NullLogger<RecipeController>.Instance;
             _imageStorage = imageStorage;
+            _socialImages = socialImages;
         }
 
         // GET: /Recipe
@@ -38,7 +41,8 @@ namespace CookShare.Controllers
             string? q = null,
             string? category = null,
             RecipeDifficulty? difficulty = null,
-            int? maxTotalMinutes = null)
+            int? maxTotalMinutes = null,
+            string? ingredient = null, string? author = null, string sort = "newest", string? cursor = null)
         {
             if (!ModelState.IsValid
                 || (difficulty.HasValue && !Enum.IsDefined(difficulty.Value))
@@ -49,15 +53,16 @@ namespace CookShare.Controllers
 
             string query = q?.Trim() ?? string.Empty;
             string selectedCategory = category?.Trim() ?? string.Empty;
-            IQueryable<Recipe> recipesQuery = _db.Recipes
-                .AsNoTracking()
-                .Include(r => r.User)
-                .FilterBySearchAndCategory(query, selectedCategory, difficulty, maxTotalMinutes);
-
-            var recipes = await recipesQuery
-                .OrderByDescending(r => r.CreatedAt)
-                .ThenByDescending(r => r.Id)
-                .ToListAsync();
+            var options = new DiscoveryOptions(query, ingredient?.Trim() ?? string.Empty, author?.Trim() ?? string.Empty,
+                selectedCategory, difficulty, maxTotalMinutes, sort);
+            if (sort is not ("newest" or "popular") || query.Length > 200 || options.Ingredient.Length > 200
+                || options.Author.Length > 100 || selectedCategory.Length > 100
+                || !DiscoveryCursor.TryParse(cursor, options, out var position))
+            {
+                return BadRequest();
+            }
+            var page = await SocialDiscoveryQueries.LoadAsync(_db, options, position, HttpContext.RequestAborted);
+            var recipes = page.Recipes;
 
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(
                 _db, recipes.Select(recipe => recipe.Id), User?.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -72,7 +77,12 @@ namespace CookShare.Controllers
                 Query = query,
                 Category = selectedCategory,
                 Difficulty = difficulty,
-                MaxTotalMinutes = maxTotalMinutes
+                MaxTotalMinutes = maxTotalMinutes,
+                Ingredient = options.Ingredient,
+                Author = options.Author,
+                Sort = sort,
+                NextCursor = page.NextCursor,
+                TotalCount = page.TotalCount
             });
         }
 
@@ -99,6 +109,8 @@ namespace CookShare.Controllers
             var related = await RecipeDiscoveryQueries.RelatedAsync(_db, recipe.Id, recipe.Category);
             var displayedIds = related.Select(item => item.Id).Prepend(recipe.Id);
             ViewData["RelatedRecipes"] = related;
+            ViewData["CookedPosts"] = await SocialPostQueries.Cards(_db, userId).Where(post => post.RecipeId == id)
+                .OrderByDescending(post => post.CreatedAt).ThenByDescending(post => post.Id).Take(6).ToListAsync();
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(_db, displayedIds, userId);
             ViewData["RecipeRatingSummaries"] = await RecipeRatingQueries.LoadAsync(_db, displayedIds, userId);
             ViewData["SavedRecipeIds"] = await FavoriteQueries.LoadSavedIdsAsync(_db, displayedIds, userId);
@@ -240,6 +252,7 @@ namespace CookShare.Controllers
         [ValidateAntiForgeryToken]
         [RequestSizeLimit(6 * 1024 * 1024)]
         [RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]
+        [EnableRateLimiting("cooked-upload")]
         public async Task<IActionResult> Create(
             RecipeFormViewModel model)
         {
@@ -351,6 +364,7 @@ namespace CookShare.Controllers
         [ValidateAntiForgeryToken]
         [RequestSizeLimit(6 * 1024 * 1024)]
         [RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]
+        [EnableRateLimiting("cooked-upload")]
         public async Task<IActionResult> Edit(
             int id,
             RecipeFormViewModel model)
@@ -390,6 +404,7 @@ namespace CookShare.Controllers
                 return View(model);
             }
 
+            string? previousImage = recipe.Image;
             recipe.Name = model.Name.Trim();
             recipe.Description = model.Description.Trim();
             recipe.Ingredients = model.Ingredients.Trim();
@@ -419,6 +434,10 @@ namespace CookShare.Controllers
                 return View(model);
             }
 
+            if (previousImage != recipe.Image)
+            {
+                await DeleteImageIfUnreferencedAsync(previousImage);
+            }
             TempData["Success"] = "Đã cập nhật công thức.";
 
             return RedirectToAction(
@@ -473,6 +492,14 @@ namespace CookShare.Controllers
             }
         }
 
+        private async Task DeleteImageIfUnreferencedAsync(string? reference)
+        {
+            if (reference != null && !await _db.Recipes.IgnoreQueryFilters().AnyAsync(recipe => recipe.Image == reference))
+            {
+                await DeleteFailedUploadAsync(reference);
+            }
+        }
+
         // POST: /Recipe/Delete/5
         [Authorize]
         [HttpPost]
@@ -495,6 +522,8 @@ namespace CookShare.Controllers
                 return Forbid();
             }
 
+            var cookedImages = await _db.CookedRecipePosts.IgnoreQueryFilters().Where(post => post.RecipeId == id)
+                .Select(post => post.ImageFileName).ToListAsync();
             _db.Recipes.Remove(recipe);
             try
             {
@@ -508,6 +537,18 @@ namespace CookShare.Controllers
                 return RedirectToAction(nameof(Details), new { id });
             }
 
+            await DeleteImageIfUnreferencedAsync(recipe.Image);
+            if (_socialImages != null)
+            {
+                foreach (string file in cookedImages)
+                {
+                    try { await _socialImages.DeleteAsync(file); }
+                    catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                    {
+                        _logSaveFailure(_logger, "cooked image cleanup", exception.GetType().Name, null);
+                    }
+                }
+            }
             TempData["Success"] = "Đã xóa công thức.";
 
             return RedirectToAction(nameof(Index));

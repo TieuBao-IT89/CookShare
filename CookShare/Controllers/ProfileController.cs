@@ -152,7 +152,10 @@ namespace CookShare.Controllers
                 Recipes = recipes,
                 Followers = followers,
                 Following = following,
-                Favorites = favorites
+                Favorites = favorites,
+                CookedPosts = await SocialPostQueries.Cards(_db, currentUserId).Where(post => post.AuthorId == profileUser.Id)
+                    .OrderByDescending(post => post.CreatedAt).ThenByDescending(post => post.Id).Take(24).ToListAsync(),
+                PublicCollections = await new RecipeCollectionService(_db).PublicForOwnerAsync(profileUser.Id)
             };
 
             ViewData["RecipeLikeSummaries"] = await RecipeLikeQueries.LoadAsync(

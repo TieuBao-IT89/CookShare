@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CookShare.Data
 {
-    public sealed record RecipeFeedCursor(DateTime CreatedAt, int Id)
+    public sealed record RecipeFeedCursor(DateTime CreatedAt, int Id, int Kind = 0)
     {
         public override string ToString()
         {
             return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(
-                FormattableString.Invariant($"{CreatedAt.Ticks}:{Id}")));
+                FormattableString.Invariant($"2:{CreatedAt.Ticks}:{Kind}:{Id}")));
         }
 
         public static bool TryParse(string? value, out RecipeFeedCursor? cursor)
@@ -31,15 +31,21 @@ namespace CookShare.Data
             try
             {
                 string[] parts = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(value)).Split(':');
-                if (parts.Length != 2
-                    || !long.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out long ticks)
+                bool legacy = parts.Length == 2;
+                int offset = legacy ? 0 : 1;
+                if ((!legacy && (parts.Length != 4 || parts[0] != "2"))
+                    || !long.TryParse(parts[offset], NumberStyles.None, CultureInfo.InvariantCulture, out long ticks)
                     || ticks < DateTime.MinValue.Ticks || ticks > DateTime.MaxValue.Ticks
-                    || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out int id) || id <= 0)
+                    || !int.TryParse(parts[^1], NumberStyles.None, CultureInfo.InvariantCulture, out int id) || id <= 0)
                 {
                     return false;
                 }
-
-                cursor = new RecipeFeedCursor(new DateTime(ticks, DateTimeKind.Utc), id);
+                int kind = 0;
+                if (!legacy && (!int.TryParse(parts[2], NumberStyles.None, CultureInfo.InvariantCulture, out kind) || kind is < 0 or > 1))
+                {
+                    return false;
+                }
+                cursor = new RecipeFeedCursor(new DateTime(ticks, DateTimeKind.Utc), id, kind);
                 return true;
             }
             catch (FormatException)
@@ -64,37 +70,66 @@ namespace CookShare.Data
                     follow.FollowerId == viewerId && follow.FollowingId == recipe.UserId));
             }
 
+            var recipePosts = recipes.Select(recipe => new FeedRecipeViewModel
+            {
+                Id = recipe.Id,
+                RecipeId = recipe.Id,
+                Kind = 0,
+                Name = recipe.Name,
+                Description = recipe.Description,
+                Image = recipe.Image,
+                Category = recipe.Category,
+                PreparationTimeMinutes = recipe.PreparationTimeMinutes,
+                CookingTimeMinutes = recipe.CookingTimeMinutes,
+                Difficulty = recipe.Difficulty,
+                CreatedAt = recipe.CreatedAt,
+                AuthorId = recipe.UserId,
+                AuthorName = recipe.User == null ? "Thành viên CookShare" : recipe.User.DisplayName ?? recipe.User.UserName ?? "Thành viên CookShare",
+                AvatarUrl = recipe.User == null ? null : recipe.User.AvatarUrl,
+                LikeCount = recipe.Likes.Count,
+                IsLiked = viewerId != null && recipe.Likes.Any(like => like.UserId == viewerId),
+                CommentCount = recipe.Comments.Count,
+                RatingCount = recipe.Ratings.Count,
+                AverageRating = recipe.Ratings.Average(rating => (double?)rating.Stars) ?? 0,
+                IsSaved = viewerId != null && recipe.Favorites.Any(favorite => favorite.UserId == viewerId)
+            });
+            var cooked = db.CookedRecipePosts.AsNoTracking();
+            if (following)
+            {
+                cooked = cooked.Where(post => viewerId != null && db.Follows.Any(follow =>
+                    follow.FollowerId == viewerId && follow.FollowingId == post.UserId));
+            }
+            var cookedPosts = cooked.Select(post => new FeedRecipeViewModel
+            {
+                Id = post.Id,
+                RecipeId = post.RecipeId,
+                Kind = 1,
+                Name = post.Recipe.Name,
+                Description = post.Note,
+                Image = "/media/cooked-posts/" + post.Id + "/" + post.ImageFileName,
+                Category = post.Recipe.Category,
+                PreparationTimeMinutes = post.Recipe.PreparationTimeMinutes,
+                CookingTimeMinutes = post.Recipe.CookingTimeMinutes,
+                Difficulty = post.Recipe.Difficulty,
+                CreatedAt = post.CreatedAt,
+                AuthorId = post.UserId,
+                AuthorName = post.User.DisplayName ?? post.User.UserName ?? "Thành viên CookShare",
+                AvatarUrl = post.User.AvatarUrl,
+                LikeCount = 0,
+                IsLiked = false,
+                CommentCount = 0,
+                RatingCount = 0,
+                AverageRating = 0,
+                IsSaved = false
+            });
+            var posts = recipePosts.Concat(cookedPosts);
             if (cursor != null)
             {
-                recipes = recipes.Where(recipe => recipe.CreatedAt < cursor.CreatedAt
-                    || (recipe.CreatedAt == cursor.CreatedAt && recipe.Id < cursor.Id));
+                posts = posts.Where(post => post.CreatedAt < cursor.CreatedAt || post.CreatedAt == cursor.CreatedAt &&
+                    (post.Kind < cursor.Kind || post.Kind == cursor.Kind && post.Id < cursor.Id));
             }
-
-            // Project public fields and aggregate state in one bounded query; no Identity secrets or N+1 loads.
-            return recipes.OrderByDescending(recipe => recipe.CreatedAt).ThenByDescending(recipe => recipe.Id)
-                .Take(PageSize + 1)
-                .Select(recipe => new FeedRecipeViewModel
-                {
-                    Id = recipe.Id,
-                    Name = recipe.Name,
-                    Description = recipe.Description,
-                    Image = recipe.Image,
-                    Category = recipe.Category,
-                    PreparationTimeMinutes = recipe.PreparationTimeMinutes,
-                    CookingTimeMinutes = recipe.CookingTimeMinutes,
-                    Difficulty = recipe.Difficulty,
-                    CreatedAt = recipe.CreatedAt,
-                    AuthorId = recipe.UserId,
-                    AuthorName = recipe.User == null ? "Thành viên CookShare"
-                        : recipe.User.DisplayName ?? recipe.User.UserName ?? "Thành viên CookShare",
-                    AvatarUrl = recipe.User == null ? null : recipe.User.AvatarUrl,
-                    LikeCount = recipe.Likes.Count,
-                    IsLiked = viewerId != null && recipe.Likes.Any(like => like.UserId == viewerId),
-                    CommentCount = recipe.Comments.Count,
-                    RatingCount = recipe.Ratings.Count,
-                    AverageRating = recipe.Ratings.Average(rating => (double?)rating.Stars) ?? 0,
-                    IsSaved = viewerId != null && recipe.Favorites.Any(favorite => favorite.UserId == viewerId)
-                });
+            return posts.OrderByDescending(post => post.CreatedAt).ThenByDescending(post => post.Kind)
+                .ThenByDescending(post => post.Id).Take(PageSize + 1);
         }
 
         public static async Task<RecipeFeedPage> LoadAsync(
@@ -119,7 +154,7 @@ namespace CookShare.Data
                 Recipes = selected,
                 Mode = mode,
                 ViewerId = viewerId,
-                NextCursor = hasMore ? new RecipeFeedCursor(selected[^1].CreatedAt, selected[^1].Id).ToString() : null
+                NextCursor = hasMore ? new RecipeFeedCursor(selected[^1].CreatedAt, selected[^1].Id, selected[^1].Kind).ToString() : null
             };
         }
     }

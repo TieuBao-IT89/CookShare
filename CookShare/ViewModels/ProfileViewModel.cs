@@ -38,5 +38,8 @@ namespace CookShare.ViewModels
         public List<ProfileUserItemViewModel> Following { get; set; } = new();
 
         public List<Recipe> Favorites { get; set; } = new();
+
+        public List<CookedPostViewModel> CookedPosts { get; set; } = new();
+        public IReadOnlyList<RecipeCollectionSummaryViewModel> PublicCollections { get; set; } = Array.Empty<RecipeCollectionSummaryViewModel>();
     }
 }

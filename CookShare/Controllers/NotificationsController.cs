@@ -39,9 +39,12 @@ namespace CookShare.Controllers
                         ?? "CookShare User",
                     ActorAvatarUrl = notification.Actor.AvatarUrl,
                     Message = notification.Message ?? string.Empty,
+                    EventType = notification.Type,
                     IsRead = notification.IsRead,
                     CreatedAt = notification.CreatedAt,
                     HasRecipe = notification.RecipeId.HasValue
+                        && _db.Recipes.Any(recipe => recipe.Id == notification.RecipeId)
+                        && (notification.Type != "CookedPost" || _db.CookedRecipePosts.Any(post => post.Id == notification.CookedRecipePostId))
                 })
                 .ToListAsync();
 
@@ -86,8 +89,23 @@ namespace CookShare.Controllers
                 await _db.SaveChangesAsync();
             }
 
+            if (notification.Type == "CookedPost")
+            {
+                if (notification.CookedRecipePostId.HasValue && await _db.CookedRecipePosts.AnyAsync(post => post.Id == notification.CookedRecipePostId))
+                {
+                    return RedirectToAction("Details", "CookedPosts", new { id = notification.CookedRecipePostId });
+                }
+                TempData["StatusMessage"] = "Bài đã nấu thử này không còn hiển thị.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (notification.RecipeId.HasValue)
             {
+                if (await _db.Recipes.IgnoreQueryFilters().AnyAsync(recipe => recipe.Id == notification.RecipeId && recipe.IsHidden))
+                {
+                    TempData["StatusMessage"] = "Công thức này không còn hiển thị.";
+                    return RedirectToAction(nameof(Index));
+                }
                 return RedirectToAction(
                     "Details",
                     "Recipe",

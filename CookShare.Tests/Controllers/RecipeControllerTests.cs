@@ -324,7 +324,7 @@ namespace CookShare.Tests.Controllers
         }
 
         [Theory]
-        [InlineData(nameof(RecipeController.Index), 4)]
+        [InlineData(nameof(RecipeController.Index), 8)]
         [InlineData(nameof(RecipeController.Details), 1)]
         [InlineData(nameof(RecipeController.Create), 0)]
         [InlineData(nameof(RecipeController.Edit), 1)]

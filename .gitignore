@@ -5,6 +5,7 @@ Debug/
 Release/
 artifacts/
 CookShare/App_Data/recipe-images/
+CookShare/App_Data/cooked-post-images/
 
 # Visual Studio
 .vs/

@@ -55,16 +55,16 @@ namespace CookShare.Controllers
 
         [HttpPost("Recipe/{recipeId:int}/Favorites")]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> Save([FromRoute] int recipeId)
+        public Task<IActionResult> Save([FromRoute] int recipeId, string? returnUrl = null)
         {
-            return SetSavedAsync(recipeId, true);
+            return SetSavedAsync(recipeId, true, returnUrl);
         }
 
         [HttpPost("Recipe/{recipeId:int}/Favorites/Unsave")]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> Unsave([FromRoute] int recipeId)
+        public Task<IActionResult> Unsave([FromRoute] int recipeId, string? returnUrl = null)
         {
-            return SetSavedAsync(recipeId, false);
+            return SetSavedAsync(recipeId, false, returnUrl);
         }
 
         private string? CurrentUserId()
@@ -73,7 +73,7 @@ namespace CookShare.Controllers
             return User.Identity?.IsAuthenticated == true && !string.IsNullOrEmpty(userId) ? userId : null;
         }
 
-        private async Task<IActionResult> SetSavedAsync(int recipeId, bool saved)
+        private async Task<IActionResult> SetSavedAsync(int recipeId, bool saved, string? returnUrl)
         {
             string? userId = CurrentUserId();
             if (userId == null)
@@ -138,6 +138,11 @@ namespace CookShare.Controllers
 
                 var favorites = _db.Favorites.AsNoTracking().Where(favorite => favorite.UserId == userId);
                 bool isSaved = await favorites.AnyAsync(favorite => favorite.RecipeId == recipeId);
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
+                    && !string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.Ordinal))
+                {
+                    return LocalRedirect(returnUrl);
+                }
                 return Json(new
                 {
                     recipeId,

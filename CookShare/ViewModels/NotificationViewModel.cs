@@ -15,5 +15,15 @@ namespace CookShare.ViewModels
         public DateTime CreatedAt { get; set; }
 
         public bool HasRecipe { get; set; }
+
+        public string EventType { get; set; } = string.Empty;
+        public string EventLabel => EventType switch
+        {
+            "CookedPost" => "Đã nấu thử",
+            "Follow" => "Theo dõi",
+            "Like" => "Yêu thích",
+            "Comment" => "Bình luận",
+            _ => "Cộng đồng"
+        };
     }
 }
