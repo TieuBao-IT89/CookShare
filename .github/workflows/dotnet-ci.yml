@@ -53,6 +53,8 @@ jobs:
       - name: Run unit and integration tests
         run: dotnet test CookShare.sln --configuration Release --no-build --no-restore
         env:
+          # MVC test hosts watch versioned assets; avoid Linux inotify limits.
+          DOTNET_USE_POLLING_FILE_WATCHER: "1"
           # Local service only. The test fixture applies migrations before tests.
           COOKSHARE_RUN_POSTGRES_TESTS: "1"
           COOKSHARE_TEST_CONNECTION: "Host=localhost;Port=5432;Database=cookshare_test_ci;Username=cookshare_test;Password=cookshare_test;SSL Mode=Disable"

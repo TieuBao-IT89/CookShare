@@ -56,6 +56,11 @@ qua live region. In trang ẩn điều hướng.
 `CookShare.Tests/TestResults/` (ignored). Ảnh review chọn lọc được lưu trong docs.
 Chưa kiểm tra Safari/iOS/Android vật lý.
 
+Lượt CI Linux đầu chạm giới hạn 128 instance `inotify` khi nhiều MVC test host
+theo dõi static assets. Hai workflow CI/CD đặt `DOTNET_USE_POLLING_FILE_WATCHER=1`
+**chỉ ở bước test**, theo [cơ chế File Providers của Microsoft](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/file-providers?view=aspnetcore-8.0).
+Không thay cấu hình ứng dụng hoặc bỏ qua test để xử lý giới hạn runner.
+
 ## Đưa lên main
 
 Maintainer yêu cầu push, tạo PR và merge vào `main`. Nhánh hiện tại kế thừa
