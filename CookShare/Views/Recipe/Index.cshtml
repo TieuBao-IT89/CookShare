@@ -1,78 +1,151 @@
-@model IEnumerable<CookShare.Models.Recipe>
-@using System.Security.Claims
-
+﻿@model CookShare.ViewModels.RecipeIndexViewModel
+@using Microsoft.AspNetCore.Routing
 @{
     ViewData["Title"] = "Khám phá công thức";
-    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var categories = new[] { "Món Việt", "Món Á", "Món Âu", "Món chính", "Món phụ", "Món chay", "Món tráng miệng", "Đồ uống", "Ăn sáng" };
+    var maxMinuteOptions = new[] { 30, 45, 60, 90, 120 };
+    var hasFilters = !string.IsNullOrEmpty(Model.Query) || !string.IsNullOrEmpty(Model.Ingredient)
+        || !string.IsNullOrEmpty(Model.Author) || !string.IsNullOrEmpty(Model.Category)
+        || Model.Difficulty.HasValue || Model.MaxTotalMinutes.HasValue;
+    var advancedFilterCount = (string.IsNullOrEmpty(Model.Ingredient) ? 0 : 1)
+        + (string.IsNullOrEmpty(Model.Author) ? 0 : 1) + (string.IsNullOrEmpty(Model.Category) ? 0 : 1)
+        + (Model.Difficulty.HasValue ? 1 : 0) + (Model.MaxTotalMinutes.HasValue ? 1 : 0);
+    string DiscoveryUrl(string? key = null, string? value = null, string? cursor = null)
+    {
+        var values = new RouteValueDictionary(new { q = Model.Query, ingredient = Model.Ingredient, author = Model.Author,
+            category = Model.Category, difficulty = Model.Difficulty, maxTotalMinutes = Model.MaxTotalMinutes, sort = Model.Sort, cursor });
+        if (key != null) values[key] = value;
+        return Url.Action("Index", "Recipe", values) ?? "/Recipe";
+    }
 }
-
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/recipe.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-interactions.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-discovery.css" asp-append-version="true" />
 }
-
-<div class="recipe-page-wrapper">
+<div class="recipe-page-wrapper recipe-discovery-page">
     <div class="container recipe-grid-section">
-        <header class="page-intro">
-            <h1>Khám phá <em>món ngon.</em></h1>
-            <a asp-controller="Recipe" asp-action="Create" class="btn">
-                + Chia sẻ công thức
-            </a>
+        <header class="page-intro recipe-intro">
+            <div><span class="eyebrow">CẢM HỨNG TỪ CỘNG ĐỒNG</span><h1>Khám phá <em>món ngon.</em></h1><p>Từ món quen đến hương vị mới, tìm cảm hứng cho bữa ăn hôm nay.</p></div>
+            <a asp-controller="Recipe" asp-action="Create" class="btn btn-secondary"><i class="icon fa-solid fa-plus" aria-hidden="true"></i> Đăng công thức</a>
         </header>
-
-        @if (TempData["Success"] != null)
-        {
-            <p class="notice" role="status">@TempData["Success"]</p>
-        }
-
-        @if (!Model.Any())
-        {
-            <div class="recipe-empty-container">
-                <h2>Chưa có công thức nào</h2>
-                <p>Hãy chia sẻ món ngon đầu tiên của bạn!</p>
+        <form id="recipeDiscoveryForm" class="discovery-form" asp-controller="Recipe" asp-action="Index" method="get" role="search" data-discovery-form>
+            <div class="discovery-search-row">
+                <div class="recipe-search-wrap">
+                    <i class="icon fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <label class="sr-only" for="searchRecipe">Tìm tên món ăn hoặc câu chuyện</label>
+                    <input id="searchRecipe" name="q" type="search" value="@Model.Query" placeholder="Bạn muốn nấu món gì?" />
+                </div>
+                <button type="submit" class="btn recipe-search-submit">Tìm công thức</button>
             </div>
+            <div class="discovery-controls">
+                <details class="discovery-filters" data-discovery-filters data-active-filter-count="@advancedFilterCount" open="@(advancedFilterCount > 0)">
+                    <summary data-discovery-filter-trigger><i class="icon fa-solid fa-sliders" aria-hidden="true"></i> Bộ lọc @if (advancedFilterCount > 0) { <span class="discovery-filter-count">@advancedFilterCount</span> }</summary>
+                    <div class="discovery-filter-content" data-discovery-filter-content>
+                        <div class="discovery-filter-fields">
+                            <div class="discovery-field"><label for="ingredientFilter">Nguyên liệu</label><input id="ingredientFilter" name="ingredient" value="@Model.Ingredient" placeholder="Ví dụ: thịt gà, đậu hũ" form="recipeDiscoveryForm" /></div>
+                            <div class="discovery-field"><label for="authorFilter">Người chia sẻ</label><input id="authorFilter" name="author" value="@Model.Author" placeholder="Tên hoặc tên người dùng" form="recipeDiscoveryForm" /></div>
+                            <div class="discovery-field recipe-filter-wrap">
+                                <label for="categoryFilter">Danh mục</label>
+                                <select id="categoryFilter" name="category" form="recipeDiscoveryForm">
+                                    <option value="">Tất cả danh mục</option>
+                                    @if (!string.IsNullOrEmpty(Model.Category) && !categories.Contains(Model.Category))
+                                    {
+                                        <option value="@Model.Category" selected>@Model.Category</option>
+                                    }
+                                    @foreach (var category in categories)
+                                    {
+                                        <option value="@category" selected="@(category == Model.Category)">@category</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="discovery-field recipe-filter-wrap">
+                                <label for="difficultyFilter">Độ khó</label>
+                                <select id="difficultyFilter" name="difficulty" form="recipeDiscoveryForm">
+                                    <option value="">Mọi mức độ</option>
+                                    @foreach (var difficulty in Enum.GetValues<CookShare.Models.RecipeDifficulty>())
+                                    {
+                                        <option value="@((int)difficulty)" selected="@(difficulty == Model.Difficulty)">@difficulty.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="discovery-field recipe-filter-wrap">
+                                <label for="maxTotalMinutesFilter">Thời gian tối đa</label>
+                                <select id="maxTotalMinutesFilter" name="maxTotalMinutes" form="recipeDiscoveryForm">
+                                    <option value="">Mọi thời lượng</option>
+                                    @if (Model.MaxTotalMinutes.HasValue && !maxMinuteOptions.Contains(Model.MaxTotalMinutes.Value))
+                                    {
+                                        <option value="@Model.MaxTotalMinutes" selected>Tối đa @Model.MaxTotalMinutes phút</option>
+                                    }
+                                    @foreach (var minutes in maxMinuteOptions)
+                                    {
+                                        <option value="@minutes" selected="@(minutes == Model.MaxTotalMinutes)">Tối đa @minutes phút</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="discovery-filter-actions"><a class="text-link" asp-action="Index">Xóa bộ lọc</a><button class="btn" type="submit" form="recipeDiscoveryForm">Áp dụng bộ lọc</button></div>
+                    </div>
+                </details>
+                <div class="discovery-sort">
+                    <label for="recipeSort">Sắp xếp</label>
+                    <select id="recipeSort" name="sort" form="recipeDiscoveryForm"><option value="newest" selected="@(Model.Sort != "popular")">Mới nhất</option><option value="popular" selected="@(Model.Sort == "popular")">Nhiều tương tác</option></select>
+                    <button class="text-link" type="submit">Xem</button>
+                </div>
+            </div>
+        </form>
+        <nav class="recipe-category-pills" aria-label="Gợi ý tìm món">
+            <a class="category-pill" href="@DiscoveryUrl("maxTotalMinutes", "30")"><i class="icon fa-regular fa-clock" aria-hidden="true"></i> Tối đa 30 phút</a>
+            @foreach (var category in categories.Take(5))
+            {
+                <a class="category-pill @(category == Model.Category ? "active" : "")" aria-current="@(category == Model.Category ? "true" : null)" href="@DiscoveryUrl("category", category)">@category</a>
+            }
+        </nav>
+        @if (hasFilters)
+        {
+            <nav class="discovery-active-filters" aria-label="Bộ lọc đang áp dụng">
+                @if (!string.IsNullOrEmpty(Model.Query)) { <a href="@DiscoveryUrl("q", null)" aria-label="Bỏ từ khóa @Model.Query">Từ khóa: @Model.Query <span aria-hidden="true">×</span></a> }
+                @if (!string.IsNullOrEmpty(Model.Ingredient)) { <a href="@DiscoveryUrl("ingredient", null)" aria-label="Bỏ nguyên liệu @Model.Ingredient">Nguyên liệu: @Model.Ingredient <span aria-hidden="true">×</span></a> }
+                @if (!string.IsNullOrEmpty(Model.Author)) { <a href="@DiscoveryUrl("author", null)" aria-label="Bỏ người chia sẻ @Model.Author">Tác giả: @Model.Author <span aria-hidden="true">×</span></a> }
+                @if (!string.IsNullOrEmpty(Model.Category)) { <a href="@DiscoveryUrl("category", null)" aria-label="Bỏ danh mục @Model.Category">@Model.Category <span aria-hidden="true">×</span></a> }
+                @if (Model.Difficulty.HasValue) { <a href="@DiscoveryUrl("difficulty", null)" aria-label="Bỏ lọc độ khó">@Model.Difficulty.Value.GetDisplayName() <span aria-hidden="true">×</span></a> }
+                @if (Model.MaxTotalMinutes.HasValue) { <a href="@DiscoveryUrl("maxTotalMinutes", null)" aria-label="Bỏ lọc thời gian">Tối đa @Model.MaxTotalMinutes phút <span aria-hidden="true">×</span></a> }
+                <a class="discovery-clear" asp-action="Index">Xóa tất cả</a>
+            </nav>
+        }
+        <div class="recipe-results-bar"><h2 class="recipe-results-title" id="recipeResultsTitle">@(hasFilters ? "Món ngon hợp ý bạn" : "Mới từ những căn bếp")</h2><p><strong>@Model.TotalCount</strong> công thức</p></div>
+        @if (Model.Recipes.Count == 0)
+        {
+            if (hasFilters)
+            {
+                <div class="recipe-empty-container"><h2>Chưa tìm thấy món phù hợp</h2><p>Thử bớt một bộ lọc hoặc tìm nguyên liệu khác nhé.</p><a class="btn btn-secondary" asp-action="Index">Xem tất cả công thức</a></div>
+            }
+            else
+            {
+                <partial name="_RecipeEmpty" />
+            }
         }
         else
         {
-            <div class="recipe-grid">
-                @foreach (var recipe in Model)
+            <div class="recipe-grid" aria-labelledby="recipeResultsTitle">
+                @for (var index = 0; index < Model.Recipes.Count; index++)
                 {
-                    <article class="recipe-card">
-                        <a asp-controller="Recipe" asp-action="Details" asp-route-id="@recipe.Id">
-                            <img src="@(string.IsNullOrEmpty(recipe.Image) ? "/img/recipe-placeholder.svg" : recipe.Image)"
-                                 alt="@recipe.Name"
-                                 loading="lazy" />
-                            <h2>@recipe.Name</h2>
-                        </a>
-
-                        <p>@recipe.Description</p>
-                        <p>Danh mục: @recipe.Category</p>
-                        <p>Tác giả: @(recipe.User?.DisplayName ?? recipe.User?.UserName ?? "CookShare")</p>
-
-                        @if (!string.IsNullOrEmpty(currentUserId) && recipe.UserId == currentUserId)
-                        {
-                            <div class="recipe-manage-actions">
-                                <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@recipe.Id">
-                                    Chỉnh sửa
-                                </a>
-
-                                <form asp-action="Delete"
-                                      asp-route-id="@recipe.Id"
-                                      method="post"
-                                      data-confirm-delete="Bạn có chắc muốn xóa công thức này không?">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-danger">Xóa</button>
-                                </form>
-                            </div>
-                        }
-                    </article>
+                    <partial name="_RecipeCard" model="Model.Recipes[index]" view-data='new ViewDataDictionary(ViewData) { ["PrioritizeImage"] = index == 0 }' />
                 }
             </div>
+            @if (Model.NextCursor != null)
+            {
+                <nav class="discovery-pagination" aria-label="Trang công thức"><a class="btn btn-secondary" href="@DiscoveryUrl(cursor: Model.NextCursor)">Xem thêm công thức <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></a></nav>
+            }
         }
     </div>
 </div>
-
+<dialog class="discovery-filter-dialog" data-discovery-filter-dialog aria-labelledby="discoveryFilterTitle"><div class="discovery-filter-dialog-heading"><h2 id="discoveryFilterTitle">Tìm món hợp ý</h2><button class="icon-button" type="button" data-discovery-filter-close aria-label="Đóng bộ lọc">×</button></div><div data-discovery-dialog-content></div></dialog>
 @section Scripts {
+    <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
     <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-discovery.js" asp-append-version="true"></script>
 }

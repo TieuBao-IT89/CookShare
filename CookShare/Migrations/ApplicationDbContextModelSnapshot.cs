@@ -20,7 +20,134 @@ namespace CookShare.Migrations
                 .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("CookShare.Models.CollectionRecipe", b =>
+                {
+                    b.Property<int>("CollectionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("CollectionId", "RecipeId")
+                        .HasName("PK_CollectionRecipes");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("CollectionId", "AddedAt", "RecipeId");
+
+                    b.ToTable("CollectionRecipes");
+                });
+
+            modelBuilder.Entity("CookShare.Models.ContentReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("ReporterId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("TargetId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReporterId", "TargetType", "TargetId")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "CreatedAt", "Id");
+
+                    b.ToTable("ContentReports", t =>
+                        {
+                            t.HasCheckConstraint("CK_ContentReports_TargetId", "\"TargetId\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("CookShare.Models.CookedRecipePost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImageFileName")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SubmissionKey")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt", "Id");
+
+                    b.HasIndex("UserId", "SubmissionKey")
+                        .IsUnique();
+
+                    b.HasIndex("RecipeId", "CreatedAt", "Id");
+
+                    b.HasIndex("UserId", "CreatedAt", "Id");
+
+                    b.ToTable("CookedRecipePosts");
+                });
 
             modelBuilder.Entity("CookShare.Models.Favorite", b =>
                 {
@@ -94,9 +221,17 @@ namespace CookShare.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("Bio")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -135,6 +270,10 @@ namespace CookShare.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("PublicSearchName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -154,7 +293,143 @@ namespace CookShare.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
+                    b.HasIndex("PublicSearchName");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("PublicSearchName"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("PublicSearchName"), new[] { "gin_trgm_ops" });
+
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("CookShare.Models.ModerationAction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModeratorId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TargetId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModeratorId");
+
+                    b.HasIndex("ReportId", "CreatedAt");
+
+                    b.ToTable("ModerationActions");
+                });
+
+            modelBuilder.Entity("CookShare.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CommentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CookedRecipePostId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RecipientId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("CookedRecipePostId");
+
+                    b.HasIndex("EventKey")
+                        .IsUnique();
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("RecipientId", "IsRead", "CreatedAt");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("CookShare.Models.ProfileFeaturedRecipe", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "RecipeId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId", "DisplayOrder")
+                        .IsUnique();
+
+                    b.ToTable("ProfileFeaturedRecipes", t =>
+                        {
+                            t.HasCheckConstraint("CK_ProfileFeaturedRecipes_DisplayOrder", "\"DisplayOrder\" BETWEEN 1 AND 3");
+                        });
                 });
 
             modelBuilder.Entity("CookShare.Models.Recipe", b =>
@@ -170,12 +445,23 @@ namespace CookShare.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int?>("CookingTimeMinutes")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Difficulty")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("ExternalId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Image")
                         .HasColumnType("text");
@@ -188,10 +474,37 @@ namespace CookShare.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("PreparationTimeMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SearchIngredients")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SearchText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Servings")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(4);
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("SourceUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
@@ -199,9 +512,76 @@ namespace CookShare.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SearchIngredients");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchIngredients"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchIngredients"), new[] { "gin_trgm_ops" });
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("Recipes");
+                    b.HasIndex("CreatedAt", "Id");
+
+                    b.HasIndex("Source", "ExternalId")
+                        .IsUnique()
+                        .HasFilter("\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL");
+
+                    b.ToTable("Recipes", t =>
+                        {
+                            t.HasCheckConstraint("CK_Recipes_CookingTimeMinutes", "\"CookingTimeMinutes\" IS NULL OR \"CookingTimeMinutes\" BETWEEN 1 AND 1440");
+
+                            t.HasCheckConstraint("CK_Recipes_Difficulty", "\"Difficulty\" IS NULL OR \"Difficulty\" IN ('Easy', 'Medium', 'Hard')");
+
+                            t.HasCheckConstraint("CK_Recipes_PreparationTimeMinutes", "\"PreparationTimeMinutes\" IS NULL OR \"PreparationTimeMinutes\" BETWEEN 1 AND 1440");
+
+                            t.HasCheckConstraint("CK_Recipes_Servings", "\"Servings\" BETWEEN 1 AND 20");
+
+                            t.HasCheckConstraint("CK_Recipes_SourceIdentity", "(\"Source\" IS NULL AND \"ExternalId\" IS NULL) OR (\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("CookShare.Models.RecipeCollection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<bool>("IsPublic")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "UpdatedAt", "Id");
+
+                    b.ToTable("RecipeCollections");
                 });
 
             modelBuilder.Entity("CookShare.Models.RecipeComment", b =>
@@ -430,6 +810,54 @@ namespace CookShare.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("CookShare.Models.CollectionRecipe", b =>
+                {
+                    b.HasOne("CookShare.Models.RecipeCollection", "Collection")
+                        .WithMany("Recipes")
+                        .HasForeignKey("CollectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CookShare.Models.Recipe", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Collection");
+
+                    b.Navigation("Recipe");
+                });
+
+            modelBuilder.Entity("CookShare.Models.ContentReport", b =>
+                {
+                    b.HasOne("CookShare.Models.Identity.ApplicationUser", "Reporter")
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Reporter");
+                });
+
+            modelBuilder.Entity("CookShare.Models.CookedRecipePost", b =>
+                {
+                    b.HasOne("CookShare.Models.Recipe", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CookShare.Models.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CookShare.Models.Favorite", b =>
                 {
                     b.HasOne("CookShare.Models.Recipe", "Recipe")
@@ -468,6 +896,77 @@ namespace CookShare.Migrations
                     b.Navigation("Following");
                 });
 
+            modelBuilder.Entity("CookShare.Models.ModerationAction", b =>
+                {
+                    b.HasOne("CookShare.Models.Identity.ApplicationUser", "Moderator")
+                        .WithMany()
+                        .HasForeignKey("ModeratorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CookShare.Models.ContentReport", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Moderator");
+
+                    b.Navigation("Report");
+                });
+
+            modelBuilder.Entity("CookShare.Models.Notification", b =>
+                {
+                    b.HasOne("CookShare.Models.Identity.ApplicationUser", "Actor")
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CookShare.Models.RecipeComment", null)
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CookShare.Models.CookedRecipePost", null)
+                        .WithMany()
+                        .HasForeignKey("CookedRecipePostId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CookShare.Models.Recipe", null)
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CookShare.Models.Identity.ApplicationUser", "Recipient")
+                        .WithMany()
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Actor");
+
+                    b.Navigation("Recipient");
+                });
+
+            modelBuilder.Entity("CookShare.Models.ProfileFeaturedRecipe", b =>
+                {
+                    b.HasOne("CookShare.Models.Recipe", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CookShare.Models.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CookShare.Models.Recipe", b =>
                 {
                     b.HasOne("CookShare.Models.Identity.ApplicationUser", "User")
@@ -476,6 +975,17 @@ namespace CookShare.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CookShare.Models.RecipeCollection", b =>
+                {
+                    b.HasOne("CookShare.Models.Identity.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("CookShare.Models.RecipeComment", b =>
@@ -600,6 +1110,11 @@ namespace CookShare.Migrations
                     b.Navigation("Likes");
 
                     b.Navigation("Ratings");
+                });
+
+            modelBuilder.Entity("CookShare.Models.RecipeCollection", b =>
+                {
+                    b.Navigation("Recipes");
                 });
 #pragma warning restore 612, 618
         }

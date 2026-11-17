@@ -1,0 +1,11 @@
+@model CookShare.Models.Recipe
+@using CookShare.Helpers
+@using CookShare.ViewModels
+@{
+    var ratings = ViewData["RecipeRatingSummaries"] as IReadOnlyDictionary<int, RecipeRatingViewModel>;
+    var rating = ratings != null && ratings.TryGetValue(Model.Id, out var state) ? state : null;
+}
+<a class="creator-highlight-card" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id" data-highlight-card data-recipe-id="@Model.Id">
+    <div class="creator-highlight-image"><img src="@RecipeImageReference.GetSource(Model.Image)" alt="@Model.Name" width="480" height="320" loading="lazy" data-profile-image data-image-fallback="@RecipeImageReference.Placeholder" /><span class="creator-highlight-badge"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i>Nổi bật</span></div>
+    <div class="creator-highlight-copy"><span class="creator-highlight-category">@Model.Category</span><h3>@Model.Name</h3>@if (rating != null) { <partial name="_RecipeRatingSummary" model="rating" /> }<span class="creator-highlight-link">Vào bếp cùng món này<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
+</a>

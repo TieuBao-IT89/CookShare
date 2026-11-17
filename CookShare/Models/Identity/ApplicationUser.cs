@@ -7,7 +7,13 @@ namespace CookShare.Models.Identity
     {
         public string? DisplayName { get; set; }
 
+        public string PublicSearchName { get; set; } = string.Empty;
+
         public string? AvatarUrl { get; set; }
+
+        public string? CoverImageUrl { get; set; }
+
+        public string? Bio { get; set; }
 
         public DateTime CreatedAt { get; set; }
             = DateTime.UtcNow;

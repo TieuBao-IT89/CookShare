@@ -1,179 +1,40 @@
-# Security Policy – CookShare
+# Chính sách bảo mật
 
-## 1. Giới thiệu (Overview)
+## Báo cáo lỗ hổng
 
-CookShare là dự án phần mềm mã nguồn mở được phát triển bằng ASP.NET Core MVC và C#.
+Gửi báo cáo riêng tư qua [GitHub Security Advisories](https://github.com/TieuBao-IT89/CookShare/security/advisories/new). Repository đã bật Private Vulnerability Reporting. Nếu không truy cập được, kiểm tra [trang Security](https://github.com/TieuBao-IT89/CookShare/security) và liên hệ maintainer qua kênh được công bố trên [hồ sơ](https://github.com/TieuBao-IT89) để thống nhất kênh riêng tư trước khi gửi chi tiết.
 
-Nhóm phát triển CookShare cam kết tiếp nhận và xử lý các báo cáo về lỗ hổng bảo mật một cách có trách nhiệm, nhằm bảo vệ mã nguồn, dữ liệu và người sử dụng hệ thống.
+Không công khai cách khai thác chưa được khắc phục trong Issue/PR. Không gửi mật khẩu, token, chuỗi kết nối thật hoặc dữ liệu cá nhân.
 
-Tài liệu này hướng dẫn cách báo cáo, xác minh, khắc phục và công bố lỗ hổng bảo mật.
+Báo cáo nên gồm:
 
-## 2. Các phiên bản được hỗ trợ (Supported Versions)
+- Nhánh/tag và commit bị ảnh hưởng.
+- Thành phần, điều kiện và các bước tái hiện tối thiểu.
+- Tác động, bằng chứng đã che dữ liệu nhạy cảm và đề xuất sửa nếu có.
+- Cách liên hệ để phối hợp xác minh và công bố.
 
-CookShare hiện đang trong quá trình phát triển.
+## Phạm vi hỗ trợ
 
-| Phiên bản / Nhánh                             | Trạng thái                                             |
-| --------------------------------------------- | ------------------------------------------------------ |
-| `main`                                        | Nhánh ổn định, được ưu tiên xem xét các vấn đề bảo mật |
-| `develop`                                     | Nhánh phát triển, tiếp nhận báo cáo và khắc phục lỗi   |
-| Các phiên bản cũ hoặc nhánh không còn duy trì | Không cam kết hỗ trợ bảo mật                           |
+| Mã nguồn | Chính sách |
+| --- | --- |
+| `main` | Tiếp nhận vấn đề bảo mật của nhánh ổn định |
+| `develop` | Tiếp nhận và tích hợp bản sửa trong phát triển |
+| Tag cũ và nhánh không còn duy trì | Không cam kết backport; maintainer đánh giá từng trường hợp |
 
-Các nhánh trên không đại diện cho một lịch trình hỗ trợ dài hạn hoặc cam kết thời gian phát hành bản vá.
+Dự án chưa công bố lịch hỗ trợ dài hạn hoặc SLA phản hồi. Danh sách bản phát hành tại [Releases](https://github.com/TieuBao-IT89/CookShare/releases).
 
-Khi có phiên bản phát hành chính thức, nhóm phát triển sẽ cập nhật chính sách hỗ trợ.
+## Xử lý và công bố
 
-## 3. Báo cáo lỗ hổng bảo mật (Reporting a Vulnerability)
+Maintainer xác minh trong môi trường cô lập, đánh giá mức độ ảnh hưởng, phối hợp bản vá và test hồi quy. Thông tin khai thác chỉ chia sẻ với người cần xử lý. Thời điểm phát hành/công bố được thống nhất theo rủi ro thực tế; advisory nêu phiên bản bị ảnh hưởng và hướng cập nhật khi có kết luận.
 
-Nếu phát hiện lỗ hổng bảo mật trong CookShare, vui lòng báo cáo riêng tư cho Maintainer.
+## Cấu hình và dữ liệu
 
-**Không công khai chi tiết lỗ hổng chưa được khắc phục trên GitHub Issues, Pull Requests hoặc Discussions.**
+- Dùng User Secrets khi phát triển và biến môi trường/secret store khi triển khai. Không commit credential; xem [Setup](docs/SETUP.md).
+- Thao tác tài khoản và công thức kiểm tra authentication, quyền sở hữu và anti-forgery tại server.
+- Liên kết email dùng `Email__PublicBaseUrl` tin cậy, yêu cầu HTTPS ngoài Development/Testing. SMTP dùng TLS; token xác minh/đặt lại mật khẩu hết hạn sau một giờ.
+- Quên mật khẩu trả thông báo chung. Đặt lại mật khẩu không tự đăng nhập hoặc tự xác minh email. Security stamp được cập nhật; các phiên khác bị vô hiệu khi Identity kiểm tra lại stamp, mặc định tối đa khoảng 30 phút.
+- Xóa tài khoản yêu cầu mật khẩu hiện tại, xóa dữ liệu phụ thuộc trong transaction và đăng xuất phiên hiện tại. Chi tiết giữ/xóa từng bảng ở [Account settings](docs/ACCOUNT_SETTINGS.md).
+- Ảnh upload công thức chỉ đọc khi còn tham chiếu hiển thị; ảnh thành phẩm kiểm tra cả bài và công thức, trả no-store. Ảnh bị thay/xóa được dọn sau commit; xem [Recipe images](docs/RECIPE_IMAGES.md) và [thành phẩm/kiểm duyệt](docs/COOKED_POSTS_MODERATION.md).
+- Bộ sưu tập riêng tư chỉ chủ sở hữu được đọc/sửa; trạng thái Favorite độc lập với membership. Moderator chỉ được cấp qua CLI quản trị; thao tác xử lý kiểm tra role, CSRF, trạng thái và lưu nhật ký cùng transaction.
 
-### Kênh báo cáo ưu tiên
-
-Sử dụng chức năng **Private Vulnerability Reporting** của GitHub nếu đã được kích hoạt:
-
-1. Truy cập repository CookShare.
-2. Mở tab **Security**.
-3. Chọn **Advisories**.
-4. Chọn **Report a vulnerability** nếu tùy chọn này khả dụng.
-5. Điền thông tin và gửi báo cáo riêng tư.
-
-Repository:
-
-https://github.com/TieuBao-IT89/CookShare
-
-Nếu chức năng báo cáo riêng tư chưa khả dụng, vui lòng liên hệ Maintainer để được cung cấp kênh báo cáo an toàn trước khi gửi chi tiết kỹ thuật nhạy cảm.
-
-## 4. Thông tin cần cung cấp (Report Information)
-
-Một báo cáo bảo mật nên có:
-
-- Mô tả lỗ hổng.
-- Thành phần hoặc chức năng bị ảnh hưởng.
-- Nhánh hoặc phiên bản liên quan.
-- Các bước tái hiện lỗ hổng.
-- Kết quả thực tế và kết quả mong đợi.
-- Mức độ ảnh hưởng và rủi ro dự kiến.
-- Hình ảnh, log hoặc bằng chứng nếu cần thiết.
-- Đề xuất khắc phục nếu có.
-
-Không gửi mật khẩu, API Keys, Access Tokens hoặc dữ liệu cá nhân thật khi không cần thiết.
-
-## 5. Quy trình xử lý (Vulnerability Handling Process)
-
-### Bước 1. Tiếp nhận (Receive)
-
-Maintainer tiếp nhận báo cáo thông qua kênh riêng tư.
-
-Thông tin lỗ hổng được giới hạn cho những thành viên có trách nhiệm xử lý.
-
-### Bước 2. Xác minh (Verify)
-
-Maintainer hoặc Core Developer kiểm tra:
-
-- Lỗ hổng có tồn tại không.
-- Có thể tái hiện trong môi trường kiểm thử không.
-- Những chức năng và phiên bản nào bị ảnh hưởng.
-
-### Bước 3. Đánh giá (Assess)
-
-Nhóm phát triển đánh giá mức độ nghiêm trọng dựa trên:
-
-- Khả năng bị khai thác.
-- Mức độ ảnh hưởng đến dữ liệu và hệ thống.
-- Phạm vi người dùng bị ảnh hưởng.
-- Khả năng khắc phục.
-
-Mức độ ưu tiên được xác định theo rủi ro thực tế.
-
-### Bước 4. Phân công (Assign)
-
-Maintainer phân công thành viên phù hợp để phân tích và khắc phục.
-
-Đối với lỗ hổng nhạy cảm, quá trình phát triển bản vá cần được thực hiện trong phạm vi riêng tư phù hợp, tránh tiết lộ sớm thông tin có thể bị khai thác.
-
-### Bước 5. Khắc phục (Fix)
-
-Developer thực hiện:
-
-- Xác định nguyên nhân gốc.
-- Xây dựng bản vá.
-- Kiểm tra tác động đến chức năng hiện tại.
-- Hạn chế thay đổi không liên quan.
-
-### Bước 6. Kiểm thử (Test)
-
-Nhóm phát triển thực hiện các kiểm tra phù hợp:
-
-- Unit Tests.
-- Build và kiểm tra CI.
-- Kiểm thử hồi quy.
-- Kiểm tra lại khả năng tái hiện lỗ hổng.
-
-Bản vá chỉ được chấp thuận sau khi đáp ứng các yêu cầu chất lượng phù hợp.
-
-### Bước 7. Phát hành (Release)
-
-Maintainer quyết định thời điểm tích hợp và phát hành bản vá, ưu tiên giảm thiểu rủi ro đối với người dùng.
-
-Nếu đã có bản phát hành chính thức, hướng dẫn cập nhật cần chỉ rõ phiên bản được khắc phục.
-
-### Bước 8. Công bố có trách nhiệm (Responsible Disclosure)
-
-Sau khi đánh giá mức độ an toàn và tình trạng khắc phục, nhóm phát triển có thể công bố:
-
-- Mô tả tổng quan lỗ hổng.
-- Phạm vi ảnh hưởng.
-- Mức độ nghiêm trọng.
-- Phiên bản đã được khắc phục.
-- Hướng dẫn cập nhật hoặc giảm thiểu rủi ro.
-
-Việc công bố cần phối hợp với người báo cáo khi phù hợp.
-
-## 6. Trách nhiệm của các thành viên (Responsibilities)
-
-### Maintainer
-
-- Quản lý kênh báo cáo bảo mật.
-- Tiếp nhận và đánh giá báo cáo.
-- Điều phối quá trình khắc phục.
-- Quyết định phát hành và công bố thông tin.
-
-### Core Developer
-
-- Hỗ trợ xác minh lỗ hổng.
-- Phân tích nguyên nhân và phát triển bản vá.
-- Viết hoặc cập nhật kiểm thử.
-- Đảm bảo thay đổi đáp ứng yêu cầu chất lượng.
-
-### Contributor và Security Researcher
-
-- Báo cáo qua kênh riêng tư.
-- Cung cấp bằng chứng phù hợp.
-- Tránh truy cập hoặc tiết lộ dữ liệu không được phép.
-- Không khai thác lỗ hổng gây ảnh hưởng đến người dùng khác.
-- Phối hợp công bố có trách nhiệm.
-
-## 7. Nguyên tắc bảo mật (Security Best Practices)
-
-Nhóm CookShare khuyến khích:
-
-- Không hardcode mật khẩu, token hoặc API Keys.
-- Sử dụng Environment Variables hoặc .NET User Secrets phù hợp.
-- Không commit file chứa dữ liệu nhạy cảm.
-- Kiểm tra dependencies và cảnh báo bảo mật.
-- Thực hiện Code Review trước khi Merge.
-- Sử dụng Unit Tests và GitHub Actions CI.
-- Áp dụng nguyên tắc phân quyền tối thiểu.
-
-## 8. Liên hệ và hỗ trợ (Contact)
-
-- Repository: https://github.com/TieuBao-IT89/CookShare
-- Security: https://github.com/TieuBao-IT89/CookShare/security
-- Maintainer: TieuBao-IT89
-
-Vui lòng sử dụng kênh báo cáo riêng tư nếu đã được kích hoạt. Không gửi chi tiết khai thác lỗ hổng qua Issue công khai.
-
----
-
-**Cảm ơn bạn đã góp phần nâng cao tính bảo mật của CookShare!**
+Chỉ chạy test ghi/xóa trên database riêng theo [Testing](docs/TESTING.md). CI dùng PostgreSQL tạm, không dùng credential Neon của ứng dụng.

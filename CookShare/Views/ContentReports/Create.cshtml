@@ -1,0 +1,44 @@
+@model CookShare.ViewModels.ContentReportFormViewModel
+@{
+  ViewData["Title"] = "Báo cáo nội dung";
+}
+@section Styles {
+  <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
+}
+<div class="social-page social-form-page">
+  <p class="social-eyebrow">Cùng giữ căn bếp thân thiện</p>
+  <h1>Báo cáo nội dung</h1>
+  <p class="social-lead">Nhóm kiểm duyệt sẽ xem xét báo cáo. Danh tính của bạn không hiển thị với người đăng bài.</p>
+  <div class="social-recipe-context"><i class="fa-regular fa-flag" aria-hidden="true"></i><strong>@Model.TargetName</strong></div>
+  <form asp-action="Create" method="post" class="social-form" data-social-form>
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <input asp-for="TargetType" type="hidden" />
+    <input asp-for="TargetId" type="hidden" />
+    <div class="social-field">
+      <label asp-for="Reason">Lý do (bắt buộc)</label>
+      <select asp-for="Reason" required aria-describedby="reportReasonError">
+        <option value="">Chọn lý do</option>
+        <option value="Spam">Spam hoặc quảng cáo</option>
+        <option value="Harassment">Quấy rối hoặc công kích</option>
+        <option value="UnsafeContent">Nội dung nguy hiểm hoặc không phù hợp</option>
+        <option value="Copyright">Vi phạm quyền sử dụng nội dung</option>
+        <option value="Other">Lý do khác</option>
+      </select>
+      <span asp-validation-for="Reason" id="reportReasonError" class="text-danger"></span>
+    </div>
+    <div class="social-field">
+      <label asp-for="Details">Thông tin bổ sung</label>
+      <textarea asp-for="Details" rows="5" maxlength="1000" aria-describedby="reportDetailsHelp reportDetailsError"></textarea>
+      <p id="reportDetailsHelp" class="social-hint">Không bắt buộc, tối đa 1000 ký tự. Chỉ nhóm kiểm duyệt được xem nội dung báo cáo.</p>
+      <span asp-validation-for="Details" id="reportDetailsError" class="text-danger"></span>
+    </div>
+    <div class="social-form-actions">
+      <button type="submit" class="btn btn-primary" data-social-submit>Gửi báo cáo</button>
+      <a asp-controller="@(Model.TargetType == ContentTargetType.Recipe ? "Recipe" : "CookedPosts")" asp-action="Details" asp-route-id="@Model.TargetId">Hủy</a>
+      <span role="status" class="social-hint" data-social-status></span>
+    </div>
+  </form>
+</div>
+@section Scripts {
+  <script src="~/js/cooked-posts.js" asp-append-version="true" defer></script>
+}

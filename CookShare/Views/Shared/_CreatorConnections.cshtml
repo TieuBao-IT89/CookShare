@@ -1,0 +1,8 @@
+@model IReadOnlyList<CookShare.ViewModels.ProfileUserItemViewModel>
+@using CookShare.Helpers
+<div class="creator-connections">
+    @foreach (var member in Model)
+    {
+        <a class="creator-connection" asp-controller="Profile" asp-action="Index" asp-route-userId="@member.UserId"><img src="@(ProfileContent.ImageSource(member.AvatarUrl) ?? ProfileContent.DefaultAvatar)" alt="" width="52" height="52" loading="lazy" data-profile-image data-image-fallback="@ProfileContent.DefaultAvatar" /><span><strong>@member.DisplayName</strong><small>@("@" + member.UserName)</small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    }
+</div>

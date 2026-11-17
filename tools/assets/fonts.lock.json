@@ -1,0 +1,110 @@
+{
+  "fontAwesomeVersion": "7.3.1",
+  "fontAwesomeOriginalSRI": "sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==",
+  "npmTarballIntegrity": "sha512-wmglKKPDIkgV3aWlZzWECCPoGIkYCulzBwxG9+w7rc5BGapZ6cPMpoPOT8k36J0Ni7PPX6c/rsoMWfS4d1MUMg==",
+  "fontCssSource": "https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap",
+  "assets": [
+    {
+      "file": "CookShare/wwwroot/lib/fontawesome/css/fontawesome.min.css",
+      "sha256": "405bfb2a5312e363b88650a68ed90b6c06c41d5cfa3cbf5c68251cafafb3c078",
+      "bytes": 71623
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fontawesome/css/solid.min.css",
+      "sha256": "01219b97103029774a3e8cb1b22803490beec1df828895dfd9c5fd0d4798da25",
+      "bytes": 619
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fontawesome/css/regular.min.css",
+      "sha256": "8ce72fe73bcf1a93ae67cdae0f599a322f2f939ce6801863b86cb577e3d554d0",
+      "bytes": 625
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fontawesome/webfonts/fa-solid-900.woff2",
+      "sha256": "24e5fae26b41c08b2df81c91669f5aaae71d81a84a4713fc56b5c621b78dd456",
+      "bytes": 119488
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fontawesome/webfonts/fa-regular-400.woff2",
+      "sha256": "f4722d10b9e1b41eefe3b51a026312ee1970edb7782f94b0080d3d475945734c",
+      "bytes": 19512
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fontawesome/LICENSE.txt",
+      "sha256": "20c6f40715a567c97b80f6944beb8bb325835cab47ea7dcab89ee3b8e077eced",
+      "bytes": 7427
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-400-vietnamese.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVPSTAyLFyeg_IDWvOJmVES_Hw4BXoKZA.woff2",
+      "sha256": "dc085e2fba3414e5c5bf1e6172f921a9f81c5859946a4ed3d63c1e470d96a9e2",
+      "bytes": 11532
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-400-latin.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVPSTAyLFyeg_IDWvOJmVES_Hw3BXo.woff2",
+      "sha256": "03d1b589cff172e1a670b3573e731d3380bc326f80cf83b0d3504e3188e2e074",
+      "bytes": 21168
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-500-vietnamese.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HTEJm86Rb0bcw.woff2",
+      "sha256": "86341610cbe907eecf461c9159c168d5efb52bb1a33963813a08f520555d8e66",
+      "bytes": 12172
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-500-latin.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HTEJm81Rb0.woff2",
+      "sha256": "b621f77d35f777023aa11ca524462d511b4b28a813adbc0e9d15a10fc61dfe4e",
+      "bytes": 21892
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-600-vietnamese.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HToIW86Rb0bcw.woff2",
+      "sha256": "97658c6f9a384f29a3005c3d96e2a0d1c810192cf68979071c290f5a377a9f99",
+      "bytes": 12176
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-600-latin.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HToIW81Rb0.woff2",
+      "sha256": "9503dec2a7c532c8331e9600bcafea287a4fd208573b8668d85ab8d8de1863c7",
+      "bytes": 22032
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-700-vietnamese.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HSMIG86Rb0bcw.woff2",
+      "sha256": "4f58af2d1c3e28a9ba14c51c82db2751d78344b75bdcb34de24a1031ebe59da6",
+      "bytes": 12468
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-700-latin.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HSMIG81Rb0.woff2",
+      "sha256": "a193dd87699bd2e18ddf72dc271493ea82a23dad9f5c334d9f2a257b1e05fc30",
+      "bytes": 22152
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-800-vietnamese.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HSQI286Rb0bcw.woff2",
+      "sha256": "26b241d1d5f489c8a65c1a3c4cdcdb48dd114a9ed7e0c0180182191f087cbe96",
+      "bytes": 12404
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/be-vietnam-pro-800-latin.woff2",
+      "source": "https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HSQI281Rb0.woff2",
+      "sha256": "7c5d0871188c09339a6eb46948420ed9b11f3d06ea3ff1c5d1cf41b06a3504e7",
+      "bytes": 22320
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/playfair-display-500-vietnamese.woff2",
+      "source": "https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTPYgFE_.woff2",
+      "sha256": "ef6446229b59773e671021650ef3882cf35806dae723ce047de87c0a6633039a",
+      "bytes": 9112
+    },
+    {
+      "file": "CookShare/wwwroot/lib/fonts/playfair-display-500-latin.woff2",
+      "source": "https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgA.woff2",
+      "sha256": "e0c764a8e9e1cce92163c55bac4b2ad6cd4cf8c696ce2289ab5c41565e65b7e2",
+      "bytes": 38404
+    }
+  ]
+}

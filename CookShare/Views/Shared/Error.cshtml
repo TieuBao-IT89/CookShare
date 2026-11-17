@@ -1,8 +1,8 @@
 @model ErrorViewModel
 @{ ViewData["Title"] = "Có chút trục trặc"; }
 <section class="container error-page recipe-empty-container">
-    <span class="state-icon"><svg class="icon"><use href="#i-chef" /></svg></span>
+    <span class="state-icon"><svg class="icon"><use href="/img/icons.svg#chef-hat" /></svg></span>
     <span class="eyebrow">BẾP ĐANG CẦN MỘT CHÚT THỜI GIAN</span><h1>Có chút trục trặc rồi.</h1><p>Chúng mình chưa thể tải nội dung này. Bạn hãy thử lại sau nhé.</p>
-    <a class="btn" href="/">Về trang chủ <svg class="icon"><use href="#i-arrow" /></svg></a>
+    <a class="btn" href="/">Về trang chủ <svg class="icon"><use href="/img/icons.svg#arrow-right" /></svg></a>
     @if (Model.ShowRequestId) { <p class="error-reference">Mã hỗ trợ: <code>@Model.RequestId</code></p> }
 </section>

@@ -1,0 +1,6 @@
+@model CookShare.ViewModels.CollectionChooserViewModel
+@{ ViewData["Title"] = "Chọn bộ sưu tập"; }
+<div class="container collections-page collection-chooser-page">
+  <a class="collection-back-link" href="@(Model.ReturnUrl ?? Url.Action("Details", "Recipe", new { id = Model.RecipeId }))">Quay lại công thức</a>
+  <partial name="_Chooser" model="Model" />
+</div>

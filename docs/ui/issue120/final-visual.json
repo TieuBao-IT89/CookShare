@@ -1,0 +1,408 @@
+{
+  "pages": 18,
+  "browserErrors": 0,
+  "results": [
+    {
+      "surface": "home",
+      "label": "desktop",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "labels": [
+        {
+          "selector": "",
+          "text": "Bắt đầu câu chuyện của bạn",
+          "font": "12px",
+          "color": "rgb(96, 107, 98)"
+        },
+        {
+          "selector": "",
+          "text": "Đăng công thức",
+          "font": "12px",
+          "color": "rgb(36, 92, 67)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        }
+      ],
+      "accentInk": "#985130"
+    },
+    {
+      "surface": "profile",
+      "label": "desktop",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "labels": [
+        {
+          "selector": "eyebrow",
+          "text": "TỪ CĂN BẾP NÀY",
+          "font": "9px",
+          "color": "rgb(152, 81, 48)"
+        },
+        {
+          "selector": "eyebrow",
+          "text": "CÙNG NHAU YÊU BẾP",
+          "font": "9px",
+          "color": "rgb(152, 81, 48)"
+        },
+        {
+          "selector": "eyebrow",
+          "text": "NHỮNG NGƯỜI BẠN YÊU BẾP",
+          "font": "9px",
+          "color": "rgb(152, 81, 48)"
+        }
+      ],
+      "accentInk": "#985130",
+      "firstTitle": 1339.828125
+    },
+    {
+      "surface": "discovery",
+      "label": "desktop",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "labels": [],
+      "accentInk": "#985130",
+      "firstTitle": 837.453125
+    },
+    {
+      "surface": "home",
+      "label": "tablet",
+      "width": 768,
+      "scrollWidth": 768,
+      "labels": [
+        {
+          "selector": "",
+          "text": "Bắt đầu câu chuyện của bạn",
+          "font": "12px",
+          "color": "rgb(96, 107, 98)"
+        },
+        {
+          "selector": "",
+          "text": "Đăng công thức",
+          "font": "12px",
+          "color": "rgb(36, 92, 67)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        }
+      ],
+      "accentInk": "#985130"
+    },
+    {
+      "surface": "profile",
+      "label": "tablet",
+      "width": 768,
+      "scrollWidth": 768,
+      "labels": [
+        {
+          "selector": "eyebrow",
+          "text": "TỪ CĂN BẾP NÀY",
+          "font": "9px",
+          "color": "rgb(152, 81, 48)"
+        },
+        {
+          "selector": "eyebrow",
+          "text": "CÙNG NHAU YÊU BẾP",
+          "font": "9px",
+          "color": "rgb(152, 81, 48)"
+        },
+        {
+          "selector": "eyebrow",
+          "text": "NHỮNG NGƯỜI BẠN YÊU BẾP",
+          "font": "9px",
+          "color": "rgb(152, 81, 48)"
+        }
+      ],
+      "accentInk": "#985130",
+      "firstTitle": 1211.03125
+    },
+    {
+      "surface": "discovery",
+      "label": "tablet",
+      "width": 768,
+      "scrollWidth": 768,
+      "labels": [],
+      "accentInk": "#985130",
+      "firstTitle": 852.96875
+    },
+    {
+      "surface": "home",
+      "label": "mobile",
+      "width": 360,
+      "scrollWidth": 360,
+      "labels": [
+        {
+          "selector": "",
+          "text": "Bắt đầu câu chuyện của bạn",
+          "font": "12px",
+          "color": "rgb(96, 107, 98)"
+        },
+        {
+          "selector": "",
+          "text": "Đăng công thức",
+          "font": "12px",
+          "color": "rgb(36, 92, 67)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        },
+        {
+          "selector": "feed-image-link",
+          "text": "Vào bếp cùng món này",
+          "font": "12px",
+          "color": "rgb(23, 63, 46)"
+        }
+      ],
+      "accentInk": "#985130"
+    },
+    {
+      "surface": "profile",
+      "label": "mobile",
+      "width": 360,
+      "scrollWidth": 360,
+      "labels": [
+        {
+          "selector": "eyebrow",
+          "text": "TỪ CĂN BẾP NÀY",
+          "font": "8px",
+          "color": "rgb(152, 81, 48)"
+        },
+        {
+          "selector": "eyebrow",
+          "text": "CÙNG NHAU YÊU BẾP",
+          "font": "8px",
+          "color": "rgb(152, 81, 48)"
+        },
+        {
+          "selector": "eyebrow",
+          "text": "NHỮNG NGƯỜI BẠN YÊU BẾP",
+          "font": "8px",
+          "color": "rgb(152, 81, 48)"
+        }
+      ],
+      "accentInk": "#985130",
+      "firstTitle": 1224.59375
+    },
+    {
+      "surface": "discovery",
+      "label": "mobile",
+      "width": 360,
+      "scrollWidth": 360,
+      "labels": [],
+      "accentInk": "#985130",
+      "firstTitle": 817
+    },
+    {
+      "surface": "create",
+      "label": "desktop",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "emptySummaryHidden": true,
+      "highlightColors": []
+    },
+    {
+      "surface": "edit",
+      "label": "desktop",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "emptySummaryHidden": true,
+      "highlightColors": []
+    },
+    {
+      "surface": "owner",
+      "label": "desktop",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "emptySummaryHidden": null,
+      "highlightColors": [
+        "rgb(152, 81, 48)",
+        "rgb(152, 81, 48)",
+        "rgb(152, 81, 48)"
+      ]
+    },
+    {
+      "surface": "create",
+      "label": "tablet",
+      "width": 768,
+      "scrollWidth": 768,
+      "emptySummaryHidden": true,
+      "highlightColors": []
+    },
+    {
+      "surface": "edit",
+      "label": "tablet",
+      "width": 768,
+      "scrollWidth": 768,
+      "emptySummaryHidden": true,
+      "highlightColors": []
+    },
+    {
+      "surface": "owner",
+      "label": "tablet",
+      "width": 768,
+      "scrollWidth": 768,
+      "emptySummaryHidden": null,
+      "highlightColors": [
+        "rgb(152, 81, 48)",
+        "rgb(152, 81, 48)",
+        "rgb(152, 81, 48)"
+      ]
+    },
+    {
+      "surface": "create",
+      "label": "mobile",
+      "width": 360,
+      "scrollWidth": 360,
+      "emptySummaryHidden": true,
+      "highlightColors": []
+    },
+    {
+      "surface": "edit",
+      "label": "mobile",
+      "width": 360,
+      "scrollWidth": 360,
+      "emptySummaryHidden": true,
+      "highlightColors": []
+    },
+    {
+      "surface": "owner",
+      "label": "mobile",
+      "width": 360,
+      "scrollWidth": 360,
+      "emptySummaryHidden": null,
+      "highlightColors": [
+        "rgb(152, 81, 48)",
+        "rgb(152, 81, 48)",
+        "rgb(152, 81, 48)"
+      ]
+    }
+  ]
+}

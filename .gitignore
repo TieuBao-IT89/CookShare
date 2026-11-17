@@ -4,6 +4,8 @@ obj/
 Debug/
 Release/
 artifacts/
+CookShare/App_Data/recipe-images/
+CookShare/App_Data/cooked-post-images/
 
 # Visual Studio
 .vs/
@@ -47,6 +49,18 @@ coverage.xml
 *.coverage
 *.coveragexml
 
+# Python bytecode
+__pycache__/
+*.py[cod]
+
 # NuGet packages
 *.nupkg
 *.snupkg
+
+# Project-local design tools (installed from tools/design-skills/lock.json)
+/.cursor/skills/design-taste-frontend/
+/.cursor/skills/impeccable/
+/.cursor/agents/impeccable-*.md
+/.taste-skill/
+/.impeccable/
+node_modules/

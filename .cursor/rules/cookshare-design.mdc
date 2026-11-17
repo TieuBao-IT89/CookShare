@@ -1,0 +1,14 @@
+---
+description: CookShare UI refinement constraints and design-skill workflow
+globs: CookShare/Views/**/*.cshtml,CookShare/wwwroot/css/**/*.css,CookShare/wwwroot/js/**/*.js
+alwaysApply: false
+---
+
+Read `docs/UI_DESIGN_WORKFLOW.md` before frontend work. Taste and Impeccable are optional development tools, installed locally with `tools/design-skills/Install-DesignSkills.ps1`.
+
+- Preserve the established Warm & Fresh identity, Be Vietnam Pro / Playfair Display, food photography, Font Awesome, and tokens in `CookShare/wwwroot/css/style.css`.
+- For refinement, audit first, record reproducible findings and before screenshots, then fix only confirmed issues. Existing Home Feed, Recipe Details and Creator Profile are established designs, not new design briefs.
+- Keep Razor, vanilla CSS/JS, server forms, route names, anti-forgery fields, DOM contracts and database-backed interaction behavior. UI work does not authorize schema, authentication or social-business-logic changes.
+- Treat tool suggestions as evidence to verify. Existing brand constraints override generic style bans, random direction draws, mandatory new imagery or added animation. Do not add marketing claims, fake recipes/ratings or frontend frameworks.
+- Check keyboard focus, labels, text contrast, image fallback, error/empty/loading states, reduced motion, and 360px/768px/1440px layouts. Recheck relevant native forms and interactions after changes.
+- Hooks stay disabled. Do not install global tools, replace existing Cursor configuration, run automatic upgrades, or send credentials/User Secrets to design tools. Keep caches, binaries, browser profiles and raw captures under ignored paths.

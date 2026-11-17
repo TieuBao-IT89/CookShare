@@ -1,0 +1,12 @@
+@model CookShare.ViewModels.CollectionInputViewModel
+@{ ViewData["Title"] = "Tạo bộ sưu tập"; }
+<div class="container collections-page collection-form-page">
+  <a class="collection-back-link" asp-action="Index">Quay lại bộ sưu tập</a>
+  <header class="collections-heading"><div><span class="eyebrow">MỘT CẢM HỨNG MỚI</span><h1>Tạo bộ sưu tập</h1><p>Bộ sưu tập mới chỉ mình bạn xem được. Bạn có thể bật công khai trong phần chỉnh sửa.</p></div></header>
+  <form asp-action="Create" method="post" class="collection-editor">
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+    <div class="form-group"><label asp-for="Name"></label><input asp-for="Name" class="form-input" maxlength="80" required autocomplete="off" /><span asp-validation-for="Name" class="text-danger"></span></div>
+    <div class="form-group"><label asp-for="Description"></label><textarea asp-for="Description" class="form-textarea" rows="3" maxlength="300"></textarea><span asp-validation-for="Description" class="text-danger"></span></div>
+    <button class="btn" type="submit">Tạo bộ sưu tập riêng tư</button>
+  </form>
+</div>

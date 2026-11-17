@@ -1,83 +1,31 @@
-
 @model CookShare.ViewModels.EditProfileViewModel
-
+@using CookShare.Helpers
 @{
-    ViewData["Title"] = "Chỉnh sửa hồ sơ";
+    ViewData["Title"] = "Chỉnh sửa căn bếp";
+    var avatar = ProfileContent.ImageSource(Model.AvatarUrl) ?? ProfileContent.DefaultAvatar;
+    var cover = ProfileContent.ImageSource(Model.CoverImageUrl);
 }
-
-@section Styles {
-    <link rel="stylesheet"
-          href="~/css/edit-profile.css"
-          asp-append-version="true" />
-}
-
-<section class="auth-page container">
-    <div class="auth-shell">
-
-        <partial name="_AuthAside" />
-
-        <div class="auth-form-area">
-
-            <a class="back-link"
-               asp-controller="Profile"
-               asp-action="Index">
-                ← Quay lại trang cá nhân
-            </a>
-
-            <span class="eyebrow">
-                THÔNG TIN CÁ NHÂN
-            </span>
-
-            <h1>Chỉnh sửa <em>hồ sơ.</em></h1>
-
-            <p class="auth-subtitle">
-                Cập nhật thông tin của bạn trên CookShare.
-            </p>
-
-            <form asp-controller="Profile"
-                  asp-action="Edit"
-                  method="post"
-                  class="auth-form">
-
-                @Html.AntiForgeryToken()
-
-                <div asp-validation-summary="All"
-                     class="text-danger"
-                     role="alert"></div>
-
-                <div class="form-field-group">
-                    <label asp-for="DisplayName"
-                           class="form-label">
-                        Tên hiển thị
-                    </label>
-
-                    <input asp-for="DisplayName"
-                           class="form-input"
-                           autocomplete="name" />
-
-                    <span asp-validation-for="DisplayName"
-                          class="text-danger"></span>
-                </div>
-
-                <div class="form-field-group">
-                    <label asp-for="AvatarUrl"
-                           class="form-label">
-                        Đường dẫn ảnh đại diện
-                    </label>
-
-                    <input asp-for="AvatarUrl"
-                           class="form-input"
-                           placeholder="/img/recipes/profile-avatar.webp" />
-
-                    <span asp-validation-for="AvatarUrl"
-                          class="text-danger"></span>
-                </div>
-
-                <button type="submit" class="btn btn-full">
-                    Lưu thay đổi
-                </button>
-            </form>
-
-        </div>
+@section Styles { <link rel="stylesheet" href="~/css/creator-profile.css" asp-append-version="true" /> }
+<section class="creator-edit-page container">
+    <a class="text-link" asp-controller="Profile" asp-action="Index"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>Quay lại căn bếp của bạn</a>
+    <div class="creator-edit-heading"><span class="eyebrow">THÊM MỘT CHÚT CÁ TÍNH</span><h1>Căn bếp này, <em>mang dấu ấn của bạn.</em></h1><p>Giới thiệu bản thân và chọn những hình ảnh kể câu chuyện của mình.</p></div>
+    <div class="creator-edit-layout" data-profile-editor>
+        <form asp-controller="Profile" asp-action="Edit" method="post" class="creator-edit-form">
+            <div asp-validation-summary="All" class="notice error" role="alert"></div>
+            <fieldset class="creator-fieldset"><legend><span>01</span>Câu chuyện của bạn</legend>
+                <div class="form-field-group"><label asp-for="DisplayName" class="form-label">Tên hiển thị</label><input asp-for="DisplayName" class="form-input" autocomplete="name" maxlength="100" data-profile-name-input /><span asp-validation-for="DisplayName" class="text-danger"></span></div>
+                <div class="form-field-group"><div class="creator-label-row"><label asp-for="Bio" class="form-label">Tiểu sử</label><span class="creator-counter" data-bio-counter aria-live="polite">@((Model.Bio ?? "").Length)/300</span></div><textarea asp-for="Bio" class="form-textarea" rows="5" maxlength="300" placeholder="Món ăn bạn yêu, cảm hứng nấu nướng hay một câu chuyện nhỏ…" aria-describedby="bioHelp" data-profile-bio-input></textarea><small id="bioHelp" class="creator-field-help">Tối đa 300 ký tự. Bạn có thể xuống dòng để kể câu chuyện của mình.</small><span asp-validation-for="Bio" class="text-danger"></span></div>
+            </fieldset>
+            <fieldset class="creator-fieldset"><legend><span>02</span>Hình ảnh căn bếp</legend>
+                <div class="form-field-group"><label asp-for="AvatarUrl" class="form-label">Đường dẫn ảnh đại diện</label><input asp-for="AvatarUrl" class="form-input" maxlength="500" placeholder="/img/recipes/profile-avatar.webp" aria-describedby="avatarHelp" data-avatar-input /><small id="avatarHelp" class="creator-field-help">Dùng đường dẫn nội bộ hoặc URL HTTPS. Để trống để dùng ảnh mặc định.</small><span asp-validation-for="AvatarUrl" class="text-danger"></span><p class="creator-preview-status" data-avatar-status role="status" aria-live="polite"></p></div>
+                <div class="form-field-group"><label asp-for="CoverImageUrl" class="form-label">Đường dẫn ảnh bìa</label><input asp-for="CoverImageUrl" class="form-input" maxlength="500" placeholder="https://…" aria-describedby="coverHelp" data-cover-input /><small id="coverHelp" class="creator-field-help">Ảnh ngang khoảng 3:1 sẽ đẹp hơn. Để trống để dùng nền mặc định.</small><span asp-validation-for="CoverImageUrl" class="text-danger"></span><p class="creator-preview-status" data-cover-status role="status" aria-live="polite"></p></div>
+            </fieldset>
+            <div class="creator-form-actions"><button type="submit" class="btn"><i class="fa-solid fa-check" aria-hidden="true"></i>Lưu thay đổi</button><a class="btn btn-secondary" asp-controller="Profile" asp-action="Index">Hủy</a></div>
+        </form>
+        <aside class="creator-edit-preview" aria-label="Xem trước hồ sơ"><span class="eyebrow">CĂN BẾP CỦA BẠN SẼ TRÔNG NHƯ THẾ NÀY</span>
+            <div class="creator-preview-card"><div class="creator-preview-cover"><i class="fa-solid fa-leaf" aria-hidden="true"></i><img src="@cover" alt="" data-cover-preview hidden="@(cover == null)" /></div><div class="creator-preview-copy"><img class="creator-preview-avatar" src="@avatar" alt="Xem trước ảnh đại diện" width="88" height="88" data-avatar-preview data-profile-image data-image-fallback="@ProfileContent.DefaultAvatar" /><h2 data-profile-name-preview>@Model.DisplayName</h2><p class="creator-bio" data-profile-bio-preview>@(string.IsNullOrWhiteSpace(Model.Bio) ? "Một câu chuyện nhỏ từ căn bếp của bạn…" : Model.Bio)</p></div></div>
+            <p class="creator-preview-note"><i class="fa-regular fa-heart" aria-hidden="true"></i>Đơn giản, ấm áp và thật là bạn.</p>
+        </aside>
     </div>
 </section>
+@section Scripts { <script src="~/js/creator-profile.js" asp-append-version="true"></script> }

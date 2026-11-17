@@ -1,4 +1,5 @@
 
+using CookShare.Helpers;
 using CookShare.Models;
 using CookShare.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -17,6 +18,38 @@ namespace CookShare.Data
 
         public DbSet<Recipe> Recipes => Set<Recipe>();
 
+        public DbSet<RecipeCollection> RecipeCollections => Set<RecipeCollection>();
+        public DbSet<CollectionRecipe> CollectionRecipes => Set<CollectionRecipe>();
+        public DbSet<CookedRecipePost> CookedRecipePosts => Set<CookedRecipePost>();
+        public DbSet<ContentReport> ContentReports => Set<ContentReport>();
+        public DbSet<ModerationAction> ModerationActions => Set<ModerationAction>();
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            PrepareSearchFields();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            PrepareSearchFields();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void PrepareSearchFields()
+        {
+            foreach (var entry in ChangeTracker.Entries<Recipe>().Where(entry => entry.State is EntityState.Added or EntityState.Modified))
+            {
+                entry.Entity.SearchText = VietnameseSearch.Normalize(entry.Entity.Name + " " + entry.Entity.Description);
+                entry.Entity.SearchIngredients = VietnameseSearch.Normalize(entry.Entity.Ingredients);
+            }
+
+            foreach (var entry in ChangeTracker.Entries<ApplicationUser>().Where(entry => entry.State is EntityState.Added or EntityState.Modified))
+            {
+                entry.Entity.PublicSearchName = VietnameseSearch.Normalize(entry.Entity.DisplayName + " " + entry.Entity.UserName);
+            }
+        }
+
         public DbSet<RecipeLike> RecipeLikes
             => Set<RecipeLike>();
 
@@ -32,10 +65,47 @@ namespace CookShare.Data
         public DbSet<RecipeRating> RecipeRatings
             => Set<RecipeRating>();
 
+        public DbSet<Notification> Notifications
+            => Set<Notification>();
+
+        public DbSet<ProfileFeaturedRecipe> ProfileFeaturedRecipes => Set<ProfileFeaturedRecipe>();
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+            modelBuilder.HasPostgresExtension("pg_trgm");
+            modelBuilder.Entity<Recipe>().HasIndex(recipe => recipe.SearchText).HasMethod("gin").HasOperators("gin_trgm_ops");
+            modelBuilder.Entity<Recipe>().HasIndex(recipe => recipe.SearchIngredients).HasMethod("gin").HasOperators("gin_trgm_ops");
+            modelBuilder.Entity<ApplicationUser>().HasIndex(user => user.PublicSearchName).HasMethod("gin").HasOperators("gin_trgm_ops");
+            modelBuilder.Entity<Recipe>().HasQueryFilter(recipe => !recipe.IsHidden);
+            modelBuilder.Entity<Recipe>().HasIndex(recipe => new { recipe.CreatedAt, recipe.Id });
+            modelBuilder.Entity<CookedRecipePost>().HasQueryFilter(post => !post.IsHidden && !post.Recipe.IsHidden);
+            modelBuilder.Entity<Favorite>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<RecipeLike>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<RecipeComment>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<RecipeRating>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<ProfileFeaturedRecipe>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<CollectionRecipe>().HasQueryFilter(item => !item.Recipe.IsHidden);
+            modelBuilder.Entity<Notification>().HasOne<CookedRecipePost>().WithMany()
+                .HasForeignKey(item => item.CookedRecipePostId).OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.Property(user => user.Bio).HasMaxLength(300);
+                entity.Property(user => user.CoverImageUrl).HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<ProfileFeaturedRecipe>(entity =>
+            {
+                entity.HasKey(pin => new { pin.UserId, pin.RecipeId });
+                entity.HasIndex(pin => new { pin.UserId, pin.DisplayOrder }).IsUnique();
+                entity.HasOne(pin => pin.User).WithMany().HasForeignKey(pin => pin.UserId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(pin => pin.Recipe).WithMany().HasForeignKey(pin => pin.RecipeId).OnDelete(DeleteBehavior.Cascade);
+                // Three unique, bounded slots enforce the limit even for concurrent requests.
+                entity.ToTable(table => table.HasCheckConstraint("CK_ProfileFeaturedRecipes_DisplayOrder", "\"DisplayOrder\" BETWEEN 1 AND 3"));
+            });
 
             // Recipe
             modelBuilder.Entity<Recipe>(entity =>
@@ -53,6 +123,40 @@ namespace CookShare.Data
                 entity.Property(r => r.UserId)
                     .HasMaxLength(450);
 
+                entity.Property(r => r.Source).HasMaxLength(32);
+                entity.Property(r => r.ExternalId).HasMaxLength(128);
+                entity.Property(r => r.SourceUrl).HasMaxLength(2000);
+
+                entity.Property(r => r.Difficulty)
+                    .HasConversion<string>()
+                    .HasMaxLength(16);
+                entity.Property(r => r.Servings)
+                    .HasDefaultValue(4);
+
+                entity.HasIndex(r => new { r.Source, r.ExternalId })
+                    .IsUnique()
+                    .HasFilter("\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL");
+
+                entity.ToTable(table =>
+                {
+                    table.HasCheckConstraint(
+                        "CK_Recipes_SourceIdentity",
+                        "(\"Source\" IS NULL AND \"ExternalId\" IS NULL) OR " +
+                        "(\"Source\" IS NOT NULL AND \"ExternalId\" IS NOT NULL)");
+                    table.HasCheckConstraint(
+                        "CK_Recipes_PreparationTimeMinutes",
+                        "\"PreparationTimeMinutes\" IS NULL OR \"PreparationTimeMinutes\" BETWEEN 1 AND 1440");
+                    table.HasCheckConstraint(
+                        "CK_Recipes_CookingTimeMinutes",
+                        "\"CookingTimeMinutes\" IS NULL OR \"CookingTimeMinutes\" BETWEEN 1 AND 1440");
+                    table.HasCheckConstraint(
+                        "CK_Recipes_Difficulty",
+                        "\"Difficulty\" IS NULL OR \"Difficulty\" IN ('Easy', 'Medium', 'Hard')");
+                    table.HasCheckConstraint(
+                        "CK_Recipes_Servings",
+                        "\"Servings\" BETWEEN 1 AND 20");
+                });
+
                 entity.HasOne(r => r.User)
                     .WithMany(u => u.Recipes)
                     .HasForeignKey(r => r.UserId)
@@ -67,6 +171,59 @@ namespace CookShare.Data
 
                 entity.Property(u => u.AvatarUrl)
                     .HasMaxLength(500);
+            });
+
+            // Notification
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.RecipientId)
+                    .IsRequired();
+
+                entity.Property(x => x.ActorId)
+                    .IsRequired();
+
+                entity.Property(x => x.Type)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(x => x.Message)
+                    .HasMaxLength(500);
+
+                entity.Property(x => x.EventKey)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.HasIndex(x => x.EventKey)
+                    .IsUnique();
+
+                entity.HasIndex(x => new
+                {
+                    x.RecipientId,
+                    x.IsRead,
+                    x.CreatedAt
+                });
+
+                entity.HasOne(x => x.Recipient)
+                    .WithMany()
+                    .HasForeignKey(x => x.RecipientId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Actor)
+                    .WithMany()
+                    .HasForeignKey(x => x.ActorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<Recipe>()
+                    .WithMany()
+                    .HasForeignKey(x => x.RecipeId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne<RecipeComment>()
+                    .WithMany()
+                    .HasForeignKey(x => x.CommentId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // RecipeLike

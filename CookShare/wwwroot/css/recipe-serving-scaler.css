@@ -1,0 +1,97 @@
+.serving-size-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 16px;
+    margin: 18px 0 20px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--white);
+}
+
+.serving-size-control > label {
+    color: var(--text, var(--ink));
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.serving-size-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--white);
+}
+
+.serving-size-stepper-button {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 7px;
+    color: var(--primary, var(--primary));
+    background: transparent;
+    font: inherit;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.serving-size-stepper-button:hover:not(:disabled) {
+    background: var(--light);
+}
+
+.serving-size-stepper-button:disabled {
+    color: var(--muted);
+    cursor: not-allowed;
+}
+
+.serving-size-stepper-button:focus-visible,
+.serving-size-stepper input:focus-visible {
+    outline: 3px solid var(--line);
+    outline-offset: 2px;
+}
+
+.serving-size-stepper input {
+    width: 48px;
+    min-height: 36px;
+    padding: 4px;
+    border: 0;
+    color: var(--text, var(--ink));
+    background: transparent;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.serving-size-stepper input::-webkit-inner-spin-button,
+.serving-size-stepper input::-webkit-outer-spin-button {
+    margin: 0;
+    appearance: none;
+}
+
+.serving-size-help,
+.serving-size-status {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--muted, var(--muted));
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.serving-size-status:not(:empty) {
+    color: var(--primary, var(--primary));
+}
+
+.serving-size-status.is-error {
+    color: var(--danger);
+}
+
+@media (max-width: 480px) {
+    .serving-size-control {
+        padding: 12px;
+    }
+}

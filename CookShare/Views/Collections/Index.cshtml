@@ -1,0 +1,33 @@
+@model CookShare.ViewModels.CollectionIndexViewModel
+@{ ViewData["Title"] = "Bộ sưu tập của bạn"; }
+<div class="container collections-page">
+  <header class="collections-heading">
+    <div><span class="eyebrow">GÓC NHỎ CỦA RIÊNG BẠN</span><h1>Những bữa ngon <em>để dành.</em></h1><p>Sắp xếp công thức theo cách bạn muốn vào bếp.</p></div>
+    <a class="btn" asp-action="Create"><i class="fa-solid fa-plus" aria-hidden="true"></i> Tạo bộ sưu tập</a>
+  </header>
+  <nav class="collections-tabs" aria-label="Món đã lưu">
+    <a asp-controller="Recipe" asp-action="Saved">Tất cả món đã lưu</a>
+    <a asp-action="Index" aria-current="page">Bộ sưu tập</a>
+  </nav>
+  @if (Model.Collections.Count > 0)
+  {
+    <div class="collections-grid">
+      @foreach (var collection in Model.Collections)
+      {
+        <partial name="_CollectionCard" model="collection" />
+      }
+    </div>
+  }
+  else
+  {
+    <div class="collection-empty"><i class="fa-regular fa-folder-open" aria-hidden="true"></i><h2>Mỗi bộ sưu tập, một cảm hứng nấu ăn</h2><p>Thử bắt đầu với “Bữa tối trong tuần” hoặc “Món muốn nấu cho nhà”. Bộ sưu tập mới chỉ mình bạn xem được.</p><a class="btn" asp-action="Create">Tạo bộ sưu tập đầu tiên</a></div>
+  }
+  @if (Model.Page > 1 || Model.HasMore)
+  {
+    <nav class="collection-pagination" aria-label="Các trang bộ sưu tập">
+      @if (Model.Page > 1) { <a class="btn btn-secondary" asp-action="Index" asp-route-page="@(Model.Page - 1)">Trang trước</a> }
+      <span>Trang @Model.Page</span>
+      @if (Model.HasMore) { <a class="btn btn-secondary" asp-action="Index" asp-route-page="@(Model.Page + 1)">Trang tiếp</a> }
+    </nav>
+  }
+</div>

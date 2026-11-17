@@ -1,0 +1,54 @@
+@model CookShare.ViewModels.RecipeCommentsViewModel
+@{
+  var returnUrl = ViewData["InteractionReturnUrl"] as string ?? (Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString);
+  var loginUrl = Url.Action("Login", "Account", new { returnUrl });
+  var commentsUrl = Url.Content($"~/Recipe/{Model.RecipeId}/Comments");
+  var textareaId = $"recipeComment_{Model.RecipeId}";
+  var counterId = $"recipeCommentCounter_{Model.RecipeId}";
+  var validationId = $"recipeCommentValidation_{Model.RecipeId}";
+  var headingId = ViewData["CommentsHeadingId"] as string ?? "recipeCommentsHeading";
+  var commentCount = Model.TotalCount ?? Model.Comments.Count;
+}
+<section class="comment-section" data-db-recipe-comments data-recipe-id="@Model.RecipeId" data-viewer-id="@ViewData["FeedViewerId"]" data-comments-url="@commentsUrl" data-profile-url="@Url.Action("Index", "Profile")" data-login-url="@loginUrl" aria-labelledby="@headingId">
+  <div class="comment-section-header">
+    <h2 class="comment-section-title" id="@headingId"><i class="fa-regular fa-comment" aria-hidden="true"></i> Bình luận</h2>
+    <span class="comment-count-badge" data-db-comment-count aria-label="Số bình luận">@commentCount</span>
+  </div>
+  @if (Model.IsAuthenticated)
+  {
+    <form action="@commentsUrl" method="post" asp-antiforgery="false" class="comment-form-area" data-comment-create>
+      @Html.AntiForgeryToken()
+      <div class="comment-form-content">
+        <label for="@textareaId">Chia sẻ cảm nhận của bạn</label>
+        <div class="comment-textarea-wrapper">
+          <textarea id="@textareaId" class="comment-textarea" name="Content" rows="3" maxlength="500" required placeholder="Bạn đã thử món này chưa? Chia sẻ một chút cảm nhận nhé!" aria-describedby="@counterId @validationId" data-comment-input></textarea>
+        </div>
+        <div class="comment-char-counter" id="@counterId" data-comment-counter>0 / 500</div>
+        <p class="comment-validation-msg" id="@validationId" data-comment-validation role="alert"></p>
+        <div class="comment-form-actions">
+          <button type="submit" class="btn-submit-comment">Đăng bình luận</button>
+        </div>
+      </div>
+    </form>
+    <p class="comment-login-prompt" data-comment-login hidden>Vui lòng <a href="@loginUrl">đăng nhập</a> để tương tác với công thức.</p>
+  }
+  else
+  {
+    <p class="comment-login-prompt">Vui lòng <a href="@loginUrl">đăng nhập</a> để thích và bình luận về công thức.</p>
+  }
+  <p class="db-interaction-status" data-comment-status role="status" aria-live="polite" hidden></p>
+  <div class="comment-list" data-comment-list>
+    @foreach (var comment in Model.Comments)
+    {
+      <partial name="_RecipeCommentItem" model="comment" />
+    }
+  </div>
+  @if (commentCount > Model.Comments.Count)
+  {
+    <a class="text-link" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.RecipeId" asp-fragment="recipeCommentsHeading">Xem tất cả bình luận</a>
+  }
+  <div class="comment-empty-state" data-comment-empty hidden="@(commentCount > 0)">
+    <div class="comment-empty-state-icon" aria-hidden="true"><i class="fa-regular fa-comment" aria-hidden="true"></i></div>
+    <p class="comment-empty-state-text">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận về món ăn này!</p>
+  </div>
+</section>

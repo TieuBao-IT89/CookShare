@@ -1,0 +1,117 @@
+{
+  "base": "9d8842b",
+  "pages": 15,
+  "checks": [
+    {
+      "route": "/",
+      "width": 360,
+      "scrollWidth": 360,
+      "title": "Hôm nay, bếp có gì?",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Recipe",
+      "width": 360,
+      "scrollWidth": 360,
+      "title": "Khám phá món ngon.",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Recipe/Details/33",
+      "width": 360,
+      "scrollWidth": 360,
+      "title": "Bắp cải cuộn thịt hấp",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Profile?userId=1556a5a4-aa2f-4282-8708-939b73587149",
+      "width": 360,
+      "scrollWidth": 360,
+      "title": "Admin Root",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Account/Login",
+      "width": 360,
+      "scrollWidth": 360,
+      "title": "Lại cùng vào bếp.",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "scrollWidth": 768,
+      "title": "Hôm nay, bếp có gì?",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Recipe",
+      "width": 768,
+      "scrollWidth": 768,
+      "title": "Khám phá món ngon.",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Recipe/Details/33",
+      "width": 768,
+      "scrollWidth": 768,
+      "title": "Bắp cải cuộn thịt hấp",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Profile?userId=1556a5a4-aa2f-4282-8708-939b73587149",
+      "width": 768,
+      "scrollWidth": 768,
+      "title": "Admin Root",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Account/Login",
+      "width": 768,
+      "scrollWidth": 768,
+      "title": "Lại cùng vào bếp.",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "title": "Hôm nay, bếp có gì?",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Recipe",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "title": "Khám phá món ngon.",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Recipe/Details/33",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "title": "Bắp cải cuộn thịt hấp",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Profile?userId=1556a5a4-aa2f-4282-8708-939b73587149",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "title": "Admin Root",
+      "accentInk": "#985130"
+    },
+    {
+      "route": "/Account/Login",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "title": "Lại cùng vào bếp.",
+      "accentInk": "#985130"
+    }
+  ],
+  "reducedMotion": {
+    "media": true,
+    "scroll": "auto",
+    "animation": "none"
+  },
+  "browserErrors": 0
+}

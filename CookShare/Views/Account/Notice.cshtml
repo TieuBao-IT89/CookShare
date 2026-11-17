@@ -1,0 +1,17 @@
+@model CookShare.ViewModels.AccountNoticeViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="auth-page container">
+    <div class="auth-shell">
+        <partial name="_AuthAside" />
+        <div class="auth-form-area">
+            <a class="back-link" asp-controller="Home" asp-action="Index">← Về trang chủ</a>
+            <h1>@Model.Title</h1>
+            <p class="auth-subtitle">@Model.Message</p>
+            <a class="btn" asp-action="Login">Đăng nhập</a>
+        </div>
+    </div>
+</section>

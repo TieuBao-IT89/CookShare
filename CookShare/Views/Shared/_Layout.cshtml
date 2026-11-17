@@ -2,27 +2,42 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content="CookShare — khám phá món ngon, chia sẻ công thức và tìm cảm hứng cho căn bếp của bạn." />
     <meta name="theme-color" content="#245c43" />
     <title>@ViewData["Title"] · CookShare</title>
     <link rel="icon" href="~/favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="~/js/theme-init.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/fonts/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notifications.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/premium.css" asp-append-version="true" />
+    <noscript><link rel="stylesheet" href="~/css/app-shell-nojs.css" asp-append-version="true" /></noscript>
 </head>
 <body>
     <a class="skip-link" href="#main-content">Chuyển đến nội dung</a>
-    <partial name="_Icons" />
     <partial name="_RecipeHeader" />
-    <main id="main-content" tabindex="-1">@RenderBody()</main>
+    <main id="main-content" tabindex="-1">
+        @foreach (var statusMessage in new[] { TempData["StatusMessage"] as string, TempData["Success"] as string }.Where(message => !string.IsNullOrWhiteSpace(message)).Distinct())
+        {
+            <div class="notice container status-banner" role="status">@statusMessage</div>
+        }
+        @foreach (var errorMessage in new[] { TempData["ErrorMessage"] as string, TempData["Error"] as string }.Where(message => !string.IsNullOrWhiteSpace(message)).Distinct())
+        {
+            <div class="notice container status-banner text-danger" role="alert">@errorMessage</div>
+        }
+        @RenderBody()
+    </main>
     <footer class="footer">
         <div class="container footer-content">
             <div class="footer-brand">
                 <a class="logo" asp-controller="Home" asp-action="Index" aria-label="CookShare — Trang chủ">
-                    <span class="logo-mark"><svg class="icon"><use href="#i-chef" /></svg></span>
+                    <span class="logo-mark"><svg class="icon"><use href="/img/icons.svg#chef-hat" /></svg></span>
                     <span>Cook<span class="brand-accent">Share</span><span class="brand-dot">.</span></span>
                 </a>
                 <p>Mỗi công thức là một câu chuyện.<br />Cùng nhau làm cho căn bếp thêm ấm áp.</p>
@@ -40,27 +55,36 @@
                 <a asp-controller="Profile" asp-action="Index">Trang cá nhân</a>
                 <a asp-controller="Home" asp-action="Register">Tham gia cộng đồng</a>
             </div>
-            <div class="footer-kitchen"><svg class="icon"><use href="#i-heart" /></svg><p>Món ngon hơn<br />khi được sẻ chia.</p></div>
+            <div class="footer-kitchen"><i class="icon fa-regular fa-heart" aria-hidden="true"></i><p>Món ngon hơn<br />khi được sẻ chia.</p></div>
         </div>
         <div class="container footer-bottom">
             <span>© @DateTime.Now.Year CookShare. Cộng đồng yêu bếp.</span>
-            <span>Một chút cảm hứng cho bữa cơm mỗi ngày <svg class="icon"><use href="#i-leaf" /></svg></span>
+            <span>Một chút cảm hứng cho bữa cơm mỗi ngày <i class="icon fa-solid fa-leaf" aria-hidden="true"></i></span>
         </div>
     </footer>
-    <partial name="_RecipeCardTemplate" />
     <div id="uiToast" class="ui-toast" role="status" aria-live="polite" hidden></div>
+    <p id="themeStatus" class="sr-only" role="status" aria-live="polite"></p>
+    <dialog id="pageShareDialog" class="confirm-dialog" aria-labelledby="pageShareTitle">
+        <form method="dialog" asp-antiforgery="false">
+            <h2 id="pageShareTitle">Chia sẻ món ngon</h2>
+            <label for="pageShareUrl">Sao chép liên kết công thức</label>
+            <input class="form-input" id="pageShareUrl" type="url" readonly />
+            <div class="dialog-actions"><button class="btn" value="close">Đóng</button></div>
+        </form>
+    </dialog>
     <dialog id="confirmDialog" class="confirm-dialog" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
         <form method="dialog" asp-antiforgery="false">
-            <span class="state-icon danger"><svg class="icon"><use href="#i-trash" /></svg></span>
+            <span class="state-icon danger"><i class="icon fa-regular fa-trash-can" aria-hidden="true"></i></span>
             <h2 id="confirmTitle">Xóa công thức?</h2><p id="confirmMessage"></p>
             <div class="dialog-actions">
-                <button class="btn btn-secondary" value="cancel" autofocus>Giữ lại</button>
-                <button class="btn btn-danger" value="confirm">Xóa công thức</button>
+                <button id="confirmCancel" class="btn btn-secondary" value="cancel" autofocus>Giữ lại</button>
+                <button id="confirmAction" class="btn btn-danger" value="confirm">Xóa công thức</button>
             </div>
         </form>
     </dialog>
     <noscript><div class="notice container">Một số tương tác giao diện cần JavaScript. Bạn vẫn có thể xem và gửi biểu mẫu công thức.</div></noscript>
     <script src="~/js/style.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-collections.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

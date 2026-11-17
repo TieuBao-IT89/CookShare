@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-17",
+  "baseline": "1c68005",
+  "environment": {
+    "runtime": ".NET 8",
+    "browser": "Chrome headless",
+    "database": "isolated loopback PostgreSQL, separate UI and integration fixtures"
+  },
+  "build": {
+    "errors": 0,
+    "warnings": 21,
+    "warningsPreexisting": true
+  },
+  "dotnetTests": {
+    "passed": 614,
+    "failed": 0,
+    "skipped": 0,
+    "postgresOptIn": true,
+    "browserOptIn": true
+  },
+  "ui": {
+    "pageCombinations": 154,
+    "behaviorChecks": 23,
+    "viewports": [
+      360,
+      390,
+      768,
+      960,
+      1024,
+      1366,
+      1920
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "overflowCount": 0,
+    "uncaughtErrors": []
+  },
+  "liveInteractionChecks": 22,
+  "quality": {
+    "whitespace": "passed",
+    "style": "passed",
+    "analyzers": "passed",
+    "javascriptSyntax": "passed",
+    "gitDiffCheck": "passed"
+  },
+  "semanticContrastMinimum": {
+    "light": 4.59,
+    "dark": 6.0
+  },
+  "limits": [
+    "No production or Neon database mutation",
+    "No physical iOS/Android or Safari verification",
+    "Token contrast checks do not certify full-site WCAG compliance"
+  ]
+}

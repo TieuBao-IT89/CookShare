@@ -1,0 +1,39 @@
+@model CookShare.ViewModels.CookedPostFormViewModel
+@{
+  bool editing = Model.PostId != null;
+}
+<form asp-action="@(editing ? "Edit" : "Create")" asp-route-id="@Model.PostId" method="post" enctype="multipart/form-data" class="social-form" data-social-form>
+  <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+  <input asp-for="RecipeId" type="hidden" />
+  <input asp-for="SubmissionKey" type="hidden" />
+  <span asp-validation-for="SubmissionKey" class="text-danger"></span>
+  <div class="social-recipe-context">
+    <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+    <div><span>Công thức gốc</span><a asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.RecipeId">@Model.RecipeName</a></div>
+  </div>
+  <div class="social-field">
+    <label asp-for="ImageFile">Ảnh thành phẩm @(editing ? "mới (không bắt buộc)" : "(bắt buộc)")</label>
+    <p id="cookedImageHelp" class="social-hint">JPG, PNG hoặc WebP, tối đa 5 MB; mỗi chiều tối đa 8192 px, tổng tối đa 40 triệu điểm ảnh. Nếu có lỗi, hãy chọn lại tệp ảnh.</p>
+    <input asp-for="ImageFile" type="file" accept="image/jpeg,image/png,image/webp" required="@(!editing)" aria-describedby="cookedImageHelp cookedImageError" data-social-image />
+    <span asp-validation-for="ImageFile" id="cookedImageError" class="text-danger"></span>
+    <img class="social-image-preview" src="@Model.ExistingImageUrl" alt="Xem trước ảnh thành phẩm" hidden="@(Model.ExistingImageUrl == null)" data-social-preview />
+  </div>
+  <div class="social-field">
+    <label asp-for="Note">Bạn muốn kể điều gì về món ăn?</label>
+    <textarea asp-for="Note" rows="5" maxlength="1000" placeholder="Món ăn có hợp khẩu vị? Bạn đã biến tấu như thế nào?" aria-describedby="cookedNoteHelp cookedNoteError"></textarea>
+    <p id="cookedNoteHelp" class="social-hint">Không bắt buộc, tối đa 1000 ký tự. Nội dung được chia sẻ công khai cùng ảnh thành phẩm.</p>
+    <span asp-validation-for="Note" id="cookedNoteError" class="text-danger"></span>
+  </div>
+  <div class="social-form-actions">
+    <button type="submit" class="btn btn-primary" data-social-submit><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> @(editing ? "Lưu thay đổi" : "Chia sẻ thành phẩm")</button>
+    @if (editing)
+    {
+      <a asp-action="Details" asp-route-id="@Model.PostId" class="social-secondary-link">Hủy</a>
+    }
+    else
+    {
+      <a asp-action="Create" class="social-secondary-link">Chọn công thức khác</a>
+    }
+    <span class="social-hint" role="status" data-social-status></span>
+  </div>
+</form>

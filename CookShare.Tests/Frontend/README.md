@@ -1,0 +1,107 @@
+# Kiểm tra frontend trên trình duyệt
+
+Các harness bên dưới chạy từ thư mục gốc repository. Xem [Testing](../../docs/TESTING.md) để phân biệt harness cô lập, kiểm tra toàn ứng dụng và test PostgreSQL.
+
+## Premium V2 — toàn ứng dụng
+
+Hai script dùng Playwright Python và Chrome với database fixture Social V2 riêng
+trên loopback, không dùng tài khoản/database ứng dụng. Xem [bàn giao Premium V2](../../docs/PREMIUM_V2.md).
+
+```powershell
+python tools/checks/premium-ui.py --base http://127.0.0.1:5098
+python tools/checks/premium-interactions.py --base http://127.0.0.1:5098
+```
+
+`premium-ui` kiểm tra theme, navigation, SVG và overflow tại 360/390/768/960/1024/1366/1920px.
+Theme dùng công tắc `[data-theme-switch]` (Space/Enter) và nút theo thiết bị
+`[data-theme-system]`; script kiểm tra cả ARIA, vùng chạm 44px, đồng bộ giữa tab,
+lựa chọn không hợp lệ/bị xóa, storage bị chặn và reduced motion. Xem
+[theme refresh](../../docs/THEME_REFRESH.md) để đọc kết quả và ảnh mới nhất.
+`premium-interactions` tạo công thức tạm trong fixture, kiểm tra native CRUD, CSRF,
+like/comment/save/rating/follow/notification rồi dọn công thức qua endpoint owner.
+Harness CSS cô lập bên dưới tải `tokens.css` trước stylesheet thành phần.
+
+## Khẩu phần công thức
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-RecipeServingScalerBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-RecipeServingScalerBrowserTests.ps1 -Viewport Mobile
+```
+
+Harness chạy `recipe-serving-scaler.js` với nguyên liệu mẫu: tăng/giảm và giới hạn khẩu phần, số nguyên/thập phân/phân số, dòng không nhận diện được và khôi phục văn bản gốc. Cần Python và Chrome/Edge; dữ liệu ứng dụng không bị thay đổi. Xem [thông tin nấu ăn](../../docs/RECIPE_COOKING.md).
+
+## UI audit refinements (#120)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-UiRefinementBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-UiRefinementBrowserTests.ps1 -Viewport Mobile
+```
+
+The harness runs production `issue108.js`, shared styles and feed styles with controlled image responses. Its 20 checks cover empty/loading/successful image previews, unsafe URLs, broken-image feedback/fallback, input preservation and recovery; notification All/Unread filters and accessible empty feedback; ingredient check/uncheck progress; and the targeted text/control sizes, mobile inputs and overflow. Mobile uses a 360px iframe. Python and Chrome/Edge are required; no database, CDN or npm install is needed. Results are written under ignored `artifacts/issue120/`.
+
+Run the Home Feed harness below for pagination and social regression coverage. See the [audit](../../docs/UI_AUDIT_120.md) and [Before/After evidence](../../docs/ui/issue120/README.md) for native application forms, notification persistence, responsive screenshots and verification limits.
+
+## Social 2.0 discovery filters
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-SocialDiscoveryBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-SocialDiscoveryBrowserTests.ps1 -Viewport Mobile
+```
+
+The harness runs the production discovery CSS/JavaScript with an isolated GET
+form. It verifies native form behavior before enhancement, Vietnamese/special
+characters, form association after moving filters into the mobile sheet,
+Apply preserving every filter and sort, input retention, focus restoration,
+the Escape cancellation handler, touch targets and overflow. Desktop uses the
+native disclosure; mobile uses a real 360px iframe. Python and Chrome/Edge are
+required. Results are written under ignored `artifacts/social-v2/discovery-tests/`.
+Full-page screenshots, real keyboard Escape, Back navigation and database search
+remain separate application checks.
+
+## Creator Profile
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-CreatorProfileBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-CreatorProfileBrowserTests.ps1 -Viewport Mobile
+```
+
+The creator harness runs production `creator-profile.js` and CSS in an isolated browser, without an application database or CDN dependency. Its 32 checks cover keyboard tabs/ARIA, safe Bio/name previews, the 300-character counter, image validation/fallback/stale loads, highlight counts/selection/order/unpin, native save and CSRF fields, initialization twice, and overflow. Mobile uses a real 360px iframe. Python and Chrome/Edge are required; supply `-BrowserPath` if needed. Results are written under ignored `artifacts/issue117/`.
+
+See [CREATOR_PROFILE.md](../../docs/CREATOR_PROFILE.md) for native application form flows, ownership tests and PostgreSQL migration/concurrency checks, and [UI evidence](../../docs/ui/issue117/README.md) for the full-page 360px/768px/1440px review.
+
+## Persistent Recipe Ratings
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-RecipeRatingBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-RecipeRatingBrowserTests.ps1 -Viewport Mobile
+```
+
+The rating harness runs the production `recipe-ratings.js` with controlled responses and the actual rating styles, without an application database or CDN dependency. It verifies confirmed state, updates, CSRF, duplicate requests, errors, session changes, bfcache refresh, and desktop/mobile overflow. See [RECIPE_RATINGS.md](../../docs/RECIPE_RATINGS.md) for the live-page and PostgreSQL checks.
+
+## Home / Following Feed
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-HomeFeedBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-HomeFeedBrowserTests.ps1 -Viewport Mobile
+```
+
+The feed harness needs Python and Chrome/Edge. It starts an isolated loopback static server, uses a fresh browser profile, and stops its server afterward. Artifacts are written under ignored `artifacts/issue98/`. Mobile uses a real 390px iframe viewport.
+
+It executes the production feed, Favorites, and Like/Comment scripts with controlled responses. Checks cover pagination, deduplication, simultaneous requests, native fallback URLs, CSRF on appended posts, Font Awesome outline/solid state changes for Like and Save, comments, sharing, automatic-load limits, network and malformed-response errors, expired sessions/account changes, and horizontal overflow. It never contacts the application database. Icon class changes are tested without fetching CDN assets; check actual font loading on the running website.
+
+## Saved Recipes
+
+From the repository root on Windows with Chrome or Edge installed:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-SavedRecipeBrowserTests.ps1 -Viewport Desktop
+powershell -NoProfile -ExecutionPolicy Bypass -File CookShare.Tests/Frontend/Run-SavedRecipeBrowserTests.ps1 -Viewport Mobile
+```
+
+Supply `-BrowserPath` when the browser is installed elsewhere. The script uses a new isolated browser profile and writes its DOM results/logs under ignored `artifacts/issue94/`. It does not open an application server or connect to a database. No npm packages are required. Headless Chrome uses a 390px iframe for the mobile case because its desktop window has a larger minimum width.
+
+The tracked HTML harness executes the actual `recipe-saved.js` and existing CSS with controlled `fetch` responses. Forty assertions cover server state, Save/Unsave and CSRF, duplicate/pending requests, counts and empty collections, accessible focus/errors, network/database failures, malformed responses/XSS, independent Likes, login/session changes, bfcache/visibility refresh, and preservation of legacy storage. Loading the script twice must still issue one request.
+
+This verifies module behavior and a small desktop/mobile CSS fixture. It does not replace an ASP.NET browser login flow, full page visual review, or PostgreSQL persistence/restart tests. API/controller coverage runs separately through `dotnet test CookShare.sln`.
+
+Open `recipe-saved.browser.html?preview=1` for the static CSS fixture or add `&viewport=390` for the 390px preview.

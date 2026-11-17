@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/CookShare/wwwroot/css/recipe-serving-scaler.css">
+    <title>Recipe serving scaler browser tests</title>
+</head>
+<body>
+    <main>
+        <section data-serving-scaler data-base-servings="4">
+            <label for="recipeServings">Khẩu phần</label>
+            <div class="serving-size-stepper">
+                <button type="button" data-serving-change="-1">−</button>
+                <input id="recipeServings" type="number" min="1" max="20" step="1" value="4">
+                <button type="button" data-serving-change="1">+</button>
+            </div>
+            <p id="servingSizeStatus" role="status" aria-live="polite"></p>
+        </section>
+        <ul>
+            <li><span data-scalable-ingredient data-original="200 g bột">200 g bột</span></li>
+            <li><span data-scalable-ingredient data-original="500g khoai tây">500g khoai tây</span></li>
+            <li><span data-scalable-ingredient data-original="1 1/2 cup sữa">1 1/2 cup sữa</span></li>
+            <li><span data-scalable-ingredient data-original="½ thìa muối">½ thìa muối</span></li>
+            <li><span data-scalable-ingredient data-original="Muối và tiêu vừa đủ">Muối và tiêu vừa đủ</span></li>
+            <li><span data-scalable-ingredient data-original="Nước ấm khoảng 30 độ">Nước ấm khoảng 30 độ</span></li>
+            <li><span data-scalable-ingredient data-original="1-2 quả chanh">1-2 quả chanh</span></li>
+        </ul>
+        <pre id="results">RUNNING</pre>
+    </main>
+    <script src="/CookShare/wwwroot/js/recipe-serving-scaler.js"></script>
+    <script>
+        addEventListener("DOMContentLoaded", () => {
+            const root = document.querySelector("[data-serving-scaler]");
+            const input = document.querySelector("#recipeServings");
+            const status = document.querySelector("#servingSizeStatus");
+            const ingredients = Array.from(document.querySelectorAll("[data-scalable-ingredient]"));
+            const assert = (condition, message) => {
+                if (!condition) throw new Error(message);
+            };
+            const click = change => root.querySelector(`[data-serving-change="${change}"]`).click();
+
+            try {
+                assert(input.value === "4", "initial servings should use the recipe baseline");
+                click(1);
+                assert(input.value === "5", "increment button should update servings");
+                assert(ingredients[0].textContent === "250 g bột", "integer quantities should scale");
+                assert(ingredients[1].textContent === "625g khoai tây", "quantities attached to units should scale");
+                assert(ingredients[2].textContent === "1,875 cup sữa", "mixed fractions should scale");
+                assert(ingredients[3].textContent === "0,625 thìa muối", "unicode fractions should scale");
+                assert(ingredients[4].textContent === "Muối và tiêu vừa đủ", "unmeasured lines should stay unchanged");
+                assert(ingredients[5].textContent === "Nước ấm khoảng 30 độ", "numbers outside the leading quantity should stay unchanged");
+                assert(ingredients[6].textContent === "1-2 quả chanh", "quantity ranges should stay unchanged");
+
+                input.value = "2";
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+                assert(ingredients[0].textContent === "100 g bột", "decreasing servings should recalculate from the original");
+                assert(ingredients[2].textContent === "0,75 cup sữa", "fractional values should scale down");
+
+                input.value = "21";
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+                assert(status.classList.contains("is-error"), "out-of-range input should show an error");
+                assert(ingredients[0].textContent === "100 g bột", "invalid input should not change ingredient values");
+                input.dispatchEvent(new Event("blur"));
+                assert(input.value === "2", "invalid input should restore the last valid serving count");
+                assert(!status.classList.contains("is-error"), "restoring a valid value should clear the error");
+
+                input.value = "4";
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+                assert(ingredients[0].textContent === "200 g bột", "returning to baseline should restore exact source text");
+
+                document.body.dataset.testStatus = "passed";
+                document.querySelector("#results").textContent = "Serving scaler browser tests passed.";
+            } catch (error) {
+                document.body.dataset.testStatus = "failed";
+                document.querySelector("#results").textContent = error.stack || error.message;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,19 +1,71 @@
+
 @model CookShare.Models.Recipe
 @using System.Security.Claims
+@using CookShare.Helpers
+@using CookShare.ViewModels
 
 @{
     ViewData["Title"] = Model.Name;
-    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    var ingredients = Model.Ingredients.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-    var instructions = Model.Instructions.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    var isOwner = !string.IsNullOrEmpty(userId)
+        && Model.UserId == userId;
+
+    var likeSummaries = ViewData["RecipeLikeSummaries"] as IReadOnlyDictionary<int, RecipeLikeViewModel>;
+    var recipeLike = likeSummaries != null && likeSummaries.TryGetValue(Model.Id, out var summary) ? summary : null;
+    var recipeComments = ViewData["RecipeComments"] as RecipeCommentsViewModel;
+    var relatedRecipes = ViewData["RelatedRecipes"] as IReadOnlyList<Recipe> ?? Array.Empty<Recipe>();
+    var ratingSummaries = ViewData["RecipeRatingSummaries"] as IReadOnlyDictionary<int, RecipeRatingViewModel>;
+    var recipeRating = ratingSummaries != null && ratingSummaries.TryGetValue(Model.Id, out var rating) ? rating : null;
+    var cookedPosts = ViewData["CookedPosts"] as IReadOnlyList<CookedPostViewModel> ?? Array.Empty<CookedPostViewModel>();
+
+    var ingredients = Model.Ingredients.Split(
+        '\n',
+        StringSplitOptions.RemoveEmptyEntries
+        | StringSplitOptions.TrimEntries);
+
+    var instructions = Model.Instructions.Split(
+        '\n',
+        StringSplitOptions.RemoveEmptyEntries
+        | StringSplitOptions.TrimEntries);
+
+    var image = RecipeImageReference.GetSource(Model.Image);
+
+    var author = Model.User?.DisplayName
+        ?? Model.User?.UserName
+        ?? "Thành viên CookShare";
+
+    var authorAvatar = string.IsNullOrWhiteSpace(Model.User?.AvatarUrl)
+        || !RecipeImageReference.IsValid(Model.User?.AvatarUrl)
+        ? Url.Content(ProfileContent.DefaultAvatar)
+        : RecipeImageReference.GetSource(Model.User!.AvatarUrl);
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/recipe.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/recipe.css"
+          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-saved.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-likes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-comments.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-interactions.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-ratings.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/issue108.css"
+          asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/cooking-mode.css"
+          asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/recipe-serving-scaler.css"
+          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/recipe-details.css" asp-append-version="true" />
 }
 
-<div class="recipe-page-wrapper">
+<div class="recipe-page-wrapper cs108 recipe-details-page">
     <div class="container recipe-details-wrapper">
+
         <nav class="recipe-breadcrumb" aria-label="Đường dẫn">
             <a asp-controller="Home" asp-action="Index">Trang chủ</a>
             <span>/</span>
@@ -22,74 +74,310 @@
             <span aria-current="page">@Model.Name</span>
         </nav>
 
-        @if (TempData["Success"] != null)
-        {
-            <p class="notice" role="status">@TempData["Success"]</p>
-        }
+        <nav class="cs108-quick-nav"
+             aria-label="Nội dung công thức">
+            <a href="#ingredients">Nguyên liệu</a>
+            <a href="#instructions">Cách chế biến</a>
+            <a href="#comments">Bình luận</a>
+        </nav>
 
-        <article class="details-hero-card" data-recipe-id="@Model.Id">
-            <div class="details-top-bar">
-                <span class="details-category-tag">@Model.Category</span>
-            </div>
-            <h1 class="details-title">@Model.Name</h1>
-            <div class="details-meta-row">
-                <span class="details-meta-item">
-                    Công thức từ <b>@(Model.User?.DisplayName ?? Model.User?.UserName ?? "CookShare")</b>
+        <article class="details-hero-card cs108-recipe-hero" data-recipe-id="@Model.Id">
+
+            <div class="cs108-hero-content">
+                <span class="details-category-tag">
+                    <svg class="icon" aria-hidden="true">
+                        <use href="/img/icons.svg#leaf" />
+                    </svg>
+                    @Model.Category
                 </span>
-                <span class="details-meta-item">@ingredients.Length nguyên liệu · @instructions.Length bước</span>
+
+                <h1 class="details-title">@Model.Name</h1>
+
+                @if (Model.Source == "themealdb" && !string.IsNullOrEmpty(Model.ExternalId))
+                {
+                    <p class="cs108-muted-label">
+                        Nguồn công thức:
+                        <a href="https://www.themealdb.com/meal.php?c=@Uri.EscapeDataString(Model.ExternalId)" rel="external noopener noreferrer">TheMealDB</a>
+                        @if (Uri.TryCreate(Model.SourceUrl, UriKind.Absolute, out _) && RecipeImageReference.IsValid(Model.SourceUrl))
+                        {
+                            <span> · <a href="@Model.SourceUrl" rel="external noopener noreferrer">Tham khảo gốc</a></span>
+                        }
+                    </p>
+                }
+
+                <div class="cs108-author-row">
+                    <img src="@authorAvatar"
+                         alt=""
+                         class="cs108-author-avatar"
+                         width="48"
+                         height="48" />
+
+                    <div>
+                        <span class="cs108-muted-label">
+                            @(Model.Source != null ? "Người nhập công thức" : "Công thức được chia sẻ bởi")
+                        </span>
+
+                        @if (!string.IsNullOrEmpty(Model.UserId))
+                        {
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-userId="@Model.UserId"
+                               class="cs108-author-name">
+                                @author
+                            </a>
+                        }
+                        else
+                        {
+                            <strong class="cs108-author-name">
+                                @author
+                            </strong>
+                        }
+                    </div>
+                </div>
+
+                <p class="recipe-posted-date cs108-muted-label">Đăng ngày <time datetime="@Model.CreatedAt.ToString("O")">@Model.CreatedAt.ToString("dd/MM/yyyy")</time></p>
+
+                <div class="cs108-recipe-summary">
+                    <span><i class="icon fa-solid fa-utensils" aria-hidden="true"></i>@Model.Servings khẩu phần</span>
+                    @if (recipeRating != null)
+                    {
+                        <partial name="_RecipeRatingSummary" model="recipeRating" />
+                    }
+                    <span>
+                        <svg class="icon" aria-hidden="true">
+                            <use href="/img/icons.svg#layout-grid" />
+                        </svg>
+                        @ingredients.Length nguyên liệu
+                    </span>
+                    <span>
+                        <svg class="icon" aria-hidden="true">
+                            <use href="/img/icons.svg#check" />
+                        </svg>
+                        @instructions.Length bước chế biến
+                    </span>
+                    @if (Model.PreparationTimeMinutes.HasValue)
+                    {
+                        <span>Chuẩn bị @Model.PreparationTimeMinutes phút</span>
+                    }
+                    @if (Model.CookingTimeMinutes.HasValue)
+                    {
+                        <span>Nấu @Model.CookingTimeMinutes phút</span>
+                    }
+                    @if (Model.Difficulty.HasValue)
+                    {
+                        <span>Độ khó: @Model.Difficulty.Value.GetDisplayName()</span>
+                    }
+                </div>
+
+                <div class="details-actions cs108-social-actions">
+                    <button class="btn btn-secondary page-share-button" type="button" data-page-share data-share-title="@Model.Name" hidden><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Chia sẻ</button>
+                    @if (instructions.Length > 0)
+                    {
+                        <a href="#instructions" class="btn details-cook-fallback" data-cooking-fallback>Bắt đầu nấu <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                        <button type="button" class="btn details-cook-primary" data-cooking-start hidden>Bắt đầu nấu <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                    }
+                    <partial name="_RecipeSaveButton" model="Model" view-data='new ViewDataDictionary(ViewData) { ["SaveButtonClass"] = "btn btn-secondary btn-details-save" }' />
+                    @if (recipeLike != null)
+                    {
+                        <partial name="_RecipeLikeButton" model="recipeLike" />
+                    }
+                    <a href="#comments" class="btn btn-secondary">
+                        Bình luận (<span data-db-comment-count>@(recipeComments?.Comments.Count ?? Model.Comments.Count)</span>)
+                    </a>
+                </div>
             </div>
-            <p class="details-desc-box">@Model.Description</p>
-            <div class="details-cover-image">
-                <img src="@(string.IsNullOrEmpty(Model.Image) ? "/img/recipe-placeholder.svg" : Model.Image)"
+
+            <div class="details-cover-image cs108-recipe-cover">
+                <img src="@image"
                      alt="@Model.Name"
                      width="1100"
                      height="700"
                      fetchpriority="high" />
             </div>
+            <div class="details-story">
+                <p class="details-desc-box">@Model.Description</p>
+                <div class="details-community-actions">
+                    <a asp-controller="CookedPosts" asp-action="Create" asp-route-recipeId="@Model.Id" class="text-link"><i class="icon fa-solid fa-camera" aria-hidden="true"></i> Chia sẻ món đã nấu thử</a>
+                    <a asp-controller="Collections" asp-action="Chooser" asp-route-recipeId="@Model.Id" asp-route-returnUrl="@(Context.Request.PathBase + Context.Request.Path + Context.Request.QueryString)" class="collection-chooser-link" data-collection-chooser aria-label="Chọn bộ sưu tập cho @Model.Name"><i class="icon fa-regular fa-folder" aria-hidden="true"></i><span>Bộ sưu tập</span></a>
+                    <a asp-controller="ContentReports" asp-action="Create" asp-route-targetType="Recipe" asp-route-targetId="@Model.Id" class="text-link details-report"><i class="icon fa-regular fa-flag" aria-hidden="true"></i> Báo cáo</a>
+                </div>
+            </div>
         </article>
 
         <div class="details-content-grid">
-            <section class="ingredients-card" aria-labelledby="ingredientHeading">
-                <h2 class="section-card-title" id="ingredientHeading">Nguyên liệu</h2>
+
+            <section class="ingredients-card"
+                     id="ingredients"
+                     aria-labelledby="ingredientHeading">
+
+                <span class="eyebrow">CHUẨN BỊ NGUYÊN LIỆU</span>
+
+                <h2 class="section-card-title"
+                    id="ingredientHeading">
+                    Nguyên liệu
+                </h2>
+
+                <div class="serving-size-control"
+                     data-serving-scaler
+                     data-base-servings="@Model.Servings">
+                    <label for="recipeServings">Khẩu phần</label>
+                    <div class="serving-size-stepper">
+                        <button type="button"
+                                class="serving-size-stepper-button"
+                                data-serving-change="-1"
+                                aria-label="Giảm số khẩu phần">−</button>
+                        <input id="recipeServings"
+                               type="number"
+                               min="1"
+                               max="20"
+                               step="1"
+                               value="@Model.Servings"
+                               inputmode="numeric"
+                               aria-describedby="servingSizeHelp servingSizeStatus" />
+                        <button type="button"
+                                class="serving-size-stepper-button"
+                                data-serving-change="1"
+                                aria-label="Tăng số khẩu phần">+</button>
+                    </div>
+                    <p id="servingSizeHelp" class="serving-size-help">
+                        Công thức gốc: @Model.Servings khẩu phần. Chỉ lượng đo nhận diện được sẽ thay đổi.
+                    </p>
+                    <p id="servingSizeStatus"
+                       class="serving-size-status"
+                       role="status"
+                       aria-live="polite"></p>
+                </div>
+
+                <p class="ingredient-progress"
+                   id="cs108IngredientProgress"
+                   aria-live="polite">
+                    Đã chuẩn bị 0/@ingredients.Length nguyên liệu
+                </p>
+
                 <ul class="ingredient-list">
                     @foreach (var ingredient in ingredients)
                     {
                         <li class="ingredient-item">
-                            <label><input type="checkbox" /><span>@ingredient</span></label>
+                            <label>
+                                <input type="checkbox"
+                                       class="cs108-ingredient-check" />
+                                <span data-scalable-ingredient
+                                      data-original="@ingredient">@ingredient</span>
+                            </label>
                         </li>
                     }
                 </ul>
             </section>
 
-            <section class="instructions-card" aria-labelledby="instructionHeading">
-                <h2 class="section-card-title" id="instructionHeading">Cùng vào bếp</h2>
-                <div class="instruction-steps">
-                    @for (var index = 0; index < instructions.Length; index++)
+            <section class="instructions-card"
+                     id="instructions"
+                     aria-labelledby="instructionHeading">
+
+                <span class="eyebrow">CÙNG VÀO BẾP</span>
+
+                <h2 class="section-card-title"
+                    id="instructionHeading">
+                    Cách chế biến
+                </h2>
+
+                <div class="instruction-steps cs108-timeline">
+                    @for (int i = 0; i < instructions.Length; i++)
                     {
                         <div class="instruction-step-item">
-                            <span class="step-number">@(index + 1)</span>
-                            <p class="step-text">@instructions[index]</p>
+                            <span class="step-number">
+                                @(i + 1)
+                            </span>
+
+                            <div class="cs108-step-content">
+                                <h3>Bước @(i + 1)</h3>
+                                <p class="step-text">
+                                    @instructions[i]
+                                </p>
+                            </div>
                         </div>
                     }
                 </div>
             </section>
         </div>
 
+        <section class="recipe-community-section" id="community" aria-labelledby="recipeCommunityTitle">
+            <div class="section-heading"><div><span class="eyebrow">TỪ CÔNG THỨC ĐẾN BỮA ĂN</span><h2 id="recipeCommunityTitle">Cộng đồng đã nấu</h2></div><a class="btn btn-secondary" asp-controller="CookedPosts" asp-action="Create" asp-route-recipeId="@Model.Id"><i class="icon fa-solid fa-camera" aria-hidden="true"></i> Tôi đã nấu thử</a></div>
+            @if (cookedPosts.Count > 0)
+            {
+                <div class="recipe-community-grid">
+                    @foreach (var post in cookedPosts.Take(6))
+                    {
+                        <partial name="_CookedPost" model="post" />
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="recipe-community-empty">Bạn đã thử món này? Chia sẻ ảnh thành phẩm và một vài kinh nghiệm để căn bếp tiếp theo có thêm cảm hứng.</p>
+            }
+        </section>
+
+        @if (recipeRating != null)
+        {
+            <partial name="_RecipeRating" model="recipeRating" />
+        }
+
+        @if (recipeComments != null)
+        {
+            <div class="cs108-comments" id="comments">
+                <partial name="_RecipeComments" model="recipeComments" />
+            </div>
+        }
+
+        <section class="section related-section" aria-labelledby="relatedHeading">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">CÙNG DANH MỤC</span>
+                    <h2 id="relatedHeading">Công thức liên quan</h2>
+                </div>
+            </div>
+            <div class="@(relatedRecipes.Count == 0 ? "" : "recipe-grid")" id="relatedRecipes">
+                @foreach (var related in relatedRecipes)
+                {
+                    <partial name="_RecipeCard" model="related" />
+                }
+                @if (relatedRecipes.Count == 0)
+                {
+                    <p class="discovery-empty" id="relatedRecipesEmpty">Chưa có công thức liên quan trong danh mục này.</p>
+                }
+            </div>
+        </section>
+
         <div class="details-footer-nav">
-            <a class="btn btn-secondary" asp-controller="Recipe" asp-action="Index">← Khám phá thêm</a>
-            @if (!string.IsNullOrEmpty(currentUserId) && Model.UserId == currentUserId)
+            <a asp-controller="Recipe"
+               asp-action="Index"
+               class="btn btn-secondary">
+                ← Khám phá thêm
+            </a>
+
+            @if (isOwner)
             {
                 <div>
-                    <a class="btn btn-secondary" asp-controller="Recipe" asp-action="Edit" asp-route-id="@Model.Id">
+                    <a asp-controller="Recipe"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-secondary">
                         Chỉnh sửa
                     </a>
+
                     <form asp-controller="Recipe"
                           asp-action="Delete"
                           asp-route-id="@Model.Id"
                           method="post"
-                          data-confirm-delete="Bạn có chắc muốn xóa công thức này không?">
+                          data-confirm-delete="@(string.IsNullOrWhiteSpace(Model.Name) ? "Bạn có chắc chắn muốn xóa vĩnh viễn công thức này không?" : $"Bạn có chắc chắn muốn xóa vĩnh viễn công thức: {Model.Name} không?")"
+                          data-confirm-confirm-label="Xóa công thức"
+                          data-confirm-cancel-label="Giữ lại">
+
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger">Xóa công thức</button>
+
+                        <button type="submit" class="btn btn-danger">
+                            Xóa công thức
+                        </button>
                     </form>
                 </div>
             }
@@ -98,5 +386,38 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/recipe-actions.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-actions.js"
+            asp-append-version="true"></script>
+    <script src="~/js/recipe-saved.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-interactions.js" asp-append-version="true"></script>
+    <script src="~/js/recipe-ratings.js" asp-append-version="true"></script>
+    <script src="~/js/issue108.js"
+            asp-append-version="true"></script>
+    <script src="~/js/cooking-mode.js"
+            asp-append-version="true"></script>
+    <script src="~/js/recipe-serving-scaler.js"
+            asp-append-version="true"></script>
+}
+
+@if (instructions.Length > 0)
+{
+    <dialog class="cooking-mode" data-cooking-mode data-recipe-id="@Model.Id" aria-labelledby="cookingModeTitle">
+        <p class="eyebrow">ĐANG NẤU</p>
+        <p class="cooking-mode-progress" data-cooking-progress>1/@instructions.Length</p>
+        <h2 id="cookingModeTitle" data-cooking-step-label>Bước 1</h2>
+        <p class="cooking-mode-text" data-cooking-step-text>@instructions[0]</p>
+        <div class="cooking-mode-complete" data-cooking-complete hidden><p>Đã hoàn thành công thức.</p><a class="btn" asp-controller="CookedPosts" asp-action="Create" asp-route-recipeId="@Model.Id"><i class="icon fa-solid fa-camera" aria-hidden="true"></i> Chia sẻ ảnh thành phẩm</a></div>
+        <ol class="cooking-mode-steps" aria-hidden="true">
+            @for (int i = 0; i < instructions.Length; i++)
+            {
+                <li data-cooking-step>@instructions[i]</li>
+            }
+        </ol>
+        <div class="cooking-mode-nav">
+            <button type="button" class="btn btn-secondary" data-cooking-prev disabled>Bước trước</button>
+            <button type="button" class="btn btn-secondary" data-cooking-next disabled="@(instructions.Length == 1)">Bước sau</button>
+            <button type="button" class="btn" data-cooking-done aria-pressed="false">Đánh dấu xong</button>
+            <button type="button" class="btn btn-secondary" data-cooking-exit>Thoát</button>
+        </div>
+    </dialog>
 }

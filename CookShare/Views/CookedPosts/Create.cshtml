@@ -1,0 +1,43 @@
+@model CookShare.ViewModels.CookedPostFormViewModel
+@{
+  ViewData["Title"] = "Chia sẻ thành phẩm";
+}
+@section Styles {
+  <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
+}
+<div class="social-page social-form-page">
+  <p class="social-eyebrow">Từ công thức đến căn bếp của bạn</p>
+  <h1>Hôm nay bạn đã nấu gì?</h1>
+  <p class="social-lead">Một bức ảnh, một vài cảm nhận. Chia sẻ thành phẩm để người viết công thức biết bạn đã nấu thử.</p>
+  @if (Model.RecipeId == 0)
+  {
+    <form method="get" asp-action="Create" class="social-search" role="search">
+      <label for="cookedRecipeSearch">Tìm công thức bạn đã nấu</label>
+      <div class="social-search-row">
+        <input id="cookedRecipeSearch" type="search" name="query" value="@Model.Query" maxlength="100" placeholder="Tên món ăn…" />
+        <button type="submit" class="btn btn-primary">Tìm món</button>
+      </div>
+    </form>
+    @if (Model.Recipes.Count == 0)
+    {
+      <div class="social-empty"><h2>Chưa tìm thấy món phù hợp</h2><p>Thử tìm tên món khác hoặc <a asp-controller="Recipe" asp-action="Index">khám phá công thức</a>.</p></div>
+    }
+    else
+    {
+      <ul class="social-recipe-picker">
+        @foreach (var recipe in Model.Recipes)
+        {
+          <li><a asp-action="Create" asp-route-recipeId="@recipe.Id"><span>@recipe.Name<small>@(recipe.AuthorName ?? "Cộng đồng CookShare")</small></span><span aria-hidden="true">→</span></a></li>
+        }
+      </ul>
+      <p class="social-hint">Hiển thị tối đa 20 công thức gần đây. Dùng tìm kiếm để chọn món khác.</p>
+    }
+  }
+  else
+  {
+    <partial name="_Form" model="Model" />
+  }
+</div>
+@section Scripts {
+  <script src="~/js/cooked-posts.js" asp-append-version="true" defer></script>
+}
