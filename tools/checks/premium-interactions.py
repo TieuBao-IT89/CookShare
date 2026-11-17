@@ -39,8 +39,9 @@ with sync_playwright() as p:
     browser = p.chromium.launch(channel='chrome', headless=True)
     owner_context, owner = login(browser, 'lanbep', 1366)
     other_context, other = login(browser, 'minhchef', 390)
-    owner.locator('[data-theme-select]').select_option('dark')
-    other.locator('[data-theme-select]').select_option('dark')
+    for page in (owner, other):
+        if page.locator('html').get_attribute('data-theme') != 'dark':
+            page.get_by_role('switch', name='Giao diện tối').click()
     recipe_id = None
     try:
         owner.goto(BASE + '/Recipe/Create')

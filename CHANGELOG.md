@@ -25,6 +25,7 @@ Thay đổi đáng chú ý của CookShare, theo [Keep a Changelog](https://keep
 
 ### Changed
 
+- Giao diện Sage & Cream / Aurora Kitchen với gradient nhiều lớp, thẻ có viền sáng và bóng mềm; công tắc mặt trời/mặt trăng thay menu theme, kèm nút theo thiết bị, hỗ trợ bàn phím và đồng bộ giữa các tab ([chi tiết](docs/THEME_REFRESH.md)).
 - App shell có thanh điều hướng dưới trên mobile, bộ lọc dạng sheet, chi tiết ưu tiên thao tác nấu và hai lựa chọn đăng nội dung. Font/icon sẵn có được phục vụ local kèm giấy phép và manifest hash.
 - Cải thiện giao diện responsive, trạng thái form, thông báo và tương tác bàn phím.
 - Tổ chức README và hướng dẫn cộng tác theo luồng bắt đầu → đóng góp → kiểm thử → vận hành; phân biệt hướng dẫn hiện tại với báo cáo lịch sử.

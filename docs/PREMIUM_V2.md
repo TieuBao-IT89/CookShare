@@ -1,5 +1,11 @@
 # CookShare Premium V2
 
+> Báo cáo lịch sử của lần triển khai Premium V2 ban đầu. Bản tiếp theo đổi bộ chọn
+> theme thành công tắc và làm mới cả hai bảng màu; xem [Theme refresh](THEME_REFRESH.md)
+> và [ảnh trước/sau](ui/theme-refresh/README.md). Yêu cầu mới của maintainer cho phép
+> push và merge phiên bản hiện tại lên `main`; các ghi chú không push/merge bên dưới
+> mô tả phạm vi của lần triển khai trước.
+
 Baseline: `243039c`, kế thừa Social 2.0 và `develop` (`2d125b4`). Nhánh triển khai:
 `feature/premium-social-v2`. Workspace sạch trước khi bắt đầu. Không push mã nguồn,
 merge, seed hoặc cập nhật database ứng dụng trong lần triển khai này.

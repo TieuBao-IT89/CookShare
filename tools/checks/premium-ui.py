@@ -30,6 +30,13 @@ def check(value, name):
     print('PASS', name, flush=True)
 
 
+def set_theme(page, theme):
+    if theme == 'system':
+        page.locator('[data-theme-system]').click()
+    elif page.locator('html').get_attribute('data-theme') != theme:
+        page.get_by_role('switch', name='Giao diện tối').click()
+
+
 with sync_playwright() as p:
     browser = p.chromium.launch(channel='chrome', headless=True)
     context = browser.new_context(locale='vi-VN', viewport={'width': 1366, 'height': 1000})
@@ -46,7 +53,7 @@ with sync_playwright() as p:
               ('/Profile/Edit', 'profile-edit'), ('/Account/Settings', 'settings'),
               ('/Collections', 'collections'), ('/Collections/Create', 'collection-create')]
     for theme in ('light', 'dark'):
-        page.locator('[data-theme-select]').select_option(theme)
+        set_theme(page, theme)
         for width in (360, 390, 768, 960, 1024, 1366, 1920):
             page.set_viewport_size({'width': width, 'height': 900})
             for route, name in routes:
@@ -63,7 +70,7 @@ with sync_playwright() as p:
                 })''')
                 assert response.status == 200, (route, response.status)
                 assert result['theme'] == theme, (route, result)
-                assert result['background'] == ('rgb(17, 24, 21)' if theme == 'dark' else 'rgb(247, 246, 242)'), (route, result)
+                assert result['background'] == ('rgb(16, 27, 32)' if theme == 'dark' else 'rgb(248, 245, 239)'), (route, result)
                 assert not result['overflow'], (route, width, theme, 'overflow')
                 assert result['fontIcons'] == 0 and result['missingIcons'] == 0, (route, result)
                 screens.append({'route': route, 'theme': theme, 'width': width, **result})
@@ -82,24 +89,54 @@ with sync_playwright() as p:
     }''')
     check(not missing, 'Every rendered SVG use resolves to a local symbol')
     page.set_viewport_size({'width': 390, 'height': 844})
-    page.locator('[data-theme-select]').select_option('light')
-    page.locator('[data-theme-select]').focus()
-    check(page.locator('[data-theme-select]').evaluate('(el) => el === document.activeElement'), 'Mobile theme control is keyboard focusable')
+    set_theme(page, 'light')
+    switch = page.get_by_role('switch', name='Giao diện tối')
+    switch.focus()
+    check(switch.evaluate('(el) => el === document.activeElement'), 'Mobile theme switch is keyboard focusable')
+    page.keyboard.press('Space')
+    expect(switch).to_have_attribute('aria-checked', 'true')
+    expect(page.locator('html')).to_have_attribute('data-theme', 'dark')
+    page.keyboard.press('Enter')
+    expect(switch).to_have_attribute('aria-checked', 'false')
+    expect(page.locator('html')).to_have_attribute('data-theme', 'light')
+    check(True, 'Space and Enter toggle theme and accessible switch state')
+    for control in (switch, page.locator('[data-theme-system]')):
+        box = control.bounding_box()
+        assert box['width'] >= 44 and box['height'] >= 44, box
+    check(True, 'Both mobile theme controls have at least 44px touch targets')
     page.reload()
     check(page.locator('html').get_attribute('data-theme') == 'light', 'Explicit theme survives reload')
     second = context.new_page()
     second.goto(args.base + '/Recipe')
-    page.locator('[data-theme-select]').select_option('dark')
+    set_theme(page, 'dark')
     expect(second.locator('html')).to_have_attribute('data-theme', 'dark')
+    expect(second.get_by_role('switch')).to_have_attribute('aria-checked', 'true')
     check(True, 'Theme preference synchronizes across tabs')
-    page.locator('[data-theme-select]').select_option('system')
+    set_theme(page, 'system')
+    expect(page.locator('[data-theme-system]')).to_have_attribute('aria-pressed', 'true')
     page.emulate_media(color_scheme='dark')
     expect(page.locator('html')).to_have_attribute('data-theme', 'dark')
     page.emulate_media(color_scheme='light')
     expect(page.locator('html')).to_have_attribute('data-theme', 'light')
+    expect(switch).to_have_attribute('aria-checked', 'false')
     check(True, 'System preference follows operating system changes')
+    switch.click()
+    page.emulate_media(color_scheme='dark')
+    page.emulate_media(color_scheme='light')
+    expect(page.locator('html')).to_have_attribute('data-theme', 'dark')
+    expect(page.locator('[data-theme-system]')).to_have_attribute('aria-pressed', 'false')
+    check(True, 'Switch overrides system preference until device button is selected')
+    second.evaluate("localStorage.setItem('cookshare.theme', 'invalid')")
+    expect(page.locator('html')).to_have_attribute('data-theme-preference', 'system')
+    expect(switch).to_have_attribute('aria-checked', 'false')
+    check(True, 'Invalid cross-tab preference returns to system theme')
+    set_theme(page, 'dark')
+    second.evaluate("localStorage.removeItem('cookshare.theme')")
+    expect(page.locator('html')).to_have_attribute('data-theme-preference', 'system')
+    check(True, 'Removing saved preference restores system theme across tabs')
     page.emulate_media(reduced_motion='reduce')
     check(page.locator('.feed-post').first.evaluate('(el) => getComputedStyle(el).animationName') == 'none', 'Reduced motion suppresses feed animation')
+    check(page.locator('.theme-switch-thumb').evaluate('(el) => getComputedStyle(el).transitionDuration') == '0s', 'Reduced motion suppresses switch animation')
     page.set_viewport_size({'width': 1366, 'height': 900})
     page.locator('[data-account-menu] summary').click()
     page.keyboard.press('Escape')
@@ -115,11 +152,17 @@ with sync_playwright() as p:
             assert g.locator('html').get_attribute('data-theme') == theme
             assert g.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
         check(True, f'{theme}: auth/guest pages and blocked storage fallback')
+        g.get_by_role('switch').click()
+        expect(g.locator('html')).to_have_attribute('data-theme', 'light' if theme == 'dark' else 'dark')
+        g.locator('[data-theme-system]').click()
+        expect(g.locator('html')).to_have_attribute('data-theme', theme)
+        check(True, f'{theme}: switch and device controls work when storage is blocked')
         guest.close()
     nojs = browser.new_context(java_script_enabled=False, color_scheme='dark', viewport={'width': 390, 'height': 844})
     g = nojs.new_page()
     g.goto(args.base + '/Recipe')
-    check(g.locator('body').evaluate('(el) => getComputedStyle(el).backgroundColor') == 'rgb(17, 24, 21)', 'No-JavaScript dark system fallback')
+    check(g.locator('body').evaluate('(el) => getComputedStyle(el).backgroundColor') == 'rgb(16, 27, 32)', 'No-JavaScript dark system fallback')
+    check(not g.locator('[data-theme-control]').is_visible(), 'Theme controls stay hidden without JavaScript')
     check(g.locator('form[method=get] button[type=submit]').count() > 0, 'Native discovery form remains available without JavaScript')
     browser.close()
 

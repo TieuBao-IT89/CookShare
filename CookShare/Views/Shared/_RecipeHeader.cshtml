@@ -49,14 +49,16 @@
         </nav>
         <div class="nav-actions">
             <div class="theme-control" data-theme-control hidden>
-                <svg class="icon theme-sun" aria-hidden="true"><use href="/img/icons.svg#sun" /></svg>
-                <svg class="icon theme-moon" aria-hidden="true"><use href="/img/icons.svg#moon" /></svg>
-                <label class="sr-only" for="siteTheme">Giao diện</label>
-                <select id="siteTheme" data-theme-select aria-label="Chọn giao diện sáng, tối hoặc theo thiết bị">
-                    <option value="system">Thiết bị</option>
-                    <option value="light">Sáng</option>
-                    <option value="dark">Tối</option>
-                </select>
+                <button type="button" class="theme-switch" role="switch" aria-checked="false" aria-label="Giao diện tối" data-theme-switch title="Chuyển giao diện sáng / tối">
+                    <span class="theme-switch-track" aria-hidden="true">
+                        <svg class="icon theme-switch-sun"><use href="/img/icons.svg#sun" /></svg>
+                        <svg class="icon theme-switch-moon"><use href="/img/icons.svg#moon" /></svg>
+                        <span class="theme-switch-thumb"></span>
+                    </span>
+                </button>
+                <button type="button" class="theme-system" data-theme-system aria-label="Theo giao diện thiết bị" aria-pressed="true" title="Theo giao diện thiết bị">
+                    <svg class="icon" aria-hidden="true"><use href="/img/icons.svg#monitor" /></svg>
+                </button>
             </div>
             <form class="header-search" asp-controller="Recipe" asp-action="Index" method="get" role="search">
                 <label class="sr-only" for="headerGlobalSearch">Tìm tên món ăn hoặc câu chuyện</label>

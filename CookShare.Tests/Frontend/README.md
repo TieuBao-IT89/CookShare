@@ -13,6 +13,10 @@ python tools/checks/premium-interactions.py --base http://127.0.0.1:5098
 ```
 
 `premium-ui` kiểm tra theme, navigation, SVG và overflow tại 360/390/768/960/1024/1366/1920px.
+Theme dùng công tắc `[data-theme-switch]` (Space/Enter) và nút theo thiết bị
+`[data-theme-system]`; script kiểm tra cả ARIA, vùng chạm 44px, đồng bộ giữa tab,
+lựa chọn không hợp lệ/bị xóa, storage bị chặn và reduced motion. Xem
+[theme refresh](../../docs/THEME_REFRESH.md) để đọc kết quả và ảnh mới nhất.
 `premium-interactions` tạo công thức tạm trong fixture, kiểm tra native CRUD, CSRF,
 like/comment/save/rating/follow/notification rồi dọn công thức qua endpoint owner.
 Harness CSS cô lập bên dưới tải `tokens.css` trước stylesheet thành phần.

@@ -18,6 +18,7 @@ Tài liệu đi cùng mã nguồn đang checkout; `develop` là nhánh tích h�
 | --- | --- |
 | [Ảnh công thức](RECIPE_IMAGES.md) | Upload, kiểm tra tệp, vị trí lưu và sao lưu |
 | [Social 2.0](SOCIAL_V2.md) | Ba giai đoạn, route, migration, kiểm chứng và giới hạn |
+| [Giao diện sáng/tối](THEME_REFRESH.md) | Công tắc theme, gradient, lưu lựa chọn và ảnh trước/sau |
 | [Bộ sưu tập](COLLECTIONS.md) | Riêng tư/công khai, nhiều bộ cho một món, độc lập Favorite |
 | [Thành phẩm và kiểm duyệt](COOKED_POSTS_MODERATION.md) | Upload riêng, feed hỗn hợp, báo cáo, moderator và media |
 | [Thông tin nấu ăn](RECIPE_COOKING.md) | Khẩu phần, định lượng, thời gian và độ khó |
