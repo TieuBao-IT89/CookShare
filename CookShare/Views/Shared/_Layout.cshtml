@@ -7,9 +7,8 @@
     <meta name="theme-color" content="#245c43" />
     <title>@ViewData["Title"] · CookShare</title>
     <link rel="icon" href="~/favicon.ico" />
-    <link rel="stylesheet" href="~/lib/fontawesome/css/fontawesome.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/lib/fontawesome/css/solid.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/lib/fontawesome/css/regular.min.css" asp-append-version="true" />
+    <script src="~/js/theme-init.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/fonts/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/notifications.css" asp-append-version="true" />
@@ -17,11 +16,11 @@
     <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/social-posts.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/premium.css" asp-append-version="true" />
     <noscript><link rel="stylesheet" href="~/css/app-shell-nojs.css" asp-append-version="true" /></noscript>
 </head>
 <body>
     <a class="skip-link" href="#main-content">Chuyển đến nội dung</a>
-    <partial name="_Icons" />
     <partial name="_RecipeHeader" />
     <main id="main-content" tabindex="-1">
         @foreach (var statusMessage in new[] { TempData["StatusMessage"] as string, TempData["Success"] as string }.Where(message => !string.IsNullOrWhiteSpace(message)).Distinct())
@@ -38,7 +37,7 @@
         <div class="container footer-content">
             <div class="footer-brand">
                 <a class="logo" asp-controller="Home" asp-action="Index" aria-label="CookShare — Trang chủ">
-                    <span class="logo-mark"><svg class="icon"><use href="#i-chef" /></svg></span>
+                    <span class="logo-mark"><svg class="icon"><use href="/img/icons.svg#chef-hat" /></svg></span>
                     <span>Cook<span class="brand-accent">Share</span><span class="brand-dot">.</span></span>
                 </a>
                 <p>Mỗi công thức là một câu chuyện.<br />Cùng nhau làm cho căn bếp thêm ấm áp.</p>
@@ -64,6 +63,15 @@
         </div>
     </footer>
     <div id="uiToast" class="ui-toast" role="status" aria-live="polite" hidden></div>
+    <p id="themeStatus" class="sr-only" role="status" aria-live="polite"></p>
+    <dialog id="pageShareDialog" class="confirm-dialog" aria-labelledby="pageShareTitle">
+        <form method="dialog" asp-antiforgery="false">
+            <h2 id="pageShareTitle">Chia sẻ món ngon</h2>
+            <label for="pageShareUrl">Sao chép liên kết công thức</label>
+            <input class="form-input" id="pageShareUrl" type="url" readonly />
+            <div class="dialog-actions"><button class="btn" value="close">Đóng</button></div>
+        </form>
+    </dialog>
     <dialog id="confirmDialog" class="confirm-dialog" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
         <form method="dialog" asp-antiforgery="false">
             <span class="state-icon danger"><i class="icon fa-regular fa-trash-can" aria-hidden="true"></i></span>

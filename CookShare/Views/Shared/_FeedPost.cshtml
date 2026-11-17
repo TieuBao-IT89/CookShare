@@ -2,6 +2,7 @@
 @using CookShare.Helpers
 @using CookShare.Models
 @using CookShare.ViewModels
+@using System.Security.Claims
 @{
     var detailsUrl = Url.Action("Details", "Recipe", new { id = Model.Id });
     var headingId = $"feedPostTitle_{Model.Id}";
@@ -23,6 +24,8 @@
 }
 <article class="feed-post" data-feed-post data-feed-kind="recipe" data-feed-item-id="@Model.Id" data-recipe-id="@Model.Id" aria-labelledby="@headingId" tabindex="-1">
     <header class="feed-post-header">
+        @if (!string.IsNullOrEmpty(Model.AuthorId))
+        {
         <a class="feed-avatar" asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.AuthorId" aria-label="Ghé thăm căn bếp @Model.AuthorName">
             @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl) && RecipeImageReference.IsValid(Model.AvatarUrl))
             {
@@ -33,13 +36,29 @@
                 <span>@initials</span>
             }
         </a>
+        }
+        else
+        {
+            <span class="feed-avatar" aria-hidden="true"><i class="fa-regular fa-user"></i></span>
+        }
         <div class="feed-post-author">
-            <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.AuthorId">@Model.AuthorName</a>
-            <span>đã chia sẻ một công thức <span aria-hidden="true">·</span>
+            @if (!string.IsNullOrEmpty(Model.AuthorId))
+            {
+                <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.AuthorId">@Model.AuthorName</a>
+            }
+            else
+            {
+                <strong class="feed-author-name">Chưa có thông tin tác giả</strong>
+            }
+            <span>@(Model.Source != null ? "đã nhập một công thức" : "đã chia sẻ một công thức") <span aria-hidden="true">·</span>
                 <time data-feed-time datetime="@Model.CreatedAt.ToString("O")" title="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm") UTC">@Model.CreatedAt.ToString("dd/MM/yyyy")</time>
             </span>
         </div>
         <a class="feed-post-category" asp-controller="Recipe" asp-action="Index" asp-route-category="@Model.Category">@Model.Category</a>
+        @if (User.Identity?.IsAuthenticated == true && User.FindFirstValue(ClaimTypes.NameIdentifier) == Model.AuthorId)
+        {
+            <a class="feed-owner-edit" asp-controller="Recipe" asp-action="Edit" asp-route-id="@Model.Id" aria-label="Chỉnh sửa công thức @Model.Name"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a>
+        }
     </header>
     <div class="feed-post-copy">
         <h2 id="@headingId"><a href="@detailsUrl">@Model.Name</a></h2>
@@ -69,6 +88,14 @@
             </div>
         }
     </div>
+    @if (Model.Source == "themealdb" && !string.IsNullOrEmpty(Model.ExternalId))
+    {
+        <p class="feed-source">Nguồn công thức: <a href="https://www.themealdb.com/meal.php?c=@Uri.EscapeDataString(Model.ExternalId)" rel="external noopener noreferrer">TheMealDB</a></p>
+    }
+    else if (Model.Source != null)
+    {
+        <p class="feed-source">Công thức được nhập từ nguồn bên ngoài.</p>
+    }
     <a class="feed-post-image @(image == RecipeImageReference.Placeholder ? "feed-post-placeholder" : "")" href="@detailsUrl" aria-label="Xem công thức @Model.Name">
         <img src="@image" alt="@Model.Name" width="640" height="480" loading="@(ViewData["PrioritizeImage"] is true ? "eager" : "lazy")" fetchpriority="@(ViewData["PrioritizeImage"] is true ? "high" : "auto")" decoding="async" />
         <span class="feed-image-link">Vào bếp cùng món này <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></span>

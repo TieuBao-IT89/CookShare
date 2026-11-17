@@ -117,7 +117,7 @@
                     icon.classList.toggle("fa-solid", summary.isLiked);
                     icon.classList.toggle("fa-regular", !summary.isLiked);
                 } else {
-                    button.querySelector(".like-icon").textContent = summary.isLiked ? "♥" : "♡";
+                    button.querySelector(".like-icon").replaceChildren(svgIcon('heart', summary.isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'));
                 }
                 scope.querySelector("form").action = summary.isLiked ? scope.dataset.unlikeUrl : scope.dataset.likeUrl;
             }
@@ -194,8 +194,19 @@
         } catch { return null; }
     }
 
+    function svgIcon(name, className = '') {
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        icon.setAttribute('class', 'icon ' + className);
+        icon.setAttribute('aria-hidden', 'true');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', '/img/icons.svg#' + name);
+        icon.append(use);
+        return icon;
+    }
+
     function commentButton(className, label, action) {
         const button = element("button", className, label);
+        button.prepend(svgIcon(action === 'data-comment-edit' ? 'square-pen' : 'trash'), document.createTextNode(' '));
         button.type = "button";
         button.setAttribute(action, "");
         return button;
@@ -232,9 +243,9 @@
         body.append(header, element("p", "comment-content-text", comment.content));
         if (comment.canManage) {
             const actions = element("div", "comment-actions-row");
-            const edit = commentButton("btn-comment-action btn-comment-edit", "✎ Sửa", "data-comment-edit");
+            const edit = commentButton("btn-comment-action btn-comment-edit", "Sửa", "data-comment-edit");
             edit.setAttribute("aria-label", `Sửa bình luận của ${comment.authorName}`);
-            const remove = commentButton("btn-comment-action btn-comment-delete", "🗑 Xóa", "data-comment-delete");
+            const remove = commentButton("btn-comment-action btn-comment-delete", "Xóa", "data-comment-delete");
             remove.setAttribute("aria-label", `Xóa bình luận của ${comment.authorName}`);
             actions.append(edit, remove);
             body.append(actions);

@@ -10,6 +10,8 @@ namespace CookShare.ViewModels
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string? Image { get; set; }
+        public string? Source { get; set; }
+        public string? ExternalId { get; set; }
         public string Category { get; set; } = string.Empty;
         public int? PreparationTimeMinutes { get; set; }
         public int? CookingTimeMinutes { get; set; }

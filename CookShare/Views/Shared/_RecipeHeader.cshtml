@@ -11,7 +11,7 @@
 <header class="site-header">
     <div class="container nav">
         <a class="logo" asp-controller="Home" asp-action="Index" aria-label="CookShare — Trang chủ">
-            <span class="logo-mark"><svg class="icon"><use href="#i-chef" /></svg></span>
+            <span class="logo-mark"><svg class="icon"><use href="/img/icons.svg#chef-hat" /></svg></span>
             <span>Cook<span class="brand-accent">Share</span><span class="brand-dot">.</span></span>
         </a>
         <button type="button" class="menu-btn icon-button" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="primaryNav"><i class="icon fa-solid fa-bars" aria-hidden="true"></i></button>
@@ -48,6 +48,16 @@
             </div>
         </nav>
         <div class="nav-actions">
+            <div class="theme-control" data-theme-control hidden>
+                <svg class="icon theme-sun" aria-hidden="true"><use href="/img/icons.svg#sun" /></svg>
+                <svg class="icon theme-moon" aria-hidden="true"><use href="/img/icons.svg#moon" /></svg>
+                <label class="sr-only" for="siteTheme">Giao diện</label>
+                <select id="siteTheme" data-theme-select aria-label="Chọn giao diện sáng, tối hoặc theo thiết bị">
+                    <option value="system">Thiết bị</option>
+                    <option value="light">Sáng</option>
+                    <option value="dark">Tối</option>
+                </select>
+            </div>
             <form class="header-search" asp-controller="Recipe" asp-action="Index" method="get" role="search">
                 <label class="sr-only" for="headerGlobalSearch">Tìm tên món ăn hoặc câu chuyện</label>
                 <input id="headerGlobalSearch" name="q" type="search" placeholder="Hôm nay nấu món gì?" value="@Context.Request.Query["q"]" />
@@ -57,7 +67,7 @@
             {
                 @await Component.InvokeAsync("NotificationBadge")
                 <details class="header-account" data-account-menu>
-                    <summary class="icon-button"><i class="icon fa-regular fa-user" aria-hidden="true"></i><span class="sr-only">Tài khoản @User.Identity?.Name</span></summary>
+                    <summary class="icon-button">@await Component.InvokeAsync("AccountAvatar")<span class="sr-only">Tài khoản @User.Identity?.Name</span></summary>
                     <div class="header-account-menu">
                         <span class="header-account-name">@User.Identity?.Name</span>
                         <a asp-controller="Profile" asp-action="Index">Căn bếp của tôi</a>

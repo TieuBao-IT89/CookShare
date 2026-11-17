@@ -6,7 +6,7 @@ namespace CookShare.Helpers
     {
         public const int ImageUrlMaxLength = 500;
         public const int BioMaxLength = 300;
-        public const string DefaultAvatar = "/img/recipes/profile-avatar.webp";
+        public const string DefaultAvatar = "/img/avatar-placeholder.svg";
 
         public static bool IsValidImage(string? value)
         {

@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Creator profile browser checks</title>
-  <link rel="stylesheet" href="../../CookShare/wwwroot/css/style.css">
+  <link rel="stylesheet" href="../../CookShare/wwwroot/css/tokens.css">
+<link rel="stylesheet" href="../../CookShare/wwwroot/css/style.css">
   <link rel="stylesheet" href="../../CookShare/wwwroot/css/creator-profile.css">
 </head>
 <body>
@@ -14,10 +15,10 @@
   </div></section>
   <section class="creator-edit-page container"><div class="creator-edit-layout" data-profile-editor>
     <form class="creator-edit-form"><fieldset class="creator-fieldset"><legend>Thông tin</legend><label for="testName">Tên</label><input id="testName" class="form-input" data-profile-name-input value="Căn bếp Việt"><label for="testBio">Bio</label><textarea id="testBio" class="form-textarea" data-profile-bio-input maxlength="300">Yêu bếp</textarea><span data-bio-counter></span><label for="testAvatar">Avatar</label><input id="testAvatar" class="form-input" data-avatar-input><p data-avatar-status></p><label for="testCover">Cover</label><input id="testCover" class="form-input" data-cover-input><p data-cover-status></p></fieldset></form>
-    <aside class="creator-edit-preview"><div class="creator-preview-card"><div class="creator-preview-cover"><img data-cover-preview alt="" hidden></div><div class="creator-preview-copy"><img class="creator-preview-avatar" data-avatar-preview src="../../CookShare/wwwroot/img/recipes/profile-avatar.webp" alt=""><h2 data-profile-name-preview></h2><p class="creator-bio" data-profile-bio-preview></p></div></div></aside>
+    <aside class="creator-edit-preview"><div class="creator-preview-card"><div class="creator-preview-cover"><img data-cover-preview alt="" hidden></div><div class="creator-preview-copy"><img class="creator-preview-avatar" data-avatar-preview src="../../CookShare/wwwroot/img/avatar-placeholder.svg" alt=""><h2 data-profile-name-preview></h2><p class="creator-bio" data-profile-bio-preview></p></div></div></aside>
   </div></section>
   <section class="creator-manager container" data-highlight-manager><form><input name="__RequestVerificationToken" value="test-token" type="hidden"><span data-highlight-count></span><div class="creator-slots" id="slots"></div><p data-highlight-status role="status"></p><button class="btn" type="submit">Lưu</button></form><div id="templates"></div></section>
-  <img id="fallbackAvatar" src="../../CookShare/wwwroot/img/recipes/profile-avatar.webp" alt="" data-profile-image data-image-fallback="/img/recipes/profile-avatar.webp" hidden>
+  <img id="fallbackAvatar" src="../../CookShare/wwwroot/img/avatar-placeholder.svg" alt="" data-profile-image data-image-fallback="/img/avatar-placeholder.svg" hidden>
   <pre id="results">RUNNING</pre>
   <script>
     window.errors=[]; window.storageTouches=0; window.fetches=0; window.imageLoads=[];
@@ -81,9 +82,9 @@
         input(cover,'');await delay(220);
         assert(preview.hidden&&!document.querySelector('[data-cover-status]').classList.contains('is-error'),'clearing cover selects the default background');
         const avatar=document.querySelector('[data-avatar-input]');input(avatar,'data:image/svg+xml,<svg/>');await delay(220);
-        assert(document.querySelector('[data-avatar-preview]').getAttribute('src')==='/img/recipes/profile-avatar.webp','unsafe avatars use the bundled fallback');
+        assert(document.querySelector('[data-avatar-preview]').getAttribute('src')==='/img/avatar-placeholder.svg','unsafe avatars use the bundled fallback');
         const fallback=document.getElementById('fallbackAvatar');fallback.dispatchEvent(new Event('error'));
-        assert(fallback.getAttribute('src')==='/img/recipes/profile-avatar.webp','profile image errors apply the fallback once');
+        assert(fallback.getAttribute('src')==='/img/avatar-placeholder.svg','profile image errors apply the fallback once');
         fallback.dispatchEvent(new Event('error'));assert(fallback.hidden,'a broken fallback cannot create an error loop');
         document.getElementById('brokenCover').dispatchEvent(new Event('error'));
         assert(document.getElementById('brokenCover').hidden,'cover load failure reveals the decorative background');

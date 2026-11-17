@@ -64,7 +64,7 @@
 
             <section class="feed-composer" aria-label="Chia sẻ từ căn bếp của bạn">
                 <div class="feed-composer-top">
-                    <span class="feed-avatar" aria-hidden="true"><i class="icon fa-solid fa-utensils" aria-hidden="true"></i></span>
+                    <span class="feed-avatar" aria-hidden="true"><img src="@(ProfileContent.ImageSource(profile?.AvatarUrl) ?? ProfileContent.DefaultAvatar)" alt="" width="42" height="42" data-image-fallback="@ProfileContent.DefaultAvatar" /></span>
                     <a asp-controller="Recipe" asp-action="Create">@(profile == null ? "Bạn vừa nấu một món ngon?" : $"{profile.Name}, hôm nay bạn nấu gì?")</a>
                     <a class="feed-composer-add" asp-controller="Recipe" asp-action="Create" aria-label="Đăng công thức mới"><i class="icon fa-solid fa-plus" aria-hidden="true"></i></a>
                 </div>

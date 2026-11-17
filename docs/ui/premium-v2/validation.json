@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-17",
+  "branch": "feature/premium-social-v2",
+  "baseline": "243039c",
+  "environment": {
+    "runtime": ".NET 8",
+    "database": "isolated PostgreSQL on loopback",
+    "browser": "Chrome headless",
+    "physicalDeviceTested": false
+  },
+  "build": {
+    "errors": 0,
+    "warnings": 21,
+    "warningsPreexisting": true
+  },
+  "dotnetTests": {
+    "passed": 614,
+    "failed": 0,
+    "skipped": 0,
+    "postgresOptIn": true,
+    "browserOptIn": true
+  },
+  "ui": {
+    "pageCombinations": 154,
+    "behaviorChecks": 14,
+    "viewports": [
+      360,
+      390,
+      768,
+      960,
+      1024,
+      1366,
+      1920
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "overflowCount": 0,
+    "uncaughtErrors": []
+  },
+  "liveInteractionChecks": 22,
+  "harnessPassed": {
+    "feedDesktop": 30,
+    "feedMobile": 30,
+    "refinementMobile": 20,
+    "discoveryMobile": 16,
+    "creatorMobile": 32,
+    "favoritesMobile": 40,
+    "ratingMobile": 20
+  },
+  "limits": [
+    "No Neon or production mutation/deployment",
+    "No physical iOS/Android or Safari verification",
+    "Semantic contrast pairs measured; not a complete WCAG certification"
+  ]
+}

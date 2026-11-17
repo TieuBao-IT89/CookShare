@@ -44,6 +44,14 @@
     }
     <h3 class="recipe-card-title"><a asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id">@Model.Name</a></h3>
     <p class="recipe-card-desc">@Model.Description</p>
+    @if (Model.Source == "themealdb" && !string.IsNullOrEmpty(Model.ExternalId))
+    {
+      <p class="recipe-card-source">Nguồn: <a href="https://www.themealdb.com/meal.php?c=@Uri.EscapeDataString(Model.ExternalId)" rel="external noopener noreferrer">TheMealDB</a></p>
+    }
+    else if (Model.Source != null)
+    {
+      <p class="recipe-card-source">Công thức nhập từ nguồn bên ngoài</p>
+    }
     @if (ratingState != null)
     {
       <partial name="_RecipeRatingSummary" model="ratingState" />
@@ -61,7 +69,7 @@
       </span>
       @if (!string.IsNullOrEmpty(Model.UserId))
       {
-        <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.UserId">@authorName</a>
+        <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.UserId">@(Model.Source != null ? "Người nhập: " : "")@authorName</a>
       }
       else
       {
@@ -69,7 +77,7 @@
       }
     </div>
     <div class="recipe-card-footer">
-      <a class="recipe-link" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id">Xem công thức <svg class="icon"><use href="#i-arrow" /></svg></a>
+      <a class="recipe-link" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.Id">Xem công thức <svg class="icon"><use href="/img/icons.svg#arrow-right" /></svg></a>
       @if (likeState != null)
       {
         <partial name="_RecipeLikeButton" model="likeState" />
@@ -83,12 +91,12 @@
     @if (isOwner)
     {
       <div class="recipe-manage-actions">
-        <a class="btn-action-edit" asp-controller="Recipe" asp-action="Edit" asp-route-id="@Model.Id"><svg class="icon"><use href="#i-edit" /></svg> Chỉnh sửa</a>
+        <a class="btn-action-edit" asp-controller="Recipe" asp-action="Edit" asp-route-id="@Model.Id"><svg class="icon"><use href="/img/icons.svg#square-pen" /></svg> Chỉnh sửa</a>
         <form asp-controller="Recipe" asp-action="Delete" asp-route-id="@Model.Id" method="post"
               data-confirm-delete="@(string.IsNullOrWhiteSpace(Model.Name) ? "Bạn có chắc chắn muốn xóa vĩnh viễn công thức này không?" : $"Bạn có chắc chắn muốn xóa vĩnh viễn công thức: {Model.Name} không?")"
               data-confirm-confirm-label="Xóa công thức"
               data-confirm-cancel-label="Giữ lại">
-          <button type="submit" class="btn-action-delete"><svg class="icon"><use href="#i-trash" /></svg> Xóa</button>
+          <button type="submit" class="btn-action-delete"><svg class="icon"><use href="/img/icons.svg#trash" /></svg> Xóa</button>
         </form>
       </div>
     }

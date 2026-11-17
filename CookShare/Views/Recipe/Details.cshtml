@@ -38,7 +38,7 @@
 
     var authorAvatar = string.IsNullOrWhiteSpace(Model.User?.AvatarUrl)
         || !RecipeImageReference.IsValid(Model.User?.AvatarUrl)
-        ? Url.Content("~/img/recipes/profile-avatar.webp")
+        ? Url.Content(ProfileContent.DefaultAvatar)
         : RecipeImageReference.GetSource(Model.User!.AvatarUrl);
 }
 
@@ -86,7 +86,7 @@
             <div class="cs108-hero-content">
                 <span class="details-category-tag">
                     <svg class="icon" aria-hidden="true">
-                        <use href="#i-leaf" />
+                        <use href="/img/icons.svg#leaf" />
                     </svg>
                     @Model.Category
                 </span>
@@ -114,7 +114,7 @@
 
                     <div>
                         <span class="cs108-muted-label">
-                            Công thức được chia sẻ bởi
+                            @(Model.Source != null ? "Người nhập công thức" : "Công thức được chia sẻ bởi")
                         </span>
 
                         @if (!string.IsNullOrEmpty(Model.UserId))
@@ -135,6 +135,8 @@
                     </div>
                 </div>
 
+                <p class="recipe-posted-date cs108-muted-label">Đăng ngày <time datetime="@Model.CreatedAt.ToString("O")">@Model.CreatedAt.ToString("dd/MM/yyyy")</time></p>
+
                 <div class="cs108-recipe-summary">
                     <span><i class="icon fa-solid fa-utensils" aria-hidden="true"></i>@Model.Servings khẩu phần</span>
                     @if (recipeRating != null)
@@ -143,13 +145,13 @@
                     }
                     <span>
                         <svg class="icon" aria-hidden="true">
-                            <use href="#i-grid" />
+                            <use href="/img/icons.svg#layout-grid" />
                         </svg>
                         @ingredients.Length nguyên liệu
                     </span>
                     <span>
                         <svg class="icon" aria-hidden="true">
-                            <use href="#i-check" />
+                            <use href="/img/icons.svg#check" />
                         </svg>
                         @instructions.Length bước chế biến
                     </span>
@@ -168,6 +170,7 @@
                 </div>
 
                 <div class="details-actions cs108-social-actions">
+                    <button class="btn btn-secondary page-share-button" type="button" data-page-share data-share-title="@Model.Name" hidden><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Chia sẻ</button>
                     @if (instructions.Length > 0)
                     {
                         <a href="#instructions" class="btn details-cook-fallback" data-cooking-fallback>Bắt đầu nấu <i class="icon fa-solid fa-arrow-right" aria-hidden="true"></i></a>

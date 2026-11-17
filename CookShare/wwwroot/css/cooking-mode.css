@@ -10,7 +10,7 @@
 }
 
 .cooking-mode::backdrop {
-    background: #173f2ee6;
+    background: var(--backdrop);
 }
 
 .cooking-mode-progress {

@@ -11,7 +11,7 @@
 }
 <section class="comment-section" data-db-recipe-comments data-recipe-id="@Model.RecipeId" data-viewer-id="@ViewData["FeedViewerId"]" data-comments-url="@commentsUrl" data-profile-url="@Url.Action("Index", "Profile")" data-login-url="@loginUrl" aria-labelledby="@headingId">
   <div class="comment-section-header">
-    <h2 class="comment-section-title" id="@headingId"><span class="title-icon" aria-hidden="true">💬</span> Bình luận</h2>
+    <h2 class="comment-section-title" id="@headingId"><i class="fa-regular fa-comment" aria-hidden="true"></i> Bình luận</h2>
     <span class="comment-count-badge" data-db-comment-count aria-label="Số bình luận">@commentCount</span>
   </div>
   @if (Model.IsAuthenticated)
@@ -48,7 +48,7 @@
     <a class="text-link" asp-controller="Recipe" asp-action="Details" asp-route-id="@Model.RecipeId" asp-fragment="recipeCommentsHeading">Xem tất cả bình luận</a>
   }
   <div class="comment-empty-state" data-comment-empty hidden="@(commentCount > 0)">
-    <div class="comment-empty-state-icon" aria-hidden="true">💬</div>
+    <div class="comment-empty-state-icon" aria-hidden="true"><i class="fa-regular fa-comment" aria-hidden="true"></i></div>
     <p class="comment-empty-state-text">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận về món ăn này!</p>
   </div>
 </section>

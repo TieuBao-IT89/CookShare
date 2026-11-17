@@ -2,6 +2,21 @@
 
 Các harness bên dưới chạy từ thư mục gốc repository. Xem [Testing](../../docs/TESTING.md) để phân biệt harness cô lập, kiểm tra toàn ứng dụng và test PostgreSQL.
 
+## Premium V2 — toàn ứng dụng
+
+Hai script dùng Playwright Python và Chrome với database fixture Social V2 riêng
+trên loopback, không dùng tài khoản/database ứng dụng. Xem [bàn giao Premium V2](../../docs/PREMIUM_V2.md).
+
+```powershell
+python tools/checks/premium-ui.py --base http://127.0.0.1:5098
+python tools/checks/premium-interactions.py --base http://127.0.0.1:5098
+```
+
+`premium-ui` kiểm tra theme, navigation, SVG và overflow tại 360/390/768/960/1024/1366/1920px.
+`premium-interactions` tạo công thức tạm trong fixture, kiểm tra native CRUD, CSRF,
+like/comment/save/rating/follow/notification rồi dọn công thức qua endpoint owner.
+Harness CSS cô lập bên dưới tải `tokens.css` trước stylesheet thành phần.
+
 ## Khẩu phần công thức
 
 ```powershell

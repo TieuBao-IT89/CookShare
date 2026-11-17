@@ -3,7 +3,7 @@
     "use strict";
     if (window.CookShareCreator) return;
     window.CookShareCreator = {};
-    const avatarFallback = "/img/recipes/profile-avatar.webp";
+    const avatarFallback = "/img/avatar-placeholder.svg";
 
     function imageSource(value) {
         let source = value.trim();
@@ -125,7 +125,10 @@
                 if (template) preview.replaceChildren(template.content.cloneNode(true));
                 else {
                     const empty = document.createElement("div"); empty.className = "creator-slot-empty";
-                    const icon = document.createElement("i"); icon.className = "fa-solid fa-plus"; icon.setAttribute("aria-hidden", "true");
+                    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    icon.setAttribute("class", "icon fa-solid fa-plus"); icon.setAttribute("aria-hidden", "true");
+                    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                    use.setAttribute("href", "/img/icons.svg#plus"); icon.append(use);
                     const text = document.createElement("span"); text.textContent = "Chọn một món ngon để xem trước"; empty.append(icon, text); preview.replaceChildren(empty);
                 }
             });

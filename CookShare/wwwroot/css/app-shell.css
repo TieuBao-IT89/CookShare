@@ -41,11 +41,11 @@
     .site-header .nav-actions > :not(.notification-nav-link) { display: none; }
     .site-header .menu-btn { order: 3; margin-left: 0; width: 44px; height: 44px; }
     .site-header .nav-links.open { max-height: calc(100dvh - 86px - var(--mobile-nav-space)); }
-    .mobile-bottom-nav { position: fixed; z-index: 35; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; min-height: var(--mobile-nav-space); padding: 7px max(8px, env(safe-area-inset-right, 0px)) calc(7px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); border-top: 1px solid var(--line); background: var(--paper); box-shadow: 0 -4px 20px #243b3006; }
+    .mobile-bottom-nav { position: fixed; z-index: 35; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; min-height: var(--mobile-nav-space); padding: 7px max(8px, env(safe-area-inset-right, 0px)) calc(7px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); border-top: 1px solid var(--line); background: var(--paper); box-shadow: 0 -4px 20px var(--shadow-color); }
     .mobile-bottom-nav > a { display: flex; min-width: 0; min-height: 56px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 11px; font-weight: 600; }
     .mobile-bottom-nav > a .icon { width: 22px; height: 22px; font-size: 20px; }
     .mobile-bottom-nav > a.is-active { color: var(--primary); background: var(--light); }
-    .mobile-bottom-nav .mobile-publish .icon { width: 32px; height: 28px; border-radius: 8px; background: var(--primary); color: var(--white); }
+    .mobile-bottom-nav .mobile-publish .icon { width: 32px; height: 28px; border-radius: 8px; background: var(--primary); color: var(--on-primary); }
     .ui-toast { bottom: calc(var(--mobile-nav-space) + 16px); }
     .home-feed .feed-back-top { bottom: calc(var(--mobile-nav-space) + 16px); }
     :is(input, select, textarea, button, a, summary) { scroll-margin-block: 100px calc(var(--mobile-nav-space) + 20px); }

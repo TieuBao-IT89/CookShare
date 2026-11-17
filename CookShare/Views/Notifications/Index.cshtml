@@ -1,5 +1,6 @@
 
 @model IReadOnlyList<CookShare.ViewModels.NotificationViewModel>
+@using CookShare.Helpers
 
 @{
     ViewData["Title"] = "Thông báo";
@@ -34,7 +35,7 @@
     {
         <div class="cs108-empty">
             <div class="cs108-empty-icon" aria-hidden="true">
-                <svg class="icon"><use href="#i-heart" /></svg>
+                <svg class="icon"><use href="/img/icons.svg#heart" /></svg>
             </div>
 
             <h2>Chưa có thông báo mới</h2>
@@ -89,7 +90,7 @@
                         <div class="cs108-avatar-wrap">
                             <img class="notification-avatar"
                                  src="@(string.IsNullOrWhiteSpace(notification.ActorAvatarUrl)
-                                     ? Url.Content("~/img/recipes/profile-avatar.webp")
+                                     ? Url.Content(ProfileContent.DefaultAvatar)
                                      : notification.ActorAvatarUrl)"
                                  alt=""
                                  width="52"
@@ -129,7 +130,7 @@
                                     ? notification.HasRecipe ? "Xem thành phẩm" : "Kiểm tra bài đăng"
                                     : notification.HasRecipe ? "Xem công thức" : "Xem hồ sơ")
                                 <svg class="icon" aria-hidden="true">
-                                    <use href="#i-arrow" />
+                                    <use href="/img/icons.svg#arrow-right" />
                                 </svg>
                             </button>
                         </form>

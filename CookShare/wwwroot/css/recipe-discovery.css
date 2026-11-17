@@ -31,7 +31,7 @@
 .recipe-discovery-page .recipe-card-desc { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .discovery-pagination { display: flex; justify-content: center; padding-block: 32px 8px; }
 .discovery-filter-dialog { width: min(560px, calc(100% - 24px)); max-height: calc(100dvh - 24px); margin: auto; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--paper); color: var(--ink); overflow-y: auto; }
-.discovery-filter-dialog::backdrop { background: #173f2e99; }
+.discovery-filter-dialog::backdrop { background: var(--backdrop); }
 .discovery-filter-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .discovery-filter-dialog-heading h2 { margin: 0; font-family: var(--font-display); font-size: 27px; }
 .discovery-filter-dialog .discovery-filter-fields { grid-template-columns: 1fr; }

@@ -5,13 +5,13 @@
     gap: 8px 16px;
     margin: 18px 0 20px;
     padding: 14px 16px;
-    border: 1px solid #dce3d1;
+    border: 1px solid var(--line);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.72);
+    background: var(--white);
 }
 
 .serving-size-control > label {
-    color: var(--text, #26352c);
+    color: var(--text, var(--ink));
     font-size: 13px;
     font-weight: 700;
 }
@@ -21,9 +21,9 @@
     align-items: center;
     gap: 4px;
     padding: 4px;
-    border: 1px solid #dce3d1;
+    border: 1px solid var(--line);
     border-radius: 10px;
-    background: #fff;
+    background: var(--white);
 }
 
 .serving-size-stepper-button {
@@ -31,7 +31,7 @@
     height: 36px;
     border: 0;
     border-radius: 7px;
-    color: var(--primary, #245c43);
+    color: var(--primary, var(--primary));
     background: transparent;
     font: inherit;
     font-size: 20px;
@@ -40,17 +40,17 @@
 }
 
 .serving-size-stepper-button:hover:not(:disabled) {
-    background: #edf3e9;
+    background: var(--light);
 }
 
 .serving-size-stepper-button:disabled {
-    color: #9aa49a;
+    color: var(--muted);
     cursor: not-allowed;
 }
 
 .serving-size-stepper-button:focus-visible,
 .serving-size-stepper input:focus-visible {
-    outline: 3px solid #67977b;
+    outline: 3px solid var(--line);
     outline-offset: 2px;
 }
 
@@ -59,7 +59,7 @@
     min-height: 36px;
     padding: 4px;
     border: 0;
-    color: var(--text, #26352c);
+    color: var(--text, var(--ink));
     background: transparent;
     font: inherit;
     font-size: 15px;
@@ -77,17 +77,17 @@
 .serving-size-status {
     grid-column: 1 / -1;
     margin: 0;
-    color: var(--muted, #69766c);
+    color: var(--muted, var(--muted));
     font-size: 11px;
     line-height: 1.5;
 }
 
 .serving-size-status:not(:empty) {
-    color: var(--primary, #245c43);
+    color: var(--primary, var(--primary));
 }
 
 .serving-size-status.is-error {
-    color: #a33b2c;
+    color: var(--danger);
 }
 
 @media (max-width: 480px) {

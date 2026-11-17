@@ -49,7 +49,7 @@
   align-items: center;
   justify-content: center;
   background: var(--rc-primary);
-  color: var(--rc-white);
+  color: var(--on-primary);
   font-size: 12px;
   font-weight: 700;
   min-width: 26px;
@@ -139,7 +139,7 @@
 .comment-textarea:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: #f5f5f5;
+  background: var(--surface-raised);
 }
 
 /* Character counter */
@@ -191,7 +191,7 @@
   justify-content: center;
   gap: 7px;
   background: var(--rc-primary);
-  color: var(--rc-white);
+  color: var(--on-primary);
   font-family: 'Be Vietnam Pro', sans-serif;
   font-weight: 700;
   font-size: 13.5px;
@@ -200,7 +200,7 @@
   border-radius: 10px;
   cursor: pointer;
   transition: var(--rc-transition);
-  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.2);
+  box-shadow: 0 4px 14px var(--shadow-color);
   outline: none;
 }
 
@@ -208,7 +208,7 @@
   background: var(--rc-primary-dark);
   border-color: var(--rc-primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.3);
+  box-shadow: 0 8px 20px var(--shadow-color);
 }
 
 .btn-submit-comment:focus-visible {
@@ -240,7 +240,7 @@
   font-size: 13.5px;
   font-weight: 600;
   font-family: 'Be Vietnam Pro', sans-serif;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 10px 30px var(--shadow-color);
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -255,9 +255,9 @@
 }
 
 .comment-toast--success {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #15803d;
+  background: var(--light);
+  border: 1px solid var(--line);
+  color: var(--primary);
 }
 
 .comment-toast--error {
@@ -268,7 +268,7 @@
 
 .comment-toast--info {
   background: var(--rc-info-light);
-  border: 1px solid #bae6fd;
+  border: 1px solid var(--line);
   color: var(--rc-info);
 }
 
@@ -318,9 +318,9 @@
 }
 
 .comment-item:hover {
-  background: #f7fbf7;
-  border-color: #d1ebd1;
-  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.05);
+  background: var(--surface-raised);
+  border-color: var(--line);
+  box-shadow: 0 4px 14px var(--shadow-color);
 }
 
 /* Comment body */
@@ -411,7 +411,7 @@
 
 .btn-comment-edit:hover {
   background: var(--rc-accent-yellow);
-  color: var(--rc-white);
+  color: var(--on-primary);
   border-color: var(--rc-accent-yellow);
 }
 
@@ -423,7 +423,7 @@
 
 .btn-comment-delete:hover {
   background: var(--rc-danger);
-  color: var(--rc-white);
+  color: var(--on-primary);
   border-color: var(--rc-danger);
 }
 
@@ -488,7 +488,7 @@
   align-items: center;
   gap: 5px;
   background: var(--rc-primary);
-  color: var(--rc-white);
+  color: var(--on-primary);
   font-family: 'Be Vietnam Pro', sans-serif;
   font-weight: 700;
   font-size: 12.5px;
@@ -519,13 +519,13 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #f1f4f1;
+  background: var(--light);
   color: var(--rc-ink-light);
   font-family: 'Be Vietnam Pro', sans-serif;
   font-weight: 600;
   font-size: 12.5px;
   padding: 8px 18px;
-  border: 1px solid #dce4dc;
+  border: 1px solid var(--line);
   border-radius: 8px;
   cursor: pointer;
   transition: var(--rc-transition);
@@ -533,7 +533,7 @@
 }
 
 .btn-edit-cancel:hover {
-  background: #e4ece4;
+  background: var(--light);
   color: var(--rc-ink);
 }
 

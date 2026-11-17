@@ -1,13 +1,13 @@
 /* Issue #108 - Modern Culinary Social UI */
 
 .cs108 {
-    --cs108-green: var(--primary, #245c43);
-    --cs108-cream: #f7f5ef;
-    --cs108-sage: #e5ecdf;
-    --cs108-orange: #db8965;
-    --cs108-border: #e5e8df;
+    --cs108-green: var(--primary);
+    --cs108-cream: var(--surface-raised);
+    --cs108-sage: var(--light);
+    --cs108-orange: var(--accent-ink);
+    --cs108-border: var(--line);
     --cs108-radius: 20px;
-    --cs108-shadow: 0 14px 38px rgba(36, 59, 48, 0.06);
+    --cs108-shadow: var(--shadow-sm);
     --cs108-motion: 220ms ease;
 }
 
@@ -95,7 +95,7 @@
 }
 
 .cs108-filter.active {
-    color: white;
+    color: var(--on-primary);
     background: var(--cs108-green);
 }
 
@@ -111,8 +111,8 @@
     padding: 22px 24px;
     border: 1px solid var(--cs108-border);
     border-radius: var(--cs108-radius);
-    background: white;
-    box-shadow: 0 3px 16px rgba(0, 0, 0, 0.025);
+    background: var(--white);
+    box-shadow: 0 3px 16px var(--shadow-color);
     transition:
         transform var(--cs108-motion),
         background var(--cs108-motion),
@@ -127,8 +127,8 @@
 }
 
 .cs108 .notification-item.is-unread {
-    background: #f4f8ef;
-    border-color: #d4e2d1;
+    background: var(--light);
+    border-color: var(--line);
     border-left: 4px solid var(--cs108-green);
 }
 
@@ -143,7 +143,7 @@
     width: 52px;
     height: 52px;
     object-fit: cover;
-    border: 2px solid white;
+    border: 2px solid var(--white);
     border-radius: 50%;
 }
 
@@ -219,14 +219,14 @@
     padding: 32px;
     text-align: center;
     color: var(--muted);
-    background: white;
+    background: var(--white);
     border-radius: var(--cs108-radius);
 }
 
 .cs108-empty {
     padding: 55px 24px;
     text-align: center;
-    background: white;
+    background: var(--white);
     border: 1px solid var(--cs108-border);
     border-radius: var(--cs108-radius);
 }
@@ -290,7 +290,7 @@
 }
 
 .cs108 .recipe-form-card:hover {
-    box-shadow: 0 16px 40px rgba(36, 59, 48, 0.09);
+    box-shadow: 0 16px 40px var(--shadow-color);
 }
 
 .cs108-section-heading {
@@ -340,7 +340,7 @@
 }
 
 .cs108-required {
-    color: #b84b3e;
+    color: var(--danger);
 }
 
 .cs108 .form-input,
@@ -349,9 +349,9 @@
     width: 100%;
     min-height: 50px;
     padding: 13px 15px;
-    border: 1px solid #d9e1d6;
+    border: 1px solid var(--line);
     border-radius: 12px;
-    background: #fbfcfa;
+    background: var(--surface-raised);
     color: var(--ink);
     font-size: 14px;
     line-height: 1.65;
@@ -370,28 +370,28 @@
 .cs108 .form-textarea:focus {
     outline: none;
     border-color: var(--cs108-green);
-    background: white;
-    box-shadow: 0 0 0 4px rgba(36, 92, 67, 0.1);
+    background: var(--white);
+    box-shadow: 0 0 0 4px var(--shadow-color);
 }
 
 .cs108 .text-danger {
     display: block;
     margin-top: 6px;
     font-size: 12px;
-    color: #ae3838;
+    color: var(--danger);
 }
 
 .cs108-validation-summary {
     margin-bottom: 22px;
-    color: #a23333;
+    color: var(--danger);
 }
 
 .cs108-validation-summary.validation-summary-valid { display: none; }
 
 .cs108-validation-summary ul {
     padding: 14px 22px 14px 34px;
-    background: #fff1f0;
-    border: 1px solid #f0d0ca;
+    background: var(--danger-soft);
+    border: 1px solid var(--danger-line);
     border-radius: 12px;
 }
 
@@ -417,7 +417,7 @@
     padding: 14px 18px;
     border: 1px solid var(--cs108-border);
     border-radius: 14px;
-    background: #fbfcfa;
+    background: var(--surface-raised);
     color: var(--primary);
     font-size: 14px;
     font-weight: 600;
@@ -435,7 +435,7 @@
     aspect-ratio: 16 / 10;
     border-radius: 16px;
     background: var(--cs108-cream);
-    border: 1px dashed #c6d5bf;
+    border: 1px dashed var(--line);
 }
 
 .cs108-image-preview img {
@@ -487,7 +487,7 @@
     padding: 34px;
     border: 1px solid var(--cs108-border);
     border-radius: 24px;
-    background: white;
+    background: var(--white);
     box-shadow: var(--cs108-shadow);
     animation: cs108-rise 300ms ease both;
 }
@@ -613,7 +613,7 @@ a.cs108-author-name:hover {
     padding: 10px 18px;
     border: 1px solid var(--cs108-border);
     border-radius: 999px;
-    background: white;
+    background: var(--white);
     color: var(--cs108-green);
     font-size: 12px;
     font-weight: 600;
@@ -671,7 +671,7 @@ a.cs108-author-name:hover {
     bottom: 30px;
     left: 19px;
     width: 2px;
-    background: #d7e3d3;
+    background: var(--light);
 }
 
 .cs108 .instruction-step-item {
@@ -689,7 +689,7 @@ a.cs108-author-name:hover {
     width: 40px;
     height: 40px;
     background: var(--cs108-green);
-    color: white;
+    color: var(--on-primary);
     font-weight: 700;
     font-size: 13px;
 }
@@ -718,7 +718,7 @@ a.cs108-author-name:hover {
     padding: 30px;
     border: 1px solid var(--cs108-border);
     border-radius: var(--cs108-radius);
-    background: white;
+    background: var(--white);
     box-shadow: var(--cs108-shadow);
 }
 
@@ -740,16 +740,16 @@ a.cs108-author-name:hover {
 .cs108-comment-form textarea {
     min-height: 110px;
     padding: 15px;
-    border: 1px solid #d9e1d6;
+    border: 1px solid var(--line);
     border-radius: 14px;
-    background: #fbfcfa;
+    background: var(--surface-raised);
     font-size: 14px;
 }
 
 .cs108-comment-form textarea:focus {
     outline: none;
     border-color: var(--cs108-green);
-    box-shadow: 0 0 0 4px rgba(36, 92, 67, 0.1);
+    box-shadow: 0 0 0 4px var(--shadow-color);
 }
 
 .cs108-comment-form .btn {
@@ -771,7 +771,7 @@ a.cs108-author-name:hover {
     padding: 20px;
     border: 1px solid var(--cs108-border);
     border-radius: 16px;
-    background: #fbfcfa;
+    background: var(--surface-raised);
 }
 
 .cs108-comment-avatar {
